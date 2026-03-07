@@ -25,14 +25,11 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
   return (
     <aside className="fixed left-0 top-0 h-screen w-72 bg-white border-r border-slate-100 flex flex-col p-8 z-50">
       <div className="flex items-center space-x-3 mb-12 px-2">
-        <div className="w-10 h-10 bg-slate-900 rounded-2xl flex items-center justify-center text-white font-black italic">
-          C
-        </div>
+        <div className="w-10 h-10 bg-slate-900 rounded-2xl flex items-center justify-center text-white font-black italic">C</div>
         <h1 className="text-xl font-black uppercase italic tracking-tighter text-slate-900">
           CaniClub <span className="text-emerald-500 text-sm">v2</span>
         </h1>
       </div>
-
       <nav className="flex-1 space-y-2">
         {menuItems.map((item) => (
           <button
@@ -49,17 +46,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
           </button>
         ))}
       </nav>
-
-      <div className="pt-8 border-t border-slate-50 space-y-2">
-        <button className="w-full flex items-center space-x-4 px-6 py-4 rounded-2xl font-bold uppercase text-[10px] tracking-widest text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-all">
-          <Settings size={20} />
-          <span>Paramètres</span>
-        </button>
-        <button className="w-full flex items-center space-x-4 px-6 py-4 rounded-2xl font-bold uppercase text-[10px] tracking-widest text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-all">
-          <LogOut size={20} />
-          <span>Déconnexion</span>
-        </button>
-      </div>
     </aside>
   );
 };
