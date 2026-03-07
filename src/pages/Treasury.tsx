@@ -1,136 +1,171 @@
 import React, { useState } from 'react';
-import { useStore, Transaction } from '../store/useStore';
+import { useStore } from '../store/useStore';
 import { 
   PlusCircle, ArrowUpRight, ArrowDownRight, 
-  FileText, Download, PieChart, Landmark 
+  FileText, Download, Landmark, Paperclip, 
+  AlertCircle, History, CheckCircle2 
 } from 'lucide-react';
+import AddTransactionModal from '../components/AddTransactionModal';
 
 const Treasury: React.FC = () => {
-  const { transactions } = useStore();
+  const { transactions, members } = useStore();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // --- LOGIQUE COMPTABLE GÉNÉRALE ---
+  const totalCredit = transactions
+    .filter(t => t.type === 'Crédit')
+    .reduce((acc, t) => acc + t.amount, 0);
+    
+  const totalDebit = transactions
+    .filter(t => t.type === 'Débit')
+    .reduce((acc, t) => acc + t.amount, 0);
+    
+  const soldeActuel = totalCredit - totalDebit;
+
+  // --- LOGIQUE SPÉCIFIQUE ACMA (RECONCILIATION) ---
   
-  // Calculs comptables
-  const totalCredit = transactions.filter(t => t.type === 'Crédit').reduce((acc, t) => acc + t.amount, 0);
-  const totalDebit = transactions.filter(t => t.type === 'Débit').reduce((acc, t) => acc + t.amount, 0);
-  const soldeCalculé = totalCredit - totalDebit;
+  // 1. Dette totale théorique (15€ par membre + 15€ fixe club)
+  const totalTheoriqueACMA = (members.length * 15) + 15;
+
+  // 2. Somme de tous les paiements déjà effectués à l'ACMA (enregistrés en catégorie ACMA / Débit)
+  const totalDejaPayeACMA = transactions
+    .filter(t => t.category === 'ACMA' && t.type === 'Débit')
+    .reduce((acc, t) => acc + t.amount, 0);
+
+  // 3. Dette réelle en cours (Ce qu'il reste à payer)
+  const detteRestanteACMA = totalTheoriqueACMA - totalDejaPayeACMA;
 
   return (
     <div className="space-y-8">
-      {/* HEADER COMPTABLE */}
-      <div className="flex justify-between items-end">
+      <AddTransactionModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+
+      {/* HEADER */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h2 className="text-3xl font-black uppercase italic tracking-tighter text-slate-800 mb-2">Comptabilité</h2>
-          <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Exercice 2026 • Journal de Trésorerie</p>
+          <h2 className="text-4xl font-black uppercase italic tracking-tighter text-slate-800 mb-2">Comptabilité</h2>
+          <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Journal de Trésorerie • Exercice {new Date().getFullYear()}</p>
         </div>
-        <div className="flex space-x-3">
+        <div className="flex items-center space-x-3">
           <button className="flex items-center space-x-2 px-6 py-4 bg-white border border-slate-100 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all">
             <Download size={16} />
-            <span>Export Excel</span>
+            <span>Export .CSV</span>
           </button>
-          <button className="flex items-center space-x-2 px-6 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-emerald-500 transition-all">
-            <PlusCircle size={16} />
+          <button onClick={() => setIsModalOpen(true)} className="flex items-center space-x-2 px-6 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-emerald-500 transition-all">
+            <PlusCircle size={18} />
             <span>Nouvelle Écriture</span>
           </button>
         </div>
       </div>
 
-      {/* BILAN RAPIDE (LOOK BANQUE) */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-slate-900 p-8 rounded-[2.5rem] text-white col-span-1 md:col-span-2 shadow-2xl relative overflow-hidden">
-          <Landmark className="absolute right-[-10px] bottom-[-10px] text-white/5" size={150} />
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50 mb-4">Solde de Trésorerie</p>
-          <p className="text-5xl font-black italic tracking-tighter mb-2">{soldeCalculé.toLocaleString()}€</p>
-          <div className="flex items-center text-emerald-400 text-[10px] font-bold uppercase tracking-widest">
-            <ArrowUpRight size={14} className="mr-1" /> Compte à jour
+      {/* RÉSUMÉ FINANCIER */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-slate-900 p-8 rounded-[3rem] text-white shadow-2xl relative overflow-hidden">
+          <Landmark className="absolute right-[-20px] bottom-[-20px] text-white/5" size={180} />
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50 mb-4">Solde en Banque</p>
+          <p className="text-5xl font-black italic tracking-tighter mb-4">{soldeActuel.toLocaleString()}€</p>
+          <div className="inline-flex items-center px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-lg text-[9px] font-black uppercase tracking-widest">
+            <CheckCircle2 size={12} className="mr-1" /> Compte à jour
           </div>
         </div>
-        
-        <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Total Recettes</p>
-          <p className="text-3xl font-black text-emerald-500 italic tracking-tighter">+{totalCredit}€</p>
+
+        <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col justify-between">
+          <div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Recettes</p>
+            <p className="text-3xl font-black text-emerald-500 italic tracking-tighter">+{totalCredit.toLocaleString()}€</p>
+          </div>
+          <div className="text-[9px] font-bold text-slate-300 uppercase mt-4">Somme des entrées</div>
         </div>
 
-        <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Total Dépenses</p>
-          <p className="text-3xl font-black text-rose-500 italic tracking-tighter">-{totalDebit}€</p>
+        <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col justify-between">
+          <div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Dépenses</p>
+            <p className="text-3xl font-black text-rose-500 italic tracking-tighter">-{totalDebit.toLocaleString()}€</p>
+          </div>
+          <div className="text-[9px] font-bold text-slate-300 uppercase mt-4">Somme des sorties</div>
         </div>
       </div>
 
-      {/* JOURNAL DES OPÉRATIONS (STYLE TABLEAU COMPTABLE) */}
-      <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden">
-        <div className="p-8 border-b border-slate-50 flex justify-between items-center">
-            <h3 className="font-black uppercase italic tracking-tighter text-slate-800">Grand Livre des Écritures</h3>
-            <div className="flex space-x-2">
-                <span className="px-4 py-2 bg-slate-50 rounded-xl text-[9px] font-black uppercase text-slate-400">Toutes les sections</span>
-            </div>
-        </div>
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-slate-50/50">
-              <th className="px-8 py-5 text-[9px] font-black uppercase tracking-widest text-slate-400">Date</th>
-              <th className="px-8 py-5 text-[9px] font-black uppercase tracking-widest text-slate-400">Libellé de l'opération</th>
-              <th className="px-8 py-5 text-[9px] font-black uppercase tracking-widest text-slate-400">Catégorie</th>
-              <th className="px-8 py-5 text-[9px] font-black uppercase tracking-widest text-slate-400 text-right">Débit</th>
-              <th className="px-8 py-5 text-[9px] font-black uppercase tracking-widest text-slate-400 text-right">Crédit</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-50">
-            {transactions.map((t) => (
-              <tr key={t.id} className="hover:bg-slate-50/30 transition-colors group">
-                <td className="px-8 py-6 text-xs font-bold text-slate-400">{t.date}</td>
-                <td className="px-8 py-6">
-                  <p className="font-black text-slate-800 uppercase italic tracking-tight text-sm">{t.label}</p>
-                </td>
-                <td className="px-8 py-6">
-                  <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${
-                    t.category === 'ACMA' ? 'bg-amber-50 text-amber-600' : 'bg-slate-100 text-slate-500'
-                  }`}>
-                    {t.category}
-                  </span>
-                </td>
-                <td className="px-8 py-6 text-right font-black text-rose-500 italic">
-                  {t.type === 'Débit' ? `-${t.amount}€` : '-'}
-                </td>
-                <td className="px-8 py-6 text-right font-black text-emerald-500 italic">
-                  {t.type === 'Crédit' ? `+${t.amount}€` : '-'}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* ANALYSE DES CHARGES ACMA */}
-      <div className="bg-amber-50 rounded-[3rem] p-10 border border-amber-100">
-        <div className="flex items-center space-x-4 mb-6">
-            <div className="p-3 bg-amber-200 rounded-2xl text-amber-700">
-                <FileText size={24} />
+      {/* --- BLOC DETTE ACMA DYNAMIQUE --- */}
+      <div className={`rounded-[3rem] p-10 border transition-all ${
+        detteRestanteACMA > 0 ? 'bg-amber-50 border-amber-100' : 'bg-emerald-50 border-emerald-100'
+      }`}>
+        <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+          <div className="flex items-center space-x-6">
+            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-sm ${
+              detteRestanteACMA > 0 ? 'bg-white text-amber-500' : 'bg-emerald-500 text-white'
+            }`}>
+              {detteRestanteACMA > 0 ? <AlertCircle size={32} /> : <CheckCircle2 size={32} />}
             </div>
             <div>
-                <h4 className="font-black uppercase italic tracking-tighter text-amber-900">Suivi des Obligations ACMA</h4>
-                <p className="text-[10px] font-bold text-amber-600 uppercase tracking-widest">Estimation des reversements en cours</p>
+              <h4 className={`text-xl font-black uppercase italic tracking-tighter ${
+                detteRestanteACMA > 0 ? 'text-amber-900' : 'text-emerald-900'
+              }`}>
+                Dette ACMA en cours
+              </h4>
+              <p className="text-[10px] font-bold uppercase tracking-widest opacity-60">
+                Total dû : {totalTheoriqueACMA}€ | Déjà réglé : {totalDejaPayeACMA}€
+              </p>
             </div>
+          </div>
+          
+          <div className="text-center md:text-right">
+            <p className="text-[9px] font-black uppercase opacity-60 mb-1">Reste à payer</p>
+            <p className={`text-4xl font-black italic tracking-tighter ${
+              detteRestanteACMA > 0 ? 'text-amber-900' : 'text-emerald-500'
+            }`}>
+              {detteRestanteACMA <= 0 ? 'À JOUR' : `${detteRestanteACMA}€`}
+            </p>
+          </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-white/50 p-6 rounded-2xl space-y-3">
-                <div className="flex justify-between items-center">
-                    <span className="text-xs font-bold text-amber-800">Part Collectée (15€/Adh)</span>
-                    <span className="font-black text-amber-900">450€</span>
-                </div>
-                <div className="flex justify-between items-center">
-                    <span className="text-xs font-bold text-amber-800">Cotisation Club Fixe</span>
-                    <span className="font-black text-amber-900">15€</span>
-                </div>
-                <div className="pt-3 border-t border-amber-200 flex justify-between items-center">
-                    <span className="text-xs font-black uppercase text-amber-900">Total à reverser</span>
-                    <span className="text-xl font-black text-amber-900">465€</span>
-                </div>
-            </div>
-            <div className="flex flex-col justify-center">
-                <p className="text-xs text-amber-700 italic leading-relaxed">
-                    "Note comptable : Le reversement à l'ACMA doit être effectué mensuellement. 
-                    Le montant est calculé sur la base des nouveaux membres validés dans le registre."
-                </p>
-            </div>
+      </div>
+
+      {/* JOURNAL DES OPÉRATIONS */}
+      <div className="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden">
+        <div className="px-10 py-8 border-b border-slate-50 bg-slate-50/30 flex items-center space-x-3">
+          <History size={20} className="text-slate-400" />
+          <h3 className="font-black uppercase italic tracking-tighter text-slate-800">Grand Livre des Écritures</h3>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50/50">
+                <th className="px-10 py-5 text-[9px] font-black uppercase tracking-widest text-slate-400">Date</th>
+                <th className="px-10 py-5 text-[9px] font-black uppercase tracking-widest text-slate-400">Libellé</th>
+                <th className="px-10 py-5 text-[9px] font-black uppercase tracking-widest text-slate-400">Catégorie</th>
+                <th className="px-10 py-5 text-[9px] font-black uppercase tracking-widest text-slate-400 text-right">Montant</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {transactions.map((t) => (
+                <tr key={t.id} className="hover:bg-slate-50/50 transition-colors group">
+                  <td className="px-10 py-6 text-xs font-bold text-slate-400">{t.date}</td>
+                  <td className="px-10 py-6">
+                    <div className="flex items-center space-x-3">
+                      <p className="font-black text-slate-800 uppercase italic tracking-tight">{t.label}</p>
+                      {t.receipt ? (
+                        <Paperclip size={14} className="text-emerald-500" />
+                      ) : (
+                        <AlertCircle size={14} className="text-rose-300" />
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-10 py-6">
+                    <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${
+                      t.category === 'ACMA' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-500'
+                    }`}>
+                      {t.category}
+                    </span>
+                  </td>
+                  <td className={`px-10 py-6 text-right font-black italic text-lg ${
+                    t.type === 'Crédit' ? 'text-emerald-500' : 'text-rose-500'
+                  }`}>
+                    {t.type === 'Crédit' ? `+${t.amount}` : `-${t.amount}`}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
