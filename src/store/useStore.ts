@@ -4,10 +4,21 @@ export interface Transaction {
   id: string;
   date: string;
   label: string;
-  category: 'Adhésion' | 'Boutique' | 'Matériel' | 'Frais Fixes' | 'ACMA' | 'Autre';
+  // Liste exhaustive des postes de dépenses/recettes
+  category: 
+    | 'ACMA' 
+    | 'Bricolage & Entretien' 
+    | 'Électricité' 
+    | 'Eau' 
+    | 'Assurances' 
+    | 'Achats Boutique' 
+    | 'Matériel Sportif' 
+    | 'Adhésion' 
+    | 'Événementiel'
+    | 'Autre';
   type: 'Crédit' | 'Débit';
   amount: number;
-  receipt?: string; // <-- Nouveau : Nom du fichier justificatif
+  receipt?: string;
 }
 
 interface ClubState {
