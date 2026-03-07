@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 
+// On définit les types directement ici pour éviter de chercher des fichiers externes
 export interface Transaction {
   id: string;
   date: string;
@@ -22,16 +23,14 @@ interface ClubState {
 
 export const useStore = create<ClubState>((set) => ({
   members: [
-    { id: 'm1', name: 'Dupont', firstName: 'Jean', email: 'jean@mail.com', phone: '0601020304', membershipType: 'Adulte', status: 'Actif', lastPayment: '2025-01-10' }
+    { id: 'm1', name: 'Dupont', firstName: 'Jean', email: 'jean@mail.com', phone: '0601020304', membershipType: 'Adulte', status: 'Actif' }
   ],
   dogs: [
-    { id: 'd1', name: 'Olympe', breed: 'Malinois', memberId: 'm1', section: 'Ring', level: 'Niveau 3', vaccines: ['Rage'], microchip: '25026...' }
+    { id: 'd1', name: 'Olympe', breed: 'Malinois', memberId: 'm1', section: 'Ring', level: 'Niveau 3' }
   ],
-  products: [
-    { id: 'p1', name: 'Croquettes Pro Plan 15kg', brand: 'Purina', price: 65, stock: 12, minStock: 5, category: 'Alimentation', image: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=800' }
-  ],
+  products: [],
   transactions: [
-    { id: 't1', date: '2026-03-01', label: 'Adhésion Jean Dupont', category: 'Adhésion', type: 'Crédit', amount: 60 }
+    { id: 't1', date: '2026-03-01', label: 'Adhésion Test', category: 'Adhésion', type: 'Crédit', amount: 60 }
   ],
   addMember: (member) => set((state) => ({ members: [...state.members, member] })),
   addDog: (dog) => set((state) => ({ dogs: [...state.dogs, dog] })),
