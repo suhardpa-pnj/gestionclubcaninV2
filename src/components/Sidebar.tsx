@@ -1,51 +1,46 @@
 import React from 'react';
 import { 
-  LayoutDashboard, Users, Dog, ShoppingBag, 
-  Calendar, Settings, LogOut, GraduationCap, 
+  LayoutDashboard, Users, Dog, ShoppingCart, 
+  CalendarDays, Settings, LogOut, GraduationCap, 
   Landmark, CreditCard 
 } from 'lucide-react';
 
-// On définit les propriétés que notre Sidebar va recevoir
 interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
-  
-  // Liste des menus (plus facile à gérer ici)
   const menuItems = [
     { id: 'dashboard', label: 'Tableau de bord', icon: <LayoutDashboard size={20} /> },
     { id: 'membres', label: 'Adhérents', icon: <Users size={20} /> },
-    { id: 'meute', label: 'Meute du Club', icon: <Dog size={20} /> },
+    { id: 'cotisations', label: 'Cotisations', icon: <CreditCard size={20} /> },
     { id: 'sections', label: 'Espaces Sections', icon: <GraduationCap size={20} /> },
+    { id: 'meute', label: 'La Meute', icon: <Dog size={20} /> },
     { id: 'boutique', label: 'Boutique', icon: <ShoppingCart size={20} /> },
     { id: 'evenements', label: 'Événements', icon: <CalendarDays size={20} /> },
     { id: 'finances', label: 'Trésorerie', icon: <Landmark size={20} /> },
-    { id: 'cotisations', label: 'Cotisations', icon: <CreditCard size={20} /> },
   ];
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-100 p-8 flex flex-col shadow-sm">
-      {/* LOGO / NOM DU CLUB */}
-      <div className="mb-12 flex items-center space-x-3">
-        <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-200">
-          <Dog className="text-white" size={24} />
+    <aside className="fixed left-0 top-0 h-screen w-72 bg-white border-r border-slate-100 flex flex-col p-8 z-50">
+      <div className="flex items-center space-x-3 mb-12 px-2">
+        <div className="w-10 h-10 bg-slate-900 rounded-2xl flex items-center justify-center text-white font-black italic">
+          C
         </div>
-        <h1 className="text-xl font-black text-slate-800 italic tracking-tighter uppercase">
-          Cani<span className="text-emerald-500">Club</span>
+        <h1 className="text-xl font-black uppercase italic tracking-tighter text-slate-900">
+          CaniClub <span className="text-emerald-500 text-sm">v2</span>
         </h1>
       </div>
 
-      {/* NAVIGATION PRINCIPALE */}
       <nav className="flex-1 space-y-2">
         {menuItems.map((item) => (
           <button
             key={item.id}
             onClick={() => setActiveTab(item.id)}
-            className={`w-full flex items-center space-x-4 px-5 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all ${
+            className={`w-full flex items-center space-x-4 px-6 py-4 rounded-2xl font-bold uppercase text-[10px] tracking-widest transition-all ${
               activeTab === item.id
-                ? 'bg-slate-900 text-white shadow-xl translate-x-2'
+                ? 'bg-slate-900 text-white shadow-xl shadow-slate-200 translate-x-2'
                 : 'text-slate-400 hover:bg-slate-50 hover:text-slate-600'
             }`}
           >
@@ -55,11 +50,14 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
         ))}
       </nav>
 
-      {/* BAS DE SIDEBAR (Optionnel : Déconnexion) */}
-      <div className="pt-8 border-t border-slate-50">
-        <button className="w-full flex items-center space-x-4 px-5 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest text-rose-400 hover:bg-rose-50 transition-all">
+      <div className="pt-8 border-t border-slate-50 space-y-2">
+        <button className="w-full flex items-center space-x-4 px-6 py-4 rounded-2xl font-bold uppercase text-[10px] tracking-widest text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-all">
+          <Settings size={20} />
+          <span>Paramètres</span>
+        </button>
+        <button className="w-full flex items-center space-x-4 px-6 py-4 rounded-2xl font-bold uppercase text-[10px] tracking-widest text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-all">
           <LogOut size={20} />
-          <span>Quitter</span>
+          <span>Déconnexion</span>
         </button>
       </div>
     </aside>
