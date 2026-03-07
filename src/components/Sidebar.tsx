@@ -1,11 +1,8 @@
 import React from 'react';
 import { 
-  LayoutDashboard, 
-  Users, 
-  Dog, 
-  ShoppingCart, 
-  CalendarDays,
-  LogOut
+  LayoutDashboard, Users, Dog, ShoppingBag, 
+  Calendar, Settings, LogOut, GraduationCap, 
+  Landmark, CreditCard 
 } from 'lucide-react';
 
 // On définit les propriétés que notre Sidebar va recevoir
