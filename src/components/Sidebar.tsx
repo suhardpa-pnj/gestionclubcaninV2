@@ -24,6 +24,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
     { id: 'boutique', label: 'Boutique', icon: <ShoppingCart size={20} /> },
     { id: 'evenements', label: 'Événements', icon: <CalendarDays size={20} /> },
     { id: 'finances', label: 'Trésorerie', icon: <Landmark size={20} /> },
+    { id: 'cotisations', label: 'Cotisations', icon: <CreditCard size={20} /> },
   ];
 
   return (
