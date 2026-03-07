@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import Members from './pages/Members';
 import Memberships from './pages/Memberships';
 import Dogs from './pages/Dogs';
+import SectionDetail from './pages/SectionDetail';
 import Boutique from './pages/Boutique';
 import Treasury from './pages/Treasury';
 import Events from './pages/Events'; // <-- Ajouté !
@@ -32,6 +33,7 @@ function App() {
             {activeTab === 'membres' && <Members />}
             {activeTab === 'cotisations' && <Memberships />}
             {activeTab === 'meute' && <Dogs />}
+            {activeTab === 'sections' && <SectionDetail />}
             {activeTab === 'boutique' && <Boutique />}
             {activeTab === 'finances' && <Treasury />}
             {activeTab === 'evenements' && <Events />}
