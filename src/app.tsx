@@ -3,12 +3,13 @@ import Sidebar from './components/Sidebar';
 import { useStore } from './store/useStore';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// --- NOUVELLE IMPORTATION ---
+// --- IMPORTATIONS DES PAGES ---
 import Dashboard from './pages/Dashboard';
+import Members from './pages/Members'; // <-- On ajoute cette ligne
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const { members, dogs } = useStore();
+  const { dogs } = useStore();
 
   return (
     <div className="flex min-h-screen bg-slate-50 font-sans text-slate-900">
@@ -24,18 +25,11 @@ function App() {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
           >
-            {/* --- AFFICHAGE DU VRAI DASHBOARD --- */}
+            {/* AFFICHAGE DU DASHBOARD */}
             {activeTab === 'dashboard' && <Dashboard />}
 
-            {activeTab === 'membres' && (
-              <div>
-                <h2 className="text-3xl font-black uppercase italic tracking-tighter mb-2">Adhérents</h2>
-                <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Gestion des {members.length} membres</p>
-                <div className="mt-8 p-12 border-2 border-dashed border-slate-200 rounded-[3rem] text-center">
-                  <p className="text-slate-400 font-bold italic">La liste des membres sera codée à la prochaine étape.</p>
-                </div>
-              </div>
-            )}
+            {/* --- AFFICHAGE DE LA VRAIE PAGE ADHÉRENTS --- */}
+            {activeTab === 'membres' && <Members />}
 
             {activeTab === 'meute' && (
               <div>
