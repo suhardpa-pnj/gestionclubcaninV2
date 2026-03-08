@@ -29,7 +29,6 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-10">
           Accès Bureau & Administration
         </p>
-        
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="relative">
             <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
