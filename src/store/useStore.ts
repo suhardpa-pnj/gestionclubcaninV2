@@ -48,18 +48,23 @@ export const useStore = create<ClubState>((set) => ({
 
   importFullUpdate: async (data) => {
     const batch = writeBatch(db);
-    // Mise à jour des membres (avec docs et activités)
+    // On met à jour les membres avec les infos de docs
     data.members.forEach((m) => {
       const mRef = doc(db, "members", m.id);
-      batch.set(mRef, { ...m, status: 'Actif' }, { merge: true });
+      batch.set(mRef, {
+        docVaccin: m.docVaccin || "non",
+        docAssurance: m.docAssurance || "non",
+        docProtocole: m.docProtocole || "non",
+        docACMA: m.docACMA || "non"
+      }, { merge: true });
     });
-    // Ajout des transactions financières trouvées
+    // On ajoute les transactions de cotisations
     data.transactions.forEach((t) => {
       const tRef = doc(collection(db, "transactions"));
       batch.set(tRef, t);
     });
     await batch.commit();
-    alert("✅ Base de données enrichie (Finances + Docs) !");
+    alert("✅ Données Secrétariat et Finances synchronisées !");
     window.location.reload();
   }
 }));
