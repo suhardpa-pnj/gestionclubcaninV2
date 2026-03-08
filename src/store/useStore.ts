@@ -9,14 +9,14 @@ export interface Transaction {
   category: string;
   type: 'Crédit' | 'Débit';
   amount: number;
-  receipt?: string; // Ajouté pour corriger l'erreur
+  receipt?: string;
 }
 
 interface ClubState {
   members: any[];
   dogs: any[];
   transactions: Transaction[];
-  products: any[]; // Ajouté pour corriger l'erreur Boutique
+  products: any[];
   isLoading: boolean;
   fetchData: () => Promise<void>;
   addMember: (member: any) => Promise<void>;
@@ -28,7 +28,7 @@ export const useStore = create<ClubState>((set) => ({
   members: [],
   dogs: [],
   transactions: [],
-  products: [], // Initialisé vide
+  products: [],
   isLoading: true,
 
   fetchData: async () => {
@@ -44,7 +44,7 @@ export const useStore = create<ClubState>((set) => ({
         isLoading: false
       });
     } catch (e) {
-      console.error("Erreur chargement:", e);
+      console.error("Erreur Firebase:", e);
       set({ isLoading: false });
     }
   },
