@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
-import Secretariat from './pages/Secretariat'; // Importé
+import Secretariat from './pages/Secretariat';
 import Members from './pages/Members';
 import Dogs from './pages/Dogs';
 import Treasury from './pages/Treasury';
@@ -16,22 +16,35 @@ function App() {
   const [userRole, setUserRole] = useState<string | null>(null);
   const { fetchData, isLoading, darkMode } = useStore();
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   if (!userRole) return <Login onLogin={(role) => setUserRole(role)} />;
-  if (isLoading) return <div className={`h-screen flex items-center justify-center font-black uppercase italic ${darkMode ? 'bg-slate-950 text-emerald-500' : 'bg-slate-50 text-slate-400'}`}>Synchronisation ACV...</div>;
+  
+  if (isLoading) return (
+    <div className={`h-screen flex items-center justify-center font-black uppercase italic ${darkMode ? 'bg-slate-950 text-emerald-500' : 'bg-slate-50 text-slate-400'}`}>
+      Synchronisation ACV...
+    </div>
+  );
 
   return (
     <div className={`flex min-h-screen transition-colors ${darkMode ? 'bg-slate-950' : 'bg-slate-50'}`}>
       <Sidebar activeTab={activeTab} setActiveTab={(tab) => { setActiveTab(tab); setSelectedSection(null); }} />
+      
       <main className="flex-1 ml-72 p-12">
         {activeTab === 'dashboard' && <Dashboard />}
         {activeTab === 'membres' && <Members />}
         {activeTab === 'leschiens' && <Dogs />}
-        {activeTab === 'secretariat' && <Secretariat />}
+        {activeTab === 'secretariat' && <Secretariat />} {/* C'est cette ligne qui affiche la page */}
         {activeTab === 'finances' && <Treasury />}
+        
         {activeTab === 'sections' && (
-          selectedSection ? <SectionDetail sectionId={selectedSection} onBack={() => setSelectedSection(null)} /> : <Sections onSelectSection={setSelectedSection} />
+          selectedSection ? (
+            <SectionDetail sectionId={selectedSection} onBack={() => setSelectedSection(null)} />
+          ) : (
+            <Sections onSelectSection={setSelectedSection} />
+          )
         )}
       </main>
     </div>
