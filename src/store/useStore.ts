@@ -1,83 +1,65 @@
 import { create } from 'zustand';
 import { db } from '../firebase/config';
-import { collection, addDoc, getDocs, query, orderBy, writeBatch, doc } from 'firebase/firestore';
-
-export interface Transaction {
-  id?: string;
-  date: string;
-  label: string;
-  category: string;
-  type: 'Crédit' | 'Débit';
-  amount: number;
-  memberId?: string;
-  receipt?: string; // Ajouté pour corriger l'erreur de build
-}
+import { collection, addDoc, getDocs, query, orderBy, writeBatch, doc, updateDoc } from 'firebase/firestore';
 
 interface ClubState {
-  members: any[];
-  dogs: any[];
-  transactions: Transaction[];
-  products: any[];
-  isLoading: boolean;
-  darkMode: boolean;
+  members: any[]; dogs: any[]; transactions: any[]; products: any[];
+  isLoading: boolean; darkMode: boolean;
   toggleDarkMode: () => void;
   fetchData: () => Promise<void>;
-  addMember: (member: any) => Promise<void>;
-  addTransaction: (t: Transaction) => Promise<void>;
-  importFullUpdate: (data: { members: any[], transactions: any[] }) => Promise<void>;
+  addMember: (m: any) => Promise<void>;
+  addDog: (d: any) => Promise<void>;
+  updateDocStatus: (mId: string, docType: string, status: string) => Promise<void>;
+  sellProduct: (pId: string, qty: number, price: number) => Promise<void>;
 }
 
-export const useStore = create<ClubState>((set) => ({
-  members: [],
-  dogs: [],
-  transactions: [],
-  products: [],
-  isLoading: true,
-  darkMode: false,
+export const useStore = create<ClubState>((set, get) => ({
+  members: [], dogs: [], transactions: [], products: [],
+  isLoading: true, darkMode: false,
 
   toggleDarkMode: () => set((state) => ({ darkMode: !state.darkMode })),
 
   fetchData: async () => {
-    try {
-      const mSnap = await getDocs(collection(db, "members"));
-      const dSnap = await getDocs(collection(db, "dogs"));
-      const tSnap = await getDocs(query(collection(db, "transactions"), orderBy("date", "desc")));
-      set({
-        members: mSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })),
-        dogs: dSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })),
-        transactions: tSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Transaction[],
-        isLoading: false
-      });
-    } catch (e) { set({ isLoading: false }); }
-  },
-
-  addMember: async (member) => {
-    const docRef = await addDoc(collection(db, "members"), member);
-    set((state) => ({ members: [...state.members, { ...member, id: docRef.id }] }));
-  },
-
-  addTransaction: async (t) => {
-    const docRef = await addDoc(collection(db, "transactions"), t);
-    set((state) => ({ transactions: [{ ...t, id: docRef.id }, ...state.transactions] }));
-  },
-
-  importFullUpdate: async (data) => {
-    const batch = writeBatch(db);
-    data.members.forEach((m) => {
-      const mRef = doc(db, "members", m.id);
-      batch.set(mRef, {
-        docVaccin: m.docVaccin || "non",
-        docAssurance: m.docAssurance || "non",
-        docProtocole: m.docProtocole || "non",
-        docACMA: m.docACMA || "non"
-      }, { merge: true });
+    const mSnap = await getDocs(collection(db, "members"));
+    const dSnap = await getDocs(collection(db, "dogs"));
+    const tSnap = await getDocs(query(collection(db, "transactions"), orderBy("date", "desc")));
+    const pSnap = await getDocs(collection(db, "products"));
+    set({
+      members: mSnap.docs.map(d => ({ id: d.id, ...d.data() })),
+      dogs: dSnap.docs.map(d => ({ id: d.id, ...d.data() })),
+      transactions: tSnap.docs.map(d => ({ id: d.id, ...d.data() })),
+      products: pSnap.docs.map(d => ({ id: d.id, ...d.data() })),
+      isLoading: false
     });
-    data.transactions.forEach((t) => {
-      const tRef = doc(collection(db, "transactions"));
-      batch.set(tRef, t);
+  },
+
+  addMember: async (m) => {
+    const res = await addDoc(collection(db, "members"), m);
+    set({ members: [...get().members, { ...m, id: res.id }] });
+  },
+
+  addDog: async (d) => {
+    await addDoc(collection(db, "dogs"), d);
+    get().fetchData();
+  },
+
+  updateDocStatus: async (mId, docType, status) => {
+    const mRef = doc(db, "members", mId);
+    await updateDoc(mRef, { [docType]: status });
+    get().fetchData();
+  },
+
+  sellProduct: async (pId, qty, price) => {
+    const pRef = doc(db, "products", pId);
+    const product = get().products.find(p => p.id === pId);
+    await updateDoc(pRef, { stock: product.stock - qty });
+    await addDoc(collection(db, "transactions"), {
+      date: new Date().toISOString().split('T')[0],
+      label: `Vente ${product.name}`,
+      amount: price,
+      type: 'Crédit',
+      category: 'Boutique'
     });
-    await batch.commit();
-    alert("✅ Données synchronisées !");
-    window.location.reload();
+    get().fetchData();
   }
 }));
