@@ -3,14 +3,13 @@ import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Sections from './pages/Sections';
 import SectionDetail from './pages/SectionDetail';
+import Members from './pages/Members'; // Import réel
+import Dogs from './pages/Dogs';       // Import réel
 import Login from './components/Login';
 import { useStore } from './store/useStore';
 
-// Placeholders pour les pages en cours
-const MembersPlaceholder = () => <div className="p-12 bg-white rounded-[40px] border border-slate-100 text-center text-slate-400 uppercase font-black italic">Page Membres en cours de design...</div>;
-const DogsPlaceholder = () => <div className="p-12 bg-white rounded-[40px] border border-slate-100 text-center text-slate-400 uppercase font-black italic">Page Les Chiens en cours de design...</div>;
-const TreasuryPlaceholder = () => <div className="p-12 bg-white rounded-[40px] border border-slate-100 text-center text-slate-400 uppercase font-black italic">Page Trésorerie en cours de design...</div>;
-const EventsPlaceholder = () => <div className="p-12 bg-white rounded-[40px] border border-slate-100 text-center text-slate-400 uppercase font-black italic">Page Événements en cours de design...</div>;
+const TreasuryPlaceholder = () => <div className="p-12 bg-white rounded-[40px] border border-slate-100 text-center text-slate-400 uppercase font-black italic">Page Trésorerie en cours...</div>;
+const EventsPlaceholder = () => <div className="p-12 bg-white rounded-[40px] border border-slate-100 text-center text-slate-400 uppercase font-black italic">Page Événements en cours...</div>;
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -31,7 +30,7 @@ function App() {
         activeTab={activeTab} 
         setActiveTab={(tab) => {
           setActiveTab(tab);
-          setSelectedSection(null); // On réinitialise la section quand on change d'onglet
+          setSelectedSection(null);
         }} 
       />
       
@@ -46,8 +45,8 @@ function App() {
           )
         )}
 
-        {activeTab === 'membres' && <MembersPlaceholder />}
-        {activeTab === 'leschiens' && <DogsPlaceholder />}
+        {activeTab === 'membres' && <Members />}
+        {activeTab === 'leschiens' && <Dogs />}
         {activeTab === 'finances' && <TreasuryPlaceholder />}
         {activeTab === 'evenements' && <EventsPlaceholder />}
       </main>
