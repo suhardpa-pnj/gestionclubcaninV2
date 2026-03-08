@@ -1,78 +1,81 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useStore } from '../store/useStore';
-import { Search, UserPlus, Mail, Phone, MoreVertical, ShieldCheck } from 'lucide-react';
-import AddMemberModal from '../components/AddMemberModal'; // On importe le formulaire
+import { User, Phone, Mail, MapPin } from 'lucide-react';
 
-const Members: React.FC = () => {
-  const { members } = useStore();
-  const [searchTerm, setSearchTerm] = useState('');
-  
-  // État pour ouvrir la modale
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const filteredMembers = members.filter(m => 
-    m.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    m.firstName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+const Members = () => {
+  const { members, dogs } = useStore();
 
   return (
     <div className="space-y-8">
-      {/* APPEL DE LA MODALE */}
-      <AddMemberModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
-          <h2 className="text-3xl font-black uppercase italic tracking-tighter text-slate-800 mb-2">Adhérents</h2>
-          <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Annuaire du club</p>
-        </div>
-
-        <div className="flex items-center space-x-4">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-            <input 
-              type="text"
-              placeholder="Chercher un nom..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-12 pr-6 py-4 bg-white border border-slate-100 rounded-2xl text-sm font-bold shadow-sm outline-none w-64"
-            />
-          </div>
-          
-          {/* BOUTON QUI OUVRE LE FORMULAIRE */}
-          <button 
-            onClick={() => setIsModalOpen(true)}
-            className="bg-slate-900 text-white px-6 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl hover:bg-emerald-500 transition-all flex items-center space-x-3"
-          >
-            <UserPlus size={18} />
-            <span>Nouveau Membre</span>
-          </button>
-        </div>
+      <div>
+        <h2 className="text-4xl font-black uppercase italic tracking-tighter text-slate-800">Les Adhérents</h2>
+        <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">
+          {members.length} membres enregistrés pour 2026
+        </p>
       </div>
 
-      {/* LISTE */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        {filteredMembers.map((member) => (
-          <div key={member.id} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex items-center justify-between group">
-            <div className="flex items-center space-x-5">
-              <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 font-black text-xl shadow-inner border border-slate-100 uppercase">
-                {member.firstName[0]}{member.name[0]}
-              </div>
-              <div>
-                <div className="flex items-center space-x-2">
-                  <h4 className="font-black text-slate-800 uppercase italic tracking-tight">{member.firstName} {member.name}</h4>
-                  <ShieldCheck size={14} className="text-emerald-500" />
-                </div>
-                <div className="flex items-center space-x-4 mt-1 text-slate-400">
-                   <span className="text-[10px] font-bold">{member.email}</span>
-                   <span className="text-[10px] font-bold">{member.phone}</span>
-                </div>
-              </div>
-            </div>
-            <span className="px-3 py-1 bg-slate-50 text-slate-500 rounded-lg text-[9px] font-black uppercase tracking-widest">
-              {member.membershipType}
-            </span>
-          </div>
-        ))}
+      <div className="bg-white rounded-[40px] border border-slate-100 overflow-hidden shadow-sm">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="bg-slate-50/50 border-b border-slate-100">
+              <th className="p-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Membre & Binôme</th>
+              <th className="p-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Coordonnées</th>
+              <th className="p-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Localisation</th>
+              <th className="p-6 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Statut</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-50">
+            {members.map((member) => {
+              // On cherche le nom du premier chien lié à ce membre pour l'affichage
+              const firstDog = dogs.find(d => d.ownerId === member.id);
+              return (
+                <tr key={member.id} className="hover:bg-slate-50/50 transition-colors group">
+                  <td className="p-6">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-emerald-100 group-hover:text-emerald-600 transition-colors">
+                        <User size={20} />
+                      </div>
+                      <div>
+                        <p className="font-black text-slate-800 uppercase italic">
+                          {member.name} {member.firstName} 
+                          <span className="text-emerald-500 ml-2">
+                            ({firstDog ? firstDog.name : 'Pas de chien'})
+                          </span>
+                        </p>
+                        {member.binome && (
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">
+                            Binôme : {member.binome}
+                          </p>
+                        )}
+                        <p className="text-[9px] font-bold text-slate-300 uppercase">ID: {member.id}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="p-6">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                        <Phone size={12} className="text-slate-300" /> {member.phone}
+                      </div>
+                      <div className="flex items-center gap-2 text-[10px] text-slate-400 font-medium">
+                        <Mail size={12} className="text-slate-300" /> {member.email}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="p-6">
+                    <div className="flex items-center gap-2 text-[10px] text-slate-500 font-bold uppercase">
+                      <MapPin size={12} className="text-slate-300" /> {member.city} ({member.cp})
+                    </div>
+                  </td>
+                  <td className="p-6 text-right">
+                    <span className="px-3 py-1 bg-emerald-50 text-emerald-600 text-[9px] font-black uppercase rounded-full tracking-widest">
+                      Actif
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </div>
   );
