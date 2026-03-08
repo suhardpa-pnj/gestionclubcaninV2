@@ -1,7 +1,7 @@
 import React from 'react';
 import { 
   LayoutDashboard, Users, Dog, ShoppingCart, 
-  CalendarDays, Settings, LogOut, GraduationCap, 
+  CalendarDays, GraduationCap, 
   Landmark, CreditCard 
 } from 'lucide-react';
 
@@ -13,10 +13,10 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
   const menuItems = [
     { id: 'dashboard', label: 'Tableau de bord', icon: <LayoutDashboard size={20} /> },
-    { id: 'membres', label: 'Adhérents', icon: <Users size={20} /> },
+    { id: 'membres', label: 'Membres', icon: <Users size={20} /> },
     { id: 'cotisations', label: 'Cotisations', icon: <CreditCard size={20} /> },
     { id: 'sections', label: 'Espaces Sections', icon: <GraduationCap size={20} /> },
-    { id: 'meute', label: 'La Meute', icon: <Dog size={20} /> },
+    { id: 'leschiens', label: 'Les Chiens', icon: <Dog size={20} /> }, // Changé ici
     { id: 'boutique', label: 'Boutique', icon: <ShoppingCart size={20} /> },
     { id: 'evenements', label: 'Événements', icon: <CalendarDays size={20} /> },
     { id: 'finances', label: 'Trésorerie', icon: <Landmark size={20} /> },
@@ -24,12 +24,19 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-72 bg-white border-r border-slate-100 flex flex-col p-8 z-50">
-      <div className="flex items-center space-x-3 mb-12 px-2">
-        <div className="w-10 h-10 bg-slate-900 rounded-2xl flex items-center justify-center text-white font-black italic">C</div>
-        <h1 className="text-xl font-black uppercase italic tracking-tighter text-slate-900">
-          CaniClub <span className="text-emerald-500 text-sm">v2</span>
-        </h1>
+      {/* BRANDING MIS À JOUR */}
+      <div className="flex items-center gap-3 mb-12 px-2">
+        <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-200">
+          <Dog className="text-white w-6 h-6" />
+        </div>
+        <div>
+          <h1 className="text-sm font-black italic leading-none tracking-tighter text-slate-800 uppercase">
+            Amicale Canine<br/>Vernoise
+          </h1>
+          <span className="text-[9px] font-bold text-emerald-600 tracking-widest uppercase">Gestion Club</span>
+        </div>
       </div>
+
       <nav className="flex-1 space-y-2">
         {menuItems.map((item) => (
           <button
