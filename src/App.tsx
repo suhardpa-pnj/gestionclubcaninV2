@@ -32,7 +32,7 @@ function App() {
             {activeTab === 'dashboard' && <Dashboard />}
             {activeTab === 'membres' && <Members />}
             {activeTab === 'cotisations' && <Memberships />}
-            {activeTab === 'meute' && <Dogs />}
+            {activeTab === 'leschiens' && <Dogs />}
             {activeTab === 'sections' && <SectionDetail />}
             {activeTab === 'boutique' && <Boutique />}
             {activeTab === 'finances' && <Treasury />}
