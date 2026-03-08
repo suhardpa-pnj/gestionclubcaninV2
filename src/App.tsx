@@ -12,7 +12,7 @@ function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
-  const { fetchData, isLoading } = useStore();
+  const { fetchData, isLoading, darkMode } = useStore();
 
   useEffect(() => {
     fetchData();
@@ -21,13 +21,13 @@ function App() {
   if (!userRole) return <Login onLogin={(role) => setUserRole(role)} />;
   
   if (isLoading) return (
-    <div className="h-screen flex items-center justify-center bg-slate-950 text-emerald-500 font-black uppercase italic animate-pulse">
+    <div className={`h-screen flex items-center justify-center font-black uppercase italic ${darkMode ? 'bg-slate-950 text-emerald-500' : 'bg-slate-50 text-slate-400'}`}>
       Synchronisation ACV...
     </div>
   );
 
   return (
-    <div className="flex bg-slate-950 min-h-screen">
+    <div className={`flex min-h-screen transition-colors ${darkMode ? 'bg-slate-950' : 'bg-slate-50'}`}>
       <Sidebar activeTab={activeTab} setActiveTab={(tab) => { setActiveTab(tab); setSelectedSection(null); }} />
       
       <main className="flex-1 ml-72 p-12">
@@ -43,8 +43,8 @@ function App() {
           )
         )}
         
-        {activeTab === 'finances' && <div className="text-slate-500 font-black uppercase italic">Module Trésorerie en cours...</div>}
-        {activeTab === 'evenements' && <div className="text-slate-500 font-black uppercase italic">Module Événements en cours...</div>}
+        {activeTab === 'finances' && <div className="text-slate-500 font-black uppercase italic">Trésorerie en cours...</div>}
+        {activeTab === 'evenements' && <div className="text-slate-500 font-black uppercase italic">Événements en cours...</div>}
       </main>
     </div>
   );
