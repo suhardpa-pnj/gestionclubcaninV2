@@ -9,12 +9,14 @@ export interface Transaction {
   category: string;
   type: 'Crédit' | 'Débit';
   amount: number;
+  receipt?: string; // Ajouté pour corriger l'erreur
 }
 
 interface ClubState {
   members: any[];
   dogs: any[];
   transactions: Transaction[];
+  products: any[]; // Ajouté pour corriger l'erreur Boutique
   isLoading: boolean;
   fetchData: () => Promise<void>;
   addMember: (member: any) => Promise<void>;
@@ -26,6 +28,7 @@ export const useStore = create<ClubState>((set) => ({
   members: [],
   dogs: [],
   transactions: [],
+  products: [], // Initialisé vide
   isLoading: true,
 
   fetchData: async () => {
@@ -58,25 +61,16 @@ export const useStore = create<ClubState>((set) => ({
 
   importBulkData: async (allData) => {
     const batch = writeBatch(db);
-    
-    // 1. Import des Membres (On utilise l'ACMA comme ID de document)
     allData.members.forEach((m) => {
       const mRef = doc(db, "members", m.id);
-      batch.set(mRef, {
-        ...m,
-        status: 'Actif',
-        joinDate: new Date().toISOString().split('T')[0]
-      });
+      batch.set(mRef, { ...m, status: 'Actif', joinDate: new Date().toISOString().split('T')[0] });
     });
-
-    // 2. Import des Chiens
     allData.dogs.forEach((d) => {
       const dRef = doc(collection(db, "dogs"));
       batch.set(dRef, d);
     });
-
     await batch.commit();
-    alert("✅ Importation réussie ! L'Amicale Canine Vernoise est à jour.");
+    alert("✅ Importation réussie !");
     window.location.reload();
   }
 }));
