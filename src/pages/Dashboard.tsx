@@ -102,4 +102,77 @@ const Dashboard = () => {
         {"name": "VAIKA", "breed": "Spitz Allemand", "chip": "250269591394653.0", "ownerId": "A1649"},
         {"name": "UMI", "breed": "Golden", "chip": "250269610919804", "ownerId": "ACV-2026-012"},
         {"name": "PRUNE", "breed": "Ratier", "chip": "250269590408055", "ownerId": "ACV-2026-013"},
-        {"name": "UTWO", "breed": "Terrier/Jack", "chip": "250269591508183
+        {"name": "UTWO", "breed": "Terrier/Jack", "chip": "250269591508183", "ownerId": "ACV-2026-014"},
+        {"name": "YUKI", "breed": "Malinois", "chip": "250269591549245", "ownerId": "A0374"},
+        {"name": "NAIKI", "breed": "Malinois", "chip": "", "ownerId": "A0374"},
+        {"name": "ARYA", "breed": "Berger Allemand", "chip": "250269592034667", "ownerId": "ACV-2026-015"},
+        {"name": "AERYN", "breed": "Samsky", "chip": "250268781847560", "ownerId": "A0394"},
+        {"name": "AARYAN", "breed": "Staffie+chien de chasse", "chip": "250269591486153", "ownerId": "ACV-2026-016"},
+        {"name": "A'TSUKI", "breed": "Berger Australien", "chip": "250268781887161", "ownerId": "ACV-2026-017"},
+        {"name": "ATLAS", "breed": "Beauceron", "chip": "", "ownerId": "A0383"},
+        {"name": "VELOURS", "breed": "Spitz", "chip": "250268781579471", "ownerId": "ACV-2026-018"},
+        {"name": "ARKANE", "breed": "Beauceron", "chip": "250269611602051", "ownerId": "ACV-2026-019"},
+        {"name": "RUSHKA", "breed": "Spitz", "chip": "", "ownerId": "A0384"},
+        {"name": "AZRA", "breed": "Golden", "chip": "250269592038773", "ownerId": "ACV-2026-020"},
+        {"name": "AMANDE", "breed": "Beagle", "chip": "250269591459224", "ownerId": "ACV-2026-021"},
+        {"name": "APACH", "breed": "Border Collie", "chip": "250269591459443", "ownerId": "A0406-A0405"},
+        {"name": "DOUDOU", "breed": "Inconnue", "chip": "", "ownerId": "ACV-2026-022"},
+        {"name": "YUNA", "breed": "Inconnue", "chip": "", "ownerId": "ACV-2026-022"},
+        {"name": "VENUS", "breed": "Golden", "chip": "250269591021626", "ownerId": "ACV-2026-023"},
+        {"name": "ALASKA", "breed": "Golden", "chip": "250269591479499.0", "ownerId": "ACV-2026-023"},
+        {"name": "ACE", "breed": "Berger Australien", "chip": "250269591472375", "ownerId": "ACV-2026-024"},
+        {"name": "ALVIN", "breed": "Jack Russel", "chip": "250269101373002", "ownerId": "ACV-2026-025"}
+      ]
+    };
+
+    if(window.confirm(`Vous allez importer ${data2026.members.length} membres et ${data2026.dogs.length} chiens. Confirmer ?`)) {
+      importBulkData(data2026);
+    }
+  };
+
+  const stats = [
+    { label: 'Membres Actifs', value: members.length, icon: <Users />, color: 'bg-emerald-500' },
+    { label: 'Le Parc Canin', value: dogs.length, icon: <DogIcon />, color: 'bg-blue-500' },
+    { label: 'Trésorerie', value: '0 €', icon: <Landmark />, color: 'bg-slate-900' },
+  ];
+
+  return (
+    <div className="space-y-10">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-black uppercase italic tracking-tighter text-slate-800">
+            Tableau de Bord
+          </h2>
+          <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">
+            Amicale Canine Vernoise - Session 2026
+          </p>
+        </div>
+        
+        {/* BOUTON D'IMPORTATION MAGIC */}
+        <button 
+          onClick={handleFullImport}
+          className="flex items-center gap-3 px-6 py-4 bg-amber-500 text-white rounded-2xl font-black uppercase italic text-xs tracking-widest shadow-xl shadow-amber-100 hover:scale-105 transition-all"
+        >
+          <Rocket size={20} />
+          Importer Base 2026
+        </button>
+      </div>
+
+      <div className="grid grid-cols-3 gap-8">
+        {stats.map((stat, i) => (
+          <div key={i} className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm flex items-center gap-6">
+            <div className={`w-16 h-16 ${stat.color} rounded-2xl flex items-center justify-center text-white shadow-lg`}>
+              {stat.icon}
+            </div>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{stat.label}</p>
+              <p className="text-3xl font-black text-slate-800 tracking-tighter italic">{stat.value}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
