@@ -16,10 +16,13 @@ interface ClubState {
   members: any[];
   dogs: any[];
   transactions: Transaction[];
+  products: any[];
   isLoading: boolean;
   darkMode: boolean;
   toggleDarkMode: () => void;
   fetchData: () => Promise<void>;
+  addMember: (member: any) => Promise<void>; // Restauré
+  addTransaction: (t: Transaction) => Promise<void>; // Restauré
   importFullUpdate: (data: { members: any[], transactions: any[] }) => Promise<void>;
 }
 
@@ -27,6 +30,7 @@ export const useStore = create<ClubState>((set) => ({
   members: [],
   dogs: [],
   transactions: [],
+  products: [],
   isLoading: true,
   darkMode: false,
 
@@ -46,9 +50,18 @@ export const useStore = create<ClubState>((set) => ({
     } catch (e) { set({ isLoading: false }); }
   },
 
+  addMember: async (member) => {
+    const docRef = await addDoc(collection(db, "members"), member);
+    set((state) => ({ members: [...state.members, { ...member, id: docRef.id }] }));
+  },
+
+  addTransaction: async (t) => {
+    const docRef = await addDoc(collection(db, "transactions"), t);
+    set((state) => ({ transactions: [{ ...t, id: docRef.id }, ...state.transactions] }));
+  },
+
   importFullUpdate: async (data) => {
     const batch = writeBatch(db);
-    // On met à jour les membres avec les infos de docs
     data.members.forEach((m) => {
       const mRef = doc(db, "members", m.id);
       batch.set(mRef, {
@@ -58,13 +71,12 @@ export const useStore = create<ClubState>((set) => ({
         docACMA: m.docACMA || "non"
       }, { merge: true });
     });
-    // On ajoute les transactions de cotisations
     data.transactions.forEach((t) => {
       const tRef = doc(collection(db, "transactions"));
       batch.set(tRef, t);
     });
     await batch.commit();
-    alert("✅ Données Secrétariat et Finances synchronisées !");
+    alert("✅ Données synchronisées !");
     window.location.reload();
   }
 }));
