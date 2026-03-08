@@ -20,6 +20,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, onCl
     { id: 'secretariat', label: 'Secrétariat', icon: <FileText size={20} /> },
     { id: 'finances', label: 'Finances', icon: <Landmark size={20} /> },
     { id: 'evenements', label: 'Agenda', icon: <CalendarDays size={20} /> },
+    { id: 'boutique', label: 'Boutique', icon: <ShoppingCart size={20} /> },
   ];
 
   return (
