@@ -3,7 +3,7 @@ import { useStore } from '../store/useStore';
 import { Search, Package, AlertTriangle, Plus, ShoppingCart } from 'lucide-react';
 
 const Boutique: React.FC = () => {
-  const { products } = useStore();
+ const products = [];
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredProducts = products.filter(p => 
