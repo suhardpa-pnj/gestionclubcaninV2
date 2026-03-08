@@ -19,10 +19,15 @@ function App() {
   }, [fetchData]);
 
   if (!userRole) return <Login onLogin={(role) => setUserRole(role)} />;
-  if (isLoading) return <div className="h-screen flex items-center justify-center font-black uppercase italic text-slate-400">Synchronisation Amicale Canine...</div>;
+  
+  if (isLoading) return (
+    <div className="h-screen flex items-center justify-center bg-slate-950 text-emerald-500 font-black uppercase italic animate-pulse">
+      Synchronisation ACV...
+    </div>
+  );
 
   return (
-    <div className="flex bg-slate-50 min-h-screen">
+    <div className="flex bg-slate-950 min-h-screen">
       <Sidebar activeTab={activeTab} setActiveTab={(tab) => { setActiveTab(tab); setSelectedSection(null); }} />
       
       <main className="flex-1 ml-72 p-12">
@@ -38,8 +43,8 @@ function App() {
           )
         )}
         
-        {activeTab === 'finances' && <div className="p-12 bg-white rounded-[40px] border border-slate-100 italic text-slate-400 font-bold uppercase text-xs">Trésorerie en cours...</div>}
-        {activeTab === 'evenements' && <div className="p-12 bg-white rounded-[40px] border border-slate-100 italic text-slate-400 font-bold uppercase text-xs">Événements en cours...</div>}
+        {activeTab === 'finances' && <div className="text-slate-500 font-black uppercase italic">Module Trésorerie en cours...</div>}
+        {activeTab === 'evenements' && <div className="text-slate-500 font-black uppercase italic">Module Événements en cours...</div>}
       </main>
     </div>
   );
