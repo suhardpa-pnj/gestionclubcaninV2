@@ -3,13 +3,10 @@ import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Sections from './pages/Sections';
 import SectionDetail from './pages/SectionDetail';
-import Members from './pages/Members'; // Import réel
-import Dogs from './pages/Dogs';       // Import réel
+import Members from './pages/Members';
+import Dogs from './pages/Dogs';
 import Login from './components/Login';
 import { useStore } from './store/useStore';
-
-const TreasuryPlaceholder = () => <div className="p-12 bg-white rounded-[40px] border border-slate-100 text-center text-slate-400 uppercase font-black italic">Page Trésorerie en cours...</div>;
-const EventsPlaceholder = () => <div className="p-12 bg-white rounded-[40px] border border-slate-100 text-center text-slate-400 uppercase font-black italic">Page Événements en cours...</div>;
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -26,16 +23,12 @@ function App() {
 
   return (
     <div className="flex bg-slate-50 min-h-screen">
-      <Sidebar 
-        activeTab={activeTab} 
-        setActiveTab={(tab) => {
-          setActiveTab(tab);
-          setSelectedSection(null);
-        }} 
-      />
+      <Sidebar activeTab={activeTab} setActiveTab={(tab) => { setActiveTab(tab); setSelectedSection(null); }} />
       
       <main className="flex-1 ml-72 p-12">
         {activeTab === 'dashboard' && <Dashboard />}
+        {activeTab === 'membres' && <Members />}
+        {activeTab === 'leschiens' && <Dogs />}
         
         {activeTab === 'sections' && (
           selectedSection ? (
@@ -44,11 +37,9 @@ function App() {
             <Sections onSelectSection={setSelectedSection} />
           )
         )}
-
-        {activeTab === 'membres' && <Members />}
-        {activeTab === 'leschiens' && <Dogs />}
-        {activeTab === 'finances' && <TreasuryPlaceholder />}
-        {activeTab === 'evenements' && <EventsPlaceholder />}
+        
+        {activeTab === 'finances' && <div className="p-12 bg-white rounded-[40px] border border-slate-100 italic text-slate-400 font-bold uppercase text-xs">Trésorerie en cours...</div>}
+        {activeTab === 'evenements' && <div className="p-12 bg-white rounded-[40px] border border-slate-100 italic text-slate-400 font-bold uppercase text-xs">Événements en cours...</div>}
       </main>
     </div>
   );
