@@ -1,38 +1,82 @@
 import { create } from 'zustand';
+import { db } from '../firebase/config';
+import { collection, addDoc, getDocs, query, orderBy, writeBatch, doc } from 'firebase/firestore';
 
-// On définit les types directement ici pour éviter de chercher des fichiers externes
 export interface Transaction {
-  id: string;
+  id?: string;
   date: string;
   label: string;
-  category: 'ACMA' | 'Bricolage & Entretien' | 'Électricité' | 'Eau' | 'Assurances' | 'Achats Boutique' | 'Matériel Sportif' | 'Adhésion' | 'Événementiel' | 'Autre' | 'Boutique';
+  category: string;
   type: 'Crédit' | 'Débit';
   amount: number;
-  receipt?: string;
 }
 
 interface ClubState {
   members: any[];
   dogs: any[];
-  products: any[];
   transactions: Transaction[];
-  addMember: (member: any) => void;
-  addDog: (dog: any) => void;
-  addTransaction: (t: Transaction) => void;
+  isLoading: boolean;
+  fetchData: () => Promise<void>;
+  addMember: (member: any) => Promise<void>;
+  addTransaction: (t: Transaction) => Promise<void>;
+  importBulkData: (allData: { members: any[], dogs: any[] }) => Promise<void>;
 }
 
 export const useStore = create<ClubState>((set) => ({
-  members: [
-    { id: 'm1', name: 'Dupont', firstName: 'Jean', email: 'jean@mail.com', phone: '0601020304', membershipType: 'Adulte', status: 'Actif' }
-  ],
-  dogs: [
-    { id: 'd1', name: 'Olympe', breed: 'Malinois', memberId: 'm1', section: 'Ring', level: 'Niveau 3' }
-  ],
-  products: [],
-  transactions: [
-    { id: 't1', date: '2026-03-01', label: 'Adhésion Test', category: 'Adhésion', type: 'Crédit', amount: 60 }
-  ],
-  addMember: (member) => set((state) => ({ members: [...state.members, member] })),
-  addDog: (dog) => set((state) => ({ dogs: [...state.dogs, dog] })),
-  addTransaction: (t) => set((state) => ({ transactions: [t, ...state.transactions] })),
+  members: [],
+  dogs: [],
+  transactions: [],
+  isLoading: true,
+
+  fetchData: async () => {
+    try {
+      const mSnap = await getDocs(collection(db, "members"));
+      const dSnap = await getDocs(collection(db, "dogs"));
+      const tSnap = await getDocs(query(collection(db, "transactions"), orderBy("date", "desc")));
+      
+      set({
+        members: mSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })),
+        dogs: dSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })),
+        transactions: tSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Transaction[],
+        isLoading: false
+      });
+    } catch (e) {
+      console.error("Erreur chargement:", e);
+      set({ isLoading: false });
+    }
+  },
+
+  addMember: async (member) => {
+    const docRef = await addDoc(collection(db, "members"), member);
+    set((state) => ({ members: [...state.members, { ...member, id: docRef.id }] }));
+  },
+
+  addTransaction: async (t) => {
+    const docRef = await addDoc(collection(db, "transactions"), t);
+    set((state) => ({ transactions: [{ ...t, id: docRef.id }, ...state.transactions] }));
+  },
+
+  importBulkData: async (allData) => {
+    const batch = writeBatch(db);
+    
+    // 1. Import des Membres (On utilise l'ACMA comme ID de document)
+    allData.members.forEach((m) => {
+      const mRef = doc(db, "members", m.id);
+      batch.set(mRef, {
+        ...m,
+        status: 'Actif',
+        joinDate: new Date().toISOString().split('T')[0]
+      });
+    });
+
+    // 2. Import des Chiens
+    allData.dogs.forEach((d) => {
+      const dRef = doc(collection(db, "dogs"));
+      batch.set(dRef, d);
+    });
+
+    await batch.commit();
+    alert("✅ Importation réussie ! L'Amicale Canine Vernoise est à jour.");
+    window.location.reload();
+  }
 }));
