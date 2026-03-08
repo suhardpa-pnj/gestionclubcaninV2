@@ -10,6 +10,7 @@ export interface Transaction {
   type: 'Crédit' | 'Débit';
   amount: number;
   memberId?: string;
+  receipt?: string; // Ajouté pour corriger l'erreur de build
 }
 
 interface ClubState {
@@ -21,8 +22,8 @@ interface ClubState {
   darkMode: boolean;
   toggleDarkMode: () => void;
   fetchData: () => Promise<void>;
-  addMember: (member: any) => Promise<void>; // Restauré
-  addTransaction: (t: Transaction) => Promise<void>; // Restauré
+  addMember: (member: any) => Promise<void>;
+  addTransaction: (t: Transaction) => Promise<void>;
   importFullUpdate: (data: { members: any[], transactions: any[] }) => Promise<void>;
 }
 
