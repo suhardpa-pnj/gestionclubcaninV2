@@ -18,6 +18,8 @@ interface ClubState {
   transactions: Transaction[];
   products: any[];
   isLoading: boolean;
+  darkMode: boolean; // Ajouté
+  toggleDarkMode: () => void; // Ajouté
   fetchData: () => Promise<void>;
   addMember: (member: any) => Promise<void>;
   addTransaction: (t: Transaction) => Promise<void>;
@@ -29,13 +31,15 @@ export const useStore = create<ClubState>((set) => ({
   transactions: [],
   products: [],
   isLoading: true,
+  darkMode: false, // Par défaut en mode clair
+
+  toggleDarkMode: () => set((state) => ({ darkMode: !state.darkMode })),
 
   fetchData: async () => {
     try {
       const mSnap = await getDocs(collection(db, "members"));
       const dSnap = await getDocs(collection(db, "dogs"));
       const tSnap = await getDocs(query(collection(db, "transactions"), orderBy("date", "desc")));
-      
       set({
         members: mSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })),
         dogs: dSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })),
@@ -43,7 +47,6 @@ export const useStore = create<ClubState>((set) => ({
         isLoading: false
       });
     } catch (e) {
-      console.error("Erreur Firebase:", e);
       set({ isLoading: false });
     }
   },
