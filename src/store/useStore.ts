@@ -9,29 +9,26 @@ export interface Transaction {
   category: string;
   type: 'Crédit' | 'Débit';
   amount: number;
-  receipt?: string;
+  memberId?: string;
 }
 
 interface ClubState {
   members: any[];
   dogs: any[];
   transactions: Transaction[];
-  products: any[];
   isLoading: boolean;
-  darkMode: boolean; // Ajouté
-  toggleDarkMode: () => void; // Ajouté
+  darkMode: boolean;
+  toggleDarkMode: () => void;
   fetchData: () => Promise<void>;
-  addMember: (member: any) => Promise<void>;
-  addTransaction: (t: Transaction) => Promise<void>;
+  importFullUpdate: (data: { members: any[], transactions: any[] }) => Promise<void>;
 }
 
 export const useStore = create<ClubState>((set) => ({
   members: [],
   dogs: [],
   transactions: [],
-  products: [],
   isLoading: true,
-  darkMode: false, // Par défaut en mode clair
+  darkMode: false,
 
   toggleDarkMode: () => set((state) => ({ darkMode: !state.darkMode })),
 
@@ -46,18 +43,23 @@ export const useStore = create<ClubState>((set) => ({
         transactions: tSnap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Transaction[],
         isLoading: false
       });
-    } catch (e) {
-      set({ isLoading: false });
-    }
+    } catch (e) { set({ isLoading: false }); }
   },
 
-  addMember: async (member) => {
-    const docRef = await addDoc(collection(db, "members"), member);
-    set((state) => ({ members: [...state.members, { ...member, id: docRef.id }] }));
-  },
-
-  addTransaction: async (t) => {
-    const docRef = await addDoc(collection(db, "transactions"), t);
-    set((state) => ({ transactions: [{ ...t, id: docRef.id }, ...state.transactions] }));
-  },
+  importFullUpdate: async (data) => {
+    const batch = writeBatch(db);
+    // Mise à jour des membres (avec docs et activités)
+    data.members.forEach((m) => {
+      const mRef = doc(db, "members", m.id);
+      batch.set(mRef, { ...m, status: 'Actif' }, { merge: true });
+    });
+    // Ajout des transactions financières trouvées
+    data.transactions.forEach((t) => {
+      const tRef = doc(collection(db, "transactions"));
+      batch.set(tRef, t);
+    });
+    await batch.commit();
+    alert("✅ Base de données enrichie (Finances + Docs) !");
+    window.location.reload();
+  }
 }));
