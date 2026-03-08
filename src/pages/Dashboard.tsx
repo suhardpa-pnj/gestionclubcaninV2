@@ -1,60 +1,54 @@
 import React from 'react';
 import { useStore } from '../store/useStore';
-import { Users, Dog as DogIcon, Landmark, RefreshCw } from 'lucide-react';
+import { Users, Dog as DogIcon, Landmark, TrendingUp } from 'lucide-react';
 
 const Dashboard = () => {
-  const { members, dogs, transactions, importFullUpdate, darkMode } = useStore();
-
-  const handleUpdate = () => {
-    const fullData = {
-      members: [
-        {"id": "A1927", "docVaccin": "oui", "docAssurance": "oui", "docACMA": "oui"},
-        {"id": "A1211", "docVaccin": "oui", "docAssurance": "oui", "docACMA": "oui"},
-        {"id": "A0384", "docVaccin": "ok", "docAssurance": "oui", "docACMA": "oui"},
-        {"id": "ACV-2026-020", "docVaccin": "ok", "docAssurance": "GMF", "docACMA": "non"},
-        {"id": "ACV-2026-021", "docVaccin": "oui", "docAssurance": "oui", "docACMA": "non"}
-      ],
-      transactions: [
-        {"date": "2026-01-14", "label": "Cotisation PAILLARD Sophie", "category": "Adhésion", "type": "Crédit", "amount": 200},
-        {"date": "2026-01-15", "label": "Cotisation MULLER Aurélien", "category": "Adhésion", "type": "Crédit", "amount": 250},
-        {"date": "2026-01-17", "label": "Cotisation HENONIN Sylvie", "category": "Adhésion", "type": "Crédit", "amount": 15}
-      ]
-    };
-    if(confirm("Voulez-vous enrichir les fiches membres avec les statuts documents et finances ?")) {
-      importFullUpdate(fullData);
-    }
-  };
-
+  const { members, dogs, transactions, darkMode } = useStore();
   const totalRevenue = transactions.reduce((acc, t) => acc + t.amount, 0);
 
+  const stats = [
+    { label: 'Adhérents', value: members.length, icon: <Users size={28} />, color: 'from-emerald-400 to-emerald-600', shadow: 'shadow-emerald-500/30' },
+    { label: 'La Meute', value: dogs.length, icon: <DogIcon size={28} />, color: 'from-blue-400 to-blue-600', shadow: 'shadow-blue-500/30' },
+    { label: 'Recettes', value: `${totalRevenue}€`, icon: <TrendingUp size={28} />, color: 'from-amber-400 to-amber-600', shadow: 'shadow-amber-500/30' },
+  ];
+
   return (
-    <div className="space-y-10">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className={`text-3xl font-black uppercase italic tracking-tighter ${darkMode ? 'text-white' : 'text-slate-800'}`}>Tableau de Bord</h2>
-          <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1">Amicale Canine Vernoise</p>
-        </div>
-        <button onClick={handleUpdate} className="flex items-center gap-2 px-6 py-4 bg-amber-500 text-white rounded-2xl font-black uppercase italic text-[10px] tracking-widest shadow-xl shadow-amber-900/20 hover:scale-105 transition-all">
-          <RefreshCw size={16} /> Synchroniser Dossiers 2026
-        </button>
-      </div>
+    <div className="space-y-12">
+      <header>
+        <h2 className={`text-5xl font-black uppercase italic tracking-tighter ${darkMode ? 'text-white' : 'text-slate-800'}`}>
+          Tableau <span className="text-emerald-500">de Bord</span>
+        </h2>
+        <p className="text-slate-500 text-[11px] font-black uppercase tracking-[0.3em] mt-2 italic opacity-60">
+          Amicale Canine Vernoise • Session 2026
+        </p>
+      </header>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div className={`p-8 rounded-[40px] border transition-all ${darkMode ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-100 shadow-sm'}`}>
-          <Users className="text-emerald-500 mb-4" size={32} />
-          <p className="text-[10px] font-black uppercase text-slate-500">Adhérents</p>
-          <p className="text-4xl font-black italic">{members.length}</p>
-        </div>
-        <div className={`p-8 rounded-[40px] border transition-all ${darkMode ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-100 shadow-sm'}`}>
-          <DogIcon className="text-blue-500 mb-4" size={32} />
-          <p className="text-[10px] font-black uppercase text-slate-500">Parc Canin</p>
-          <p className="text-4xl font-black italic">{dogs.length}</p>
-        </div>
-        <div className={`p-8 rounded-[40px] border transition-all ${darkMode ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-100 shadow-sm'}`}>
-          <Landmark className="text-amber-500 mb-4" size={32} />
-          <p className="text-[10px] font-black uppercase text-slate-500">Recettes</p>
-          <p className="text-4xl font-black italic">{totalRevenue} €</p>
-        </div>
+        {stats.map((stat, i) => (
+          <div key={i} className={`relative group p-10 rounded-[48px] border transition-all duration-500 ${
+            darkMode ? 'bg-slate-900 border-slate-800 hover:border-slate-700' : 'bg-white border-slate-100 shadow-2xl shadow-slate-200/50 hover:shadow-emerald-100/50'
+          }`}>
+            <div className={`w-20 h-20 bg-gradient-to-br ${stat.color} rounded-[28px] flex items-center justify-center text-white mb-8 shadow-2xl ${stat.shadow} group-hover:scale-110 transition-transform`}>
+              {stat.icon}
+            </div>
+            <p className={`text-[10px] font-black uppercase tracking-[0.2em] mb-2 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
+              {stat.label}
+            </p>
+            <p className={`text-5xl font-black italic tracking-tighter ${darkMode ? 'text-white' : 'text-slate-900'}`}>
+              {stat.value}
+            </p>
+            <div className="absolute top-10 right-10 opacity-5">
+              {React.cloneElement(stat.icon as React.ReactElement, { size: 100 })}
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {/* Bannière Info */}
+      <div className={`p-8 rounded-[40px] border-2 border-dashed ${darkMode ? 'border-slate-800 bg-slate-900/30' : 'border-slate-100 bg-slate-50/50'}`}>
+        <p className={`text-center text-xs font-bold uppercase tracking-widest italic ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>
+          Prochain événement : <span className="text-emerald-500">Concours Ring - 15 Mai 2026</span>
+        </p>
       </div>
     </div>
   );
