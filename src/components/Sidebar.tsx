@@ -17,13 +17,15 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
   ];
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-72 bg-white border-r border-slate-100 flex flex-col p-8 z-50">
+    <aside className="fixed left-0 top-0 h-screen w-72 bg-slate-950 border-r border-slate-800 flex flex-col p-8 z-50">
       <div className="flex items-center gap-3 mb-12 px-2">
-        <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-200 text-white">
+        <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-900/20 text-white">
           <Dog size={24} />
         </div>
         <div>
-          <h1 className="text-sm font-black italic leading-none tracking-tighter text-slate-800 uppercase">Amicale Canine<br/>Vernoise</h1>
+          <h1 className="text-sm font-black italic leading-none tracking-tighter text-slate-100 uppercase italic">
+            Amicale Canine<br/>Vernoise
+          </h1>
         </div>
       </div>
       <nav className="flex-1 space-y-2">
@@ -32,7 +34,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
             key={item.id}
             onClick={() => setActiveTab(item.id)}
             className={`w-full flex items-center space-x-4 px-6 py-4 rounded-2xl font-bold uppercase text-[10px] tracking-widest transition-all ${
-              activeTab === item.id ? 'bg-slate-900 text-white shadow-xl' : 'text-slate-400 hover:bg-slate-50'
+              activeTab === item.id 
+                ? 'bg-emerald-500 text-white shadow-xl shadow-emerald-900/20' 
+                : 'text-slate-500 hover:bg-slate-900 hover:text-slate-300'
             }`}
           >
             {item.icon}
