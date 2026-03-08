@@ -10,7 +10,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (pass === 'ACV2026') onLogin('admin');
+    if (pass === '0000') onLogin('admin');
     else alert('Code accès incorrect');
   };
 
