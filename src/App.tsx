@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
-import Members from './pages/Members';
-import Dogs from './pages/Dogs';
-import Treasury from './pages/Treasury';
-import Sections from './pages/Sections';
-import Boutique from './pages/Boutique';
-import Events from './pages/Events';
 import Login from './components/Login';
+import Sections from './pages/Sections';
 import { useStore } from './store/useStore';
+
+// On crée des placeholders simples pour les pages manquantes afin d'éviter les erreurs de build
+const MembersPlaceholder = () => <div className="text-slate-400 uppercase font-black italic">Page Membres en cours...</div>;
+const DogsPlaceholder = () => <div className="text-slate-400 uppercase font-black italic">Page Les Chiens en cours...</div>;
+const TreasuryPlaceholder = () => <div className="text-slate-400 uppercase font-black italic">Page Trésorerie en cours...</div>;
+const EventsPlaceholder = () => <div className="text-slate-400 uppercase font-black italic">Page Événements en cours...</div>;
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -19,33 +20,20 @@ function App() {
     fetchData();
   }, [fetchData]);
 
-  if (!userRole) {
-    return <Login onLogin={(role) => setUserRole(role)} />;
-  }
+  if (!userRole) return <Login onLogin={(role) => setUserRole(role)} />;
 
-  if (isLoading) {
-    return (
-      <div className="h-screen flex items-center justify-center bg-slate-50">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 italic">Synchronisation ACV...</p>
-        </div>
-      </div>
-    );
-  }
+  if (isLoading) return <div className="h-screen flex items-center justify-center font-black uppercase italic text-slate-400">Synchronisation ACV...</div>;
 
   return (
     <div className="flex bg-slate-50 min-h-screen">
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-      
       <main className="flex-1 ml-72 p-12">
         {activeTab === 'dashboard' && <Dashboard />}
-        {activeTab === 'membres' && <Members />}
-        {activeTab === 'leschiens' && <Dogs />}
-        {activeTab === 'finances' && <Treasury />}
         {activeTab === 'sections' && <Sections />}
-        {activeTab === 'boutique' && <Boutique />}
-        {activeTab === 'evenements' && <Events />}
+        {activeTab === 'membres' && <MembersPlaceholder />}
+        {activeTab === 'leschiens' && <DogsPlaceholder />}
+        {activeTab === 'finances' && <TreasuryPlaceholder />}
+        {activeTab === 'evenements' && <EventsPlaceholder />}
       </main>
     </div>
   );
