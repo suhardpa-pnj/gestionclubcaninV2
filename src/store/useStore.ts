@@ -21,7 +21,6 @@ interface ClubState {
   fetchData: () => Promise<void>;
   addMember: (member: any) => Promise<void>;
   addTransaction: (t: Transaction) => Promise<void>;
-  importBulkData: (allData: { members: any[], dogs: any[] }) => Promise<void>;
 }
 
 export const useStore = create<ClubState>((set) => ({
@@ -58,19 +57,4 @@ export const useStore = create<ClubState>((set) => ({
     const docRef = await addDoc(collection(db, "transactions"), t);
     set((state) => ({ transactions: [{ ...t, id: docRef.id }, ...state.transactions] }));
   },
-
-  importBulkData: async (allData) => {
-    const batch = writeBatch(db);
-    allData.members.forEach((m) => {
-      const mRef = doc(db, "members", m.id);
-      batch.set(mRef, { ...m, status: 'Actif', joinDate: new Date().toISOString().split('T')[0] });
-    });
-    allData.dogs.forEach((d) => {
-      const dRef = doc(collection(db, "dogs"));
-      batch.set(dRef, d);
-    });
-    await batch.commit();
-    alert("✅ Importation réussie !");
-    window.location.reload();
-  }
 }));
