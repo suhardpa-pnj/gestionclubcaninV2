@@ -17,7 +17,7 @@ const Sections: React.FC<SectionsProps> = ({ onSelectSection }) => {
     <div className="space-y-10">
       <div>
         <h2 className="text-3xl font-black uppercase italic tracking-tighter text-slate-800">Espaces Sections</h2>
-        <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Gérez les activités de l'Amicale Canine Vernoise</p>
+        <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-1">Cliquez sur une discipline pour voir les membres</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
