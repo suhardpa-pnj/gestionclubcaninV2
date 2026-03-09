@@ -2,34 +2,21 @@ import { create } from 'zustand';
 import { db } from '../firebase/config';
 import { collection, addDoc, getDocs, query, orderBy, writeBatch, doc, updateDoc } from 'firebase/firestore';
 
-export interface Transaction {
-  id?: string;
-  date: string;
-  label: string;
-  category: string;
-  type: 'Crédit' | 'Débit';
-  amount: number;
-  memberId?: string;
-  receipt?: string;
-}
-
 interface ClubState {
   members: any[]; dogs: any[]; transactions: any[]; products: any[];
   isLoading: boolean; darkMode: boolean;
+  activeOrder: { status: 'none' | 'pending', date: string }; // Pour le Dashboard
   toggleDarkMode: () => void;
   fetchData: () => Promise<void>;
-  addMember: (m: any) => Promise<void>;
-  addDog: (d: any) => Promise<void>;
-  addTransaction: (t: Transaction) => Promise<void>; // Restauré
-  updateDocStatus: (mId: string, docType: string, status: string) => Promise<void>;
   seedBoutique: () => Promise<void>;
+  updateDogSections: (dogId: string, sections: string[]) => Promise<void>;
   sellProduct: (pId: string, qty: number, price: number) => Promise<void>;
-  importFullUpdate: (data: { members: any[], transactions: any[] }) => Promise<void>; // Restauré
 }
 
 export const useStore = create<ClubState>((set, get) => ({
   members: [], dogs: [], transactions: [], products: [],
   isLoading: true, darkMode: false,
+  activeOrder: { status: 'none', date: 'Samedi 14 Mars' }, // Changera selon tes commandes
 
   toggleDarkMode: () => set((state) => ({ darkMode: !state.darkMode })),
 
@@ -41,12 +28,23 @@ export const useStore = create<ClubState>((set, get) => ({
         getDocs(query(collection(db, "transactions"), orderBy("date", "desc"))),
         getDocs(collection(db, "products"))
       ]);
-      set({
-        members: mS.docs.map(d => ({ id: d.id, ...d.data() })),
-        dogs: dS.docs.map(d => ({ id: d.id, ...d.data() })),
+
+      const membersData = mS.docs.map(d => ({ id: d.id, ...d.data() }));
+      const dogsData = dS.docs.map(d => {
+        const data = d.data();
+        // Attribution de la photo de RIO spécifiquement
+        if (data.name?.toUpperCase() === 'RIO') {
+          return { id: d.id, ...data, photo: "https://drive.google.com/thumbnail?id=1Ol8bi8QMx-pVnKrYlXf-HeLXqBuLZY-6&sz=w400" };
+        }
+        return { id: d.id, ...data };
+      });
+
+      set({ 
+        members: membersData, 
+        dogs: dogsData, 
         transactions: tS.docs.map(d => ({ id: d.id, ...d.data() })),
         products: pS.docs.map(d => ({ id: d.id, ...d.data() })),
-        isLoading: false
+        isLoading: false 
       });
     } catch (e) { set({ isLoading: false }); }
   },
@@ -63,39 +61,22 @@ export const useStore = create<ClubState>((set, get) => ({
     ];
     refs.forEach(p => {
       const pRef = doc(collection(db, "products"));
-      batch.set(pRef, { ...p, stock: 10, description: "Sac de 20kg - Gamme NATURE" });
+      batch.set(pRef, { ...p, stock: 10, category: "Croquettes", weight: "20kg" });
     });
     await batch.commit();
-    alert("✅ Boutique initialisée !");
     get().fetchData();
   },
 
-  addMember: async (m) => {
-    const res = await addDoc(collection(db, "members"), m);
-    set({ members: [...get().members, { ...m, id: res.id }] });
-  },
-
-  addDog: async (d) => {
-    await addDoc(collection(db, "dogs"), d);
-    get().fetchData();
-  },
-
-  addTransaction: async (t) => {
-    const res = await addDoc(collection(db, "transactions"), t);
-    set({ transactions: [{ ...t, id: res.id }, ...get().transactions] });
-  },
-
-  updateDocStatus: async (mId, docType, status) => {
-    const mRef = doc(db, "members", mId);
-    await updateDoc(mRef, { [docType]: status });
+  updateDogSections: async (dogId, sections) => {
+    const dRef = doc(db, "dogs", dogId);
+    await updateDoc(dRef, { sections });
     get().fetchData();
   },
 
   sellProduct: async (pId, qty, price) => {
     const pRef = doc(db, "products", pId);
     const product = get().products.find(p => p.id === pId);
-    if (!product || product.stock < qty) return alert("Stock insuffisant !");
-    await updateDoc(pRef, { stock: product.stock - qty });
+    await updateDoc(pRef, { stock: (product.stock || 0) - qty });
     await addDoc(collection(db, "transactions"), {
       date: new Date().toISOString().split('T')[0],
       label: `Vente ${product.name}`,
@@ -103,20 +84,7 @@ export const useStore = create<ClubState>((set, get) => ({
       type: 'Crédit',
       category: 'Boutique'
     });
-    get().fetchData();
-  },
-
-  importFullUpdate: async (data) => {
-    const batch = writeBatch(db);
-    data.members.forEach((m) => {
-      const mRef = doc(db, "members", m.id);
-      batch.set(mRef, { docVaccin: m.docVaccin || "non", docAssurance: m.docAssurance || "non", docACMA: m.docACMA || "non" }, { merge: true });
-    });
-    data.transactions.forEach((t) => {
-      const tRef = doc(collection(db, "transactions"));
-      batch.set(tRef, t);
-    });
-    await batch.commit();
+    set({ activeOrder: { status: 'pending', date: 'Samedi 14 Mars' } });
     get().fetchData();
   }
 }));
