@@ -1,6 +1,6 @@
 import React from 'react';
 import { useStore } from '../store/useStore';
-import { ArrowLeft, Camera, Check, X } from 'lucide-react';
+import { ArrowLeft, Camera, Check, X, User } from 'lucide-react'; // Import User ajouté ici
 
 const MemberDetail = ({ memberId, onBack }: any) => {
   const { members, dogs, darkMode, updateMember, uploadMemberPhoto } = useStore();
@@ -11,10 +11,10 @@ const MemberDetail = ({ memberId, onBack }: any) => {
 
   return (
     <div className="space-y-8">
-      <button onClick={onBack} className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-400"><ArrowLeft size={14}/> Retour</button>
+      <button onClick={onBack} className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-400 hover:text-[#1B4332] transition-colors"><ArrowLeft size={14}/> Retour</button>
       
       <div className={`p-10 rounded-[40px] border ${darkMode ? 'bg-[#1A1F1C] border-slate-700' : 'bg-white border-emerald-50 shadow-xl'}`}>
-        <div className="flex items-center gap-8 mb-10 border-b pb-10 border-slate-50/5">
+        <div className="flex items-center gap-8 mb-10 border-b pb-10 border-slate-50/10">
           <div className="relative">
             <div className="w-24 h-24 bg-slate-50 rounded-[32px] overflow-hidden border border-emerald-50">
               {m.photo ? <img src={m.photo} className="w-full h-full object-cover" /> : <User className="w-full h-full p-6 text-slate-200"/>}
@@ -50,4 +50,5 @@ const DocBtn = ({ label, status, onClick }: any) => (
     <div className={`p-1.5 rounded-lg ${status === 'oui' ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-white'}`}>{status === 'oui' ? <Check size={16}/> : <X size={16}/>}</div>
   </button>
 );
+
 export default MemberDetail;
