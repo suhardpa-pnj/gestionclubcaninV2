@@ -59,15 +59,57 @@ export const useStore = create<ClubState>((set, get) => ({
   },
 
   uploadMemberPhoto: async (id, file) => {
-    const storageRef = ref(storage, `members/${id}_${Date.now()}`);
-    const snapshot = await uploadBytes(storageRef, file);
-    const url = await getDownloadURL(snapshot.ref);
-    await updateDoc(doc(db, "members", id), { photo: url });
-    get().fetchData();
+    try {
+      const storageRef = ref(storage, `members/${id}_${Date.now()}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(snapshot.ref);
+      await updateDoc(doc(db, "members", id), { photo: url });
+      get().fetchData();
+    } catch (e) { console.error("Erreur photo membre:", e); }
   },
 
   uploadDogPhoto: async (dogId, file) => {
     try {
       const storageRef = ref(storage, `dogs/${dogId}_${Date.now()}`);
-      // Correction ici : on utilise storageRef pour l'envoi
-      const snapshot = await uploadBytes(storageRef,
+      const snapshot = await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(snapshot.ref);
+      await updateDoc(doc(db, "dogs", dogId), { photo: url });
+      get().fetchData();
+    } catch (e) { console.error("Erreur photo chien:", e); }
+  },
+
+  seedBoutique: async () => {
+    const batch = writeBatch(db);
+    const pSnap = await getDocs(collection(db, "products"));
+    pSnap.forEach(p => batch.delete(p.ref));
+    await batch.commit();
+
+    const newBatch = writeBatch(db);
+    const refs = [
+      { id: "gold-28-16", name: "Gold 28/16", price: 58, cost: 51.36, img: "https://www.france-croquettes.fr/wp-content/uploads/2018/11/NATURE-GOLD-28-16.png" },
+      { id: "equilibre-25-10", name: "Équilibre 25/10", price: 44, cost: 41.28, img: "https://www.france-croquettes.fr/wp-content/uploads/2018/11/NATURE-EQUILIBRE-25-10.png" },
+      { id: "super-light-26-8", name: "Super Light 26/8", price: 60, cost: 52.80, img: "https://www.france-croquettes.fr/wp-content/uploads/2018/11/NATURE-SUPER-LIGHT-26-8.png" },
+      { id: "maxi-chiots", name: "Maxi Chiots", price: 65, cost: 53.52, img: "https://www.france-croquettes.fr/wp-content/uploads/2018/11/NATURE-MAXI-CHIOTS.png" },
+      { id: "mini-chiot", name: "Mini Chiot", price: 65, cost: 53.52, img: "https://www.france-croquettes.fr/wp-content/uploads/2018/11/NATURE-MINI-CHIOTS.png" },
+      { id: "gold-competition", name: "Gold Compétition 32/22", price: 68, cost: 56.16, img: "https://www.france-croquettes.fr/wp-content/uploads/2018/11/NATURE-GOLD-COMPETITION-32-22.png" }
+    ];
+    refs.forEach(p => newBatch.set(doc(db, "products", p.id), { ...p, stock: 10, category: "Croquettes" }));
+    await newBatch.commit();
+    get().fetchData();
+  },
+
+  sellProduct: async (pId, qty, price) => {
+    const product = get().products.find(p => p.id === pId);
+    if (!product) return;
+    await updateDoc(doc(db, "products", pId), { stock: (product.stock || 0) - qty });
+    await addDoc(collection(db, "transactions"), {
+      date: new Date().toISOString().split('T')[0],
+      label: `Vente ${product.name}`,
+      amount: price,
+      type: 'Crédit',
+      category: 'Boutique'
+    });
+    set({ activeOrder: { status: 'pending', date: 'Samedi' } });
+    get().fetchData();
+  }
+}));
