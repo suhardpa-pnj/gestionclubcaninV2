@@ -1,17 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useStore } from '../store/useStore';
 import { 
-  LayoutDashboard, 
-  Users, 
-  Dog, 
-  GraduationCap, 
-  Landmark, 
-  FileText, 
-  CalendarDays, 
-  Sun, 
-  Moon, 
-  X,
-  ShoppingCart // AJOUTÉ ICI
+  LayoutDashboard, Users, Dog, Landmark, 
+  ShoppingCart, FileText, ChevronDown, 
+  ChevronRight, Sun, Moon, X 
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -23,39 +15,101 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, onClose }) => {
   const { darkMode, toggleDarkMode } = useStore();
-  
-  const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={20} /> },
-    { id: 'membres', label: 'Adhérents', icon: <Users size={20} /> },
-    { id: 'leschiens', label: 'La Meute', icon: <Dog size={20} /> },
-    { id: 'sections', label: 'Sections', icon: <GraduationCap size={20} /> },
-    { id: 'secretariat', label: 'Secrétariat', icon: <FileText size={20} /> },
-    { id: 'boutique', label: 'Boutique', icon: <ShoppingCart size={20} /> }, // Utilise l'icône
-    { id: 'finances', label: 'Finances', icon: <Landmark size={20} /> },
-    { id: 'evenements', label: 'Agenda', icon: <CalendarDays size={20} /> },
+  const [sectionsOpen, setSectionsOpen] = useState(false);
+
+  const sections = [
+    { id: 'section-chiots', label: 'École du Chiot' },
+    { id: 'section-education', label: 'Éducation' },
+    { id: 'section-obeissance', label: 'Obéissance' },
+    { id: 'section-agility', label: 'Agility' },
+    { id: 'section-ring', label: 'Ring' },
   ];
 
   return (
-    <aside className={`fixed left-0 top-0 h-screen w-72 border-r z-50 transition-all duration-500 flex flex-col p-8 ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'} ${darkMode ? 'bg-slate-950 border-slate-800' : 'bg-white border-slate-100'}`}>
-      <button onClick={onClose} className="lg:hidden absolute top-6 right-6 p-2 text-slate-400"><X size={24} /></button>
-      <div className="flex items-center gap-4 mb-12">
-        <div className="w-12 h-12 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/30"><Dog size={28} /></div>
-        <h1 className={`text-xs font-black italic uppercase leading-tight ${darkMode ? 'text-white' : 'text-slate-800'}`}>Amicale Canine<br/>Vernoise</h1>
+    <aside className={`fixed left-0 top-0 h-screen w-72 border-r z-50 transition-all duration-500 flex flex-col p-6
+      ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      ${darkMode ? 'bg-[#0A110D] border-slate-800' : 'bg-[#1B4332] border-emerald-900 text-white'}
+    `}>
+      <button onClick={onClose} className="lg:hidden absolute top-6 right-6 text-emerald-200"><X size={24} /></button>
+
+      {/* LOGO ACV */}
+      <div className="flex flex-col items-center mb-10 pt-4">
+        <img 
+          src="https://drive.google.com/thumbnail?id=1OpIY0AEaoBUT_CAqIIkV9Y8shhUvyq_u&sz=w200" 
+          alt="Logo ACV" 
+          className="w-24 h-24 mb-3 drop-shadow-xl"
+        />
+        <h1 className="text-[10px] font-black uppercase tracking-[0.3em] text-center opacity-80">
+          Amicale Canine<br/>Vernoise
+        </h1>
       </div>
-      <nav className="flex-1 space-y-2 overflow-y-auto pr-2">
-        {menuItems.map((item) => (
-          <button key={item.id} onClick={() => setActiveTab(item.id)} className={`w-full flex items-center space-x-4 px-6 py-4 rounded-[20px] font-bold uppercase text-[10px] tracking-widest transition-all ${activeTab === item.id ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-xl shadow-emerald-500/20' : (darkMode ? 'text-slate-500 hover:bg-slate-900 hover:text-slate-300' : 'text-slate-400 hover:bg-slate-50 hover:text-slate-800')}`}>
-            {item.icon}
-            <span className="italic">{item.label}</span>
+
+      <nav className="flex-1 space-y-1 overflow-y-auto custom-scrollbar">
+        <NavItem id="dashboard" icon={<LayoutDashboard size={18}/>} label="Dashboard" active={activeTab} onClick={setActiveTab} />
+        <NavItem id="membres" icon={<Users size={18}/>} label="Adhérents" active={activeTab} onClick={setActiveTab} />
+        <NavItem id="leschiens" icon={<Dog size={18}/>} label="Les Chiens" active={activeTab} onClick={setActiveTab} />
+        
+        {/* MENU DÉROULANT SECTIONS */}
+        <div className="py-1">
+          <button 
+            onClick={() => setSectionsOpen(!sectionsOpen)}
+            className={`w-full flex items-center justify-between px-5 py-3 rounded-xl font-bold uppercase text-[10px] tracking-widest transition-all ${darkMode ? 'hover:bg-slate-900' : 'hover:bg-[#2D6A4F]'}`}
+          >
+            <div className="flex items-center gap-4">
+              <FileText size={18} />
+              <span>Sections</span>
+            </div>
+            {sectionsOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
           </button>
-        ))}
+          
+          {sectionsOpen && (
+            <div className="mt-1 ml-9 space-y-1 border-l border-emerald-700/30">
+              {sections.map(s => (
+                <button
+                  key={s.id}
+                  onClick={() => setActiveTab(s.id)}
+                  className={`w-full text-left px-4 py-2 text-[9px] font-bold uppercase tracking-wider transition-all rounded-r-lg ${
+                    activeTab === s.id ? 'text-white bg-emerald-500/20' : 'text-emerald-200/60 hover:text-white hover:bg-emerald-500/10'
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <NavItem id="secretariat" icon={<FileText size={18}/>} label="Secrétariat" active={activeTab} onClick={setActiveTab} />
+        <NavItem id="boutique" icon={<ShoppingCart size={18}/>} label="Boutique" active={activeTab} onClick={setActiveTab} />
+        <NavItem id="finances" icon={<Landmark size={18}/>} label="Finances" active={activeTab} onClick={setActiveTab} />
       </nav>
-      <button onClick={toggleDarkMode} className={`mt-6 flex items-center justify-between p-5 rounded-[24px] border transition-all ${darkMode ? 'bg-slate-900 border-slate-800 text-emerald-400' : 'bg-slate-50 border-slate-200 text-slate-500'}`}>
-        <span className="text-[9px] font-black uppercase tracking-widest italic">Version {darkMode ? 'Sombre' : 'Claire'}</span>
-        {darkMode ? <Moon size={20} fill="currentColor" /> : <Sun size={20} fill="currentColor" />}
+
+      {/* BOUTON DARK MODE - UNIQUE ET CONTRASTÉ */}
+      <button 
+        onClick={toggleDarkMode}
+        className={`mt-6 mx-auto w-14 h-14 flex items-center justify-center rounded-full border-2 transition-all shadow-lg
+          ${darkMode 
+            ? 'bg-[#FDFBF7] border-white text-[#1B4332] hover:scale-110' 
+            : 'bg-[#0A110D] border-[#2D6A4F] text-emerald-400 hover:scale-110'}`}
+      >
+        {darkMode ? <Sun size={28} fill="currentColor" /> : <Moon size={28} fill="currentColor" />}
       </button>
     </aside>
   );
 };
+
+const NavItem = ({ id, icon, label, active, onClick }: any) => (
+  <button
+    onClick={() => onClick(id)}
+    className={`w-full flex items-center space-x-4 px-5 py-4 rounded-xl font-bold uppercase text-[10px] tracking-widest transition-all ${
+      active === id 
+        ? 'bg-[#DDA15E] text-[#283618] shadow-lg' 
+        : 'hover:bg-white/5 text-emerald-100/70 hover:text-white'
+    }`}
+  >
+    {icon}
+    <span>{label}</span>
+  </button>
+);
 
 export default Sidebar;
