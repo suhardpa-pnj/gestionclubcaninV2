@@ -9,7 +9,7 @@ authDomain: "gestionclubcaninv2.firebaseapp.com",
   projectId: "gestionclubcaninv2",
   
   // ICI : On force l'application à utiliser ton bucket GCS
-  storageBucket: "gestion-acv-storage", 
+storageBucket: "gestionclubcaninv2.firebasestorage.app",
   
   messagingSenderId: "897167468441",
   appId: "1:897167468441:web:2f8b8f3b7b8f3b7b8f3b7b" // Ton App ID actuel
