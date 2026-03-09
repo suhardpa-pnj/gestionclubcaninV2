@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { Lock } from 'lucide-react';
 
 const Login = ({ onLogin }: { onLogin: (r: string) => void }) => {
   const [pass, setPass] = useState('');
 
   return (
-    <div className="h-screen w-full flex items-center justify-center bg-[#F4F1EA] p-6 font-sans">
+    <div className="h-screen w-full flex items-center justify-center bg-[#F4F1EA] p-6">
       <div className="w-full max-w-sm flex flex-col items-center">
         <img src="https://drive.google.com/thumbnail?id=1OpIY0AEaoBUT_CAqIIkV9Y8shhUvyq_u&sz=w400" className="w-32 h-32 mb-8 drop-shadow-2xl" alt="Logo ACV" />
         <div className="bg-white p-10 rounded-[40px] shadow-2xl w-full border border-emerald-50">
