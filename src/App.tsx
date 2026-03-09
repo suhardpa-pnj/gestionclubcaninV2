@@ -14,13 +14,18 @@ import { Menu } from 'lucide-react';
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  // AJOUT DE L'ÉTAT DU LOGIN
+  const [userRole, setUserRole] = useState<string | null>(null);
   const { fetchData, isLoading, darkMode } = useStore();
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  // ÉCRAN DE GARDE : Si pas de rôle (pas connecté), on affiche uniquement le Login
+  if (!userRole) return <Login onLogin={(role) => setUserRole(role)} />;
+
   if (isLoading) return (
     <div className="h-screen flex items-center justify-center bg-[#FDFBF7] text-[#1B4332] font-black italic animate-pulse">
-      ACV • Chargement...
+      ACV • Synchronisation...
     </div>
   );
 
@@ -49,7 +54,7 @@ function App() {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden" onClick={() => setIsSidebarOpen(false)} />
       )}
 
-      {/* Contenu Principal - On évite le blanc pur, on reste sur le Sable (#FDFBF7) */}
+      {/* Contenu Principal */}
       <main className={`flex-1 p-6 lg:p-12 lg:ml-72 transition-all`}>
         <div className="max-w-6xl mx-auto pt-12 lg:pt-0">
           {activeTab === 'dashboard' && <Dashboard />}
