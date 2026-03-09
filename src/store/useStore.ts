@@ -8,7 +8,9 @@ interface ClubState {
   activeOrder: { status: 'none' | 'pending', date: string };
   toggleDarkMode: () => void;
   fetchData: () => Promise<void>;
-  updateDogPhoto: (dogId: string, photoUrl: string) => Promise<void>; // Nouveau bouton
+  addMember: (m: any) => Promise<void>; // Restauré pour le build
+  addTransaction: (t: any) => Promise<void>; // Restauré pour le build
+  updateDogPhoto: (dogId: string, photoUrl: string) => Promise<void>;
   seedBoutique: () => Promise<void>;
   sellProduct: (pId: string, qty: number, price: number) => Promise<void>;
 }
@@ -39,6 +41,16 @@ export const useStore = create<ClubState>((set, get) => ({
     } catch (e) { set({ isLoading: false }); }
   },
 
+  addMember: async (m) => {
+    await addDoc(collection(db, "members"), m);
+    get().fetchData();
+  },
+
+  addTransaction: async (t) => {
+    await addDoc(collection(db, "transactions"), t);
+    get().fetchData();
+  },
+
   updateDogPhoto: async (dogId, photoUrl) => {
     const dRef = doc(db, "dogs", dogId);
     await updateDoc(dRef, { photo: photoUrl });
@@ -55,11 +67,18 @@ export const useStore = create<ClubState>((set, get) => ({
       { name: "Mini Chiot", price: 65, cost: 53.52, url: "https://www.france-croquettes.fr/boutique/chien/nature-mini-chiots-20kg/" },
       { name: "Gold Compétition 32/22", price: 68, cost: 56.16, url: "https://www.france-croquettes.fr/boutique/chien/nature-gold-competition-32-22-20kg/" }
     ];
+    
+    // On nettoie d'abord les anciens produits pour éviter les doublons vides
+    const pSnap = await getDocs(collection(db, "products"));
+    pSnap.forEach(p => batch.delete(p.ref));
+
     refs.forEach(p => {
       const pRef = doc(collection(db, "products"));
-      batch.set(pRef, { ...p, stock: 10, category: "Croquettes" });
+      batch.set(pRef, { ...p, stock: 10, category: "Croquettes", weight: "20kg" });
     });
+    
     await batch.commit();
+    alert("✅ Boutique initialisée !");
     get().fetchData();
   },
 
