@@ -1,6 +1,10 @@
 import { create } from 'zustand';
-import { db } from '../firebase/config';
-import { collection, addDoc, getDocs, query, orderBy, writeBatch, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { db, storage } from '../firebase/config';
+import { 
+  collection, addDoc, getDocs, query, orderBy, 
+  writeBatch, doc, updateDoc, deleteDoc 
+} from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 interface ClubState {
   members: any[];
@@ -13,8 +17,9 @@ interface ClubState {
   toggleDarkMode: () => void;
   fetchData: () => Promise<void>;
   addMember: (m: any) => Promise<void>;
+  updateMember: (id: string, data: any) => Promise<void>; // Nouvelle fonction
   addTransaction: (t: any) => Promise<void>;
-  updateDogPhoto: (dogId: string, photoUrl: string) => Promise<void>;
+  uploadDogPhoto: (dogId: string, file: File) => Promise<void>;
   seedBoutique: () => Promise<void>;
   sellProduct: (pId: string, qty: number, price: number) => Promise<void>;
 }
@@ -47,7 +52,7 @@ export const useStore = create<ClubState>((set, get) => ({
         isLoading: false 
       });
     } catch (e) {
-      console.error("Erreur de chargement:", e);
+      console.error("Erreur de synchronisation:", e);
       set({ isLoading: false });
     }
   },
@@ -57,27 +62,40 @@ export const useStore = create<ClubState>((set, get) => ({
     get().fetchData();
   },
 
+  updateMember: async (id, data) => {
+    const mRef = doc(db, "members", id);
+    await updateDoc(mRef, data);
+    get().fetchData(); // Rafraîchit les données après modification
+  },
+
   addTransaction: async (t) => {
     await addDoc(collection(db, "transactions"), t);
     get().fetchData();
   },
 
-  updateDogPhoto: async (dogId, photoUrl) => {
-    const dRef = doc(db, "dogs", dogId);
-    await updateDoc(dRef, { photo: photoUrl });
-    get().fetchData();
+  uploadDogPhoto: async (dogId, file) => {
+    try {
+      const storageRef = ref(storage, `dogs/${dogId}_${Date.now()}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      
+      const dRef = doc(db, "dogs", dogId);
+      await updateDoc(dRef, { photo: downloadURL });
+      
+      get().fetchData();
+    } catch (e) {
+      console.error("Erreur upload:", e);
+      alert("Erreur lors de l'envoi de l'image sur le stockage ACV");
+    }
   },
 
   seedBoutique: async () => {
     try {
       const batch = writeBatch(db);
-      
-      // 1. Suppression des anciens produits pour éviter les doublons
       const pSnap = await getDocs(collection(db, "products"));
       pSnap.forEach(p => batch.delete(p.ref));
       await batch.commit();
 
-      // 2. Création des 6 références propres avec IDs fixes
       const newBatch = writeBatch(db);
       const refs = [
         { id: "gold-28-16", name: "Gold 28/16", price: 58, cost: 51.36, img: "https://www.france-croquettes.fr/wp-content/uploads/2018/11/NATURE-GOLD-28-16.png", url: "https://www.france-croquettes.fr/boutique/chien/nature-gold-28-16-20kg/" },
@@ -94,10 +112,9 @@ export const useStore = create<ClubState>((set, get) => ({
       });
 
       await newBatch.commit();
-      alert("✅ Boutique réinitialisée sans doublons !");
       get().fetchData();
     } catch (e) {
-      alert("Erreur lors de l'initialisation de la boutique");
+      console.error("Erreur initialisation boutique:", e);
     }
   },
 
@@ -105,6 +122,7 @@ export const useStore = create<ClubState>((set, get) => ({
     const pRef = doc(db, "products", pId);
     const product = get().products.find(p => p.id === pId);
     if (!product) return;
+    
     await updateDoc(pRef, { stock: (product.stock || 0) - qty });
     await addDoc(collection(db, "transactions"), {
       date: new Date().toISOString().split('T')[0],
@@ -113,6 +131,7 @@ export const useStore = create<ClubState>((set, get) => ({
       type: 'Crédit',
       category: 'Boutique'
     });
+    
     set({ activeOrder: { status: 'pending', date: 'Samedi 14 Mars' } });
     get().fetchData();
   }
