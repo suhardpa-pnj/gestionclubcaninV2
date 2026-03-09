@@ -9,7 +9,9 @@ interface ClubState {
   activeOrder: { status: 'none' | 'pending', date: string };
   toggleDarkMode: () => void;
   fetchData: () => Promise<void>;
+  addMember: (m: any) => Promise<void>; // Restauré pour le build
   updateMember: (id: string, data: any) => Promise<void>;
+  addTransaction: (t: any) => Promise<void>; // Restauré pour le build
   uploadMemberPhoto: (id: string, file: File) => Promise<void>;
   uploadDogPhoto: (dogId: string, file: File) => Promise<void>;
   seedBoutique: () => Promise<void>;
@@ -41,8 +43,18 @@ export const useStore = create<ClubState>((set, get) => ({
     } catch (e) { set({ isLoading: false }); }
   },
 
+  addMember: async (m) => {
+    await addDoc(collection(db, "members"), m);
+    get().fetchData();
+  },
+
   updateMember: async (id, data) => {
     await updateDoc(doc(db, "members", id), data);
+    get().fetchData();
+  },
+
+  addTransaction: async (t) => {
+    await addDoc(collection(db, "transactions"), t);
     get().fetchData();
   },
 
@@ -56,7 +68,7 @@ export const useStore = create<ClubState>((set, get) => ({
 
   uploadDogPhoto: async (dogId, file) => {
     const storageRef = ref(storage, `dogs/${dogId}_${Date.now()}`);
-    const snapshot = await uploadBytes(storageRef, file);
+    const snapshot = await uploadBytes(snapshot.ref, file);
     const url = await getDownloadURL(snapshot.ref);
     await updateDoc(doc(db, "dogs", dogId), { photo: url });
     get().fetchData();
@@ -93,7 +105,7 @@ export const useStore = create<ClubState>((set, get) => ({
       type: 'Crédit',
       category: 'Boutique'
     });
-    set({ activeOrder: { status: 'pending', date: 'Samedi Prochain' } });
+    set({ activeOrder: { status: 'pending', date: 'Samedi' } });
     get().fetchData();
   }
 }));
