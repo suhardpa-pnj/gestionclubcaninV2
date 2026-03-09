@@ -1,36 +1,24 @@
 import { create } from 'zustand';
 import { db, storage } from '../firebase/config';
-import { 
-  collection, addDoc, getDocs, query, orderBy, 
-  writeBatch, doc, updateDoc, deleteDoc 
-} from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, orderBy, writeBatch, doc, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 interface ClubState {
-  members: any[];
-  dogs: any[];
-  transactions: any[];
-  products: any[];
-  isLoading: boolean;
-  darkMode: boolean;
+  members: any[]; dogs: any[]; transactions: any[]; products: any[];
+  isLoading: boolean; darkMode: boolean;
   activeOrder: { status: 'none' | 'pending', date: string };
   toggleDarkMode: () => void;
   fetchData: () => Promise<void>;
-  addMember: (m: any) => Promise<void>;
-  updateMember: (id: string, data: any) => Promise<void>; // Nouvelle fonction
-  addTransaction: (t: any) => Promise<void>;
+  updateMember: (id: string, data: any) => Promise<void>;
+  uploadMemberPhoto: (id: string, file: File) => Promise<void>;
   uploadDogPhoto: (dogId: string, file: File) => Promise<void>;
   seedBoutique: () => Promise<void>;
   sellProduct: (pId: string, qty: number, price: number) => Promise<void>;
 }
 
 export const useStore = create<ClubState>((set, get) => ({
-  members: [],
-  dogs: [],
-  transactions: [],
-  products: [],
-  isLoading: true,
-  darkMode: false,
+  members: [], dogs: [], transactions: [], products: [],
+  isLoading: true, darkMode: false,
   activeOrder: { status: 'none', date: 'Pas de commande en cours' },
 
   toggleDarkMode: () => set((state) => ({ darkMode: !state.darkMode })),
@@ -43,7 +31,6 @@ export const useStore = create<ClubState>((set, get) => ({
         getDocs(query(collection(db, "transactions"), orderBy("date", "desc"))),
         getDocs(collection(db, "products"))
       ]);
-
       set({ 
         members: mS.docs.map(d => ({ id: d.id, ...d.data() })),
         dogs: dS.docs.map(d => ({ id: d.id, ...d.data() })),
@@ -51,76 +38,54 @@ export const useStore = create<ClubState>((set, get) => ({
         products: pS.docs.map(d => ({ id: d.id, ...d.data() })),
         isLoading: false 
       });
-    } catch (e) {
-      console.error("Erreur de synchronisation:", e);
-      set({ isLoading: false });
-    }
-  },
-
-  addMember: async (m) => {
-    await addDoc(collection(db, "members"), m);
-    get().fetchData();
+    } catch (e) { set({ isLoading: false }); }
   },
 
   updateMember: async (id, data) => {
-    const mRef = doc(db, "members", id);
-    await updateDoc(mRef, data);
-    get().fetchData(); // Rafraîchit les données après modification
-  },
-
-  addTransaction: async (t) => {
-    await addDoc(collection(db, "transactions"), t);
+    await updateDoc(doc(db, "members", id), data);
     get().fetchData();
   },
 
- uploadDogPhoto: async (dogId, file) => { // Le nom officiel est ici
-    try {
-      const storageRef = ref(storage, `dogs/${dogId}_${Date.now()}`);
-      const snapshot = await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(snapshot.ref);
-      const dRef = doc(db, "dogs", dogId);
-      await updateDoc(dRef, { photo: downloadURL });
-      get().fetchData();
-    } catch (e) {
-      console.error("Erreur upload:", e);
-    }
+  uploadMemberPhoto: async (id, file) => {
+    const storageRef = ref(storage, `members/${id}_${Date.now()}`);
+    const snapshot = await uploadBytes(storageRef, file);
+    const url = await getDownloadURL(snapshot.ref);
+    await updateDoc(doc(db, "members", id), { photo: url });
+    get().fetchData();
+  },
+
+  uploadDogPhoto: async (dogId, file) => {
+    const storageRef = ref(storage, `dogs/${dogId}_${Date.now()}`);
+    const snapshot = await uploadBytes(storageRef, file);
+    const url = await getDownloadURL(snapshot.ref);
+    await updateDoc(doc(db, "dogs", dogId), { photo: url });
+    get().fetchData();
   },
 
   seedBoutique: async () => {
-    try {
-      const batch = writeBatch(db);
-      const pSnap = await getDocs(collection(db, "products"));
-      pSnap.forEach(p => batch.delete(p.ref));
-      await batch.commit();
+    const batch = writeBatch(db);
+    const pSnap = await getDocs(collection(db, "products"));
+    pSnap.forEach(p => batch.delete(p.ref));
+    await batch.commit();
 
-      const newBatch = writeBatch(db);
-      const refs = [
-        { id: "gold-28-16", name: "Gold 28/16", price: 58, cost: 51.36, img: "https://www.france-croquettes.fr/wp-content/uploads/2018/11/NATURE-GOLD-28-16.png", url: "https://www.france-croquettes.fr/boutique/chien/nature-gold-28-16-20kg/" },
-        { id: "equilibre-25-10", name: "Équilibre 25/10", price: 44, cost: 41.28, img: "https://www.france-croquettes.fr/wp-content/uploads/2018/11/NATURE-EQUILIBRE-25-10.png", url: "https://www.france-croquettes.fr/boutique/chien/nature-equilibre-25-10-20kg/" },
-        { id: "super-light-26-8", name: "Super Light 26/8", price: 60, cost: 52.80, img: "https://www.france-croquettes.fr/wp-content/uploads/2018/11/NATURE-SUPER-LIGHT-26-8.png", url: "https://www.france-croquettes.fr/boutique/chien/nature-super-light-26-8-20kg/" },
-        { id: "maxi-chiots", name: "Maxi Chiots", price: 65, cost: 53.52, img: "https://www.france-croquettes.fr/wp-content/uploads/2018/11/NATURE-MAXI-CHIOTS.png", url: "https://www.france-croquettes.fr/boutique/chien/nature-maxi-chiots-20kg/" },
-        { id: "mini-chiot", name: "Mini Chiot", price: 65, cost: 53.52, img: "https://www.france-croquettes.fr/wp-content/uploads/2018/11/NATURE-MINI-CHIOTS.png", url: "https://www.france-croquettes.fr/boutique/chien/nature-mini-chiots-20kg/" },
-        { id: "gold-competition-32-22", name: "Gold Compétition 32/22", price: 68, cost: 56.16, img: "https://www.france-croquettes.fr/wp-content/uploads/2018/11/NATURE-GOLD-COMPETITION-32-22.png", url: "https://www.france-croquettes.fr/boutique/chien/nature-gold-competition-32-22-20kg/" }
-      ];
-
-      refs.forEach(p => {
-        const pRef = doc(db, "products", p.id);
-        newBatch.set(pRef, { ...p, stock: 10, weight: "20kg" });
-      });
-
-      await newBatch.commit();
-      get().fetchData();
-    } catch (e) {
-      console.error("Erreur initialisation boutique:", e);
-    }
+    const newBatch = writeBatch(db);
+    const refs = [
+      { id: "gold-28-16", name: "Gold 28/16", price: 58, cost: 51.36, img: "https://www.france-croquettes.fr/wp-content/uploads/2018/11/NATURE-GOLD-28-16.png" },
+      { id: "equilibre-25-10", name: "Équilibre 25/10", price: 44, cost: 41.28, img: "https://www.france-croquettes.fr/wp-content/uploads/2018/11/NATURE-EQUILIBRE-25-10.png" },
+      { id: "super-light-26-8", name: "Super Light 26/8", price: 60, cost: 52.80, img: "https://www.france-croquettes.fr/wp-content/uploads/2018/11/NATURE-SUPER-LIGHT-26-8.png" },
+      { id: "maxi-chiots", name: "Maxi Chiots", price: 65, cost: 53.52, img: "https://www.france-croquettes.fr/wp-content/uploads/2018/11/NATURE-MAXI-CHIOTS.png" },
+      { id: "mini-chiot", name: "Mini Chiot", price: 65, cost: 53.52, img: "https://www.france-croquettes.fr/wp-content/uploads/2018/11/NATURE-MINI-CHIOTS.png" },
+      { id: "gold-competition", name: "Gold Compétition 32/22", price: 68, cost: 56.16, img: "https://www.france-croquettes.fr/wp-content/uploads/2018/11/NATURE-GOLD-COMPETITION-32-22.png" }
+    ];
+    refs.forEach(p => newBatch.set(doc(db, "products", p.id), { ...p, stock: 10, category: "Croquettes" }));
+    await newBatch.commit();
+    get().fetchData();
   },
 
   sellProduct: async (pId, qty, price) => {
-    const pRef = doc(db, "products", pId);
     const product = get().products.find(p => p.id === pId);
     if (!product) return;
-    
-    await updateDoc(pRef, { stock: (product.stock || 0) - qty });
+    await updateDoc(doc(db, "products", pId), { stock: (product.stock || 0) - qty });
     await addDoc(collection(db, "transactions"), {
       date: new Date().toISOString().split('T')[0],
       label: `Vente ${product.name}`,
@@ -128,8 +93,7 @@ export const useStore = create<ClubState>((set, get) => ({
       type: 'Crédit',
       category: 'Boutique'
     });
-    
-    set({ activeOrder: { status: 'pending', date: 'Samedi 14 Mars' } });
+    set({ activeOrder: { status: 'pending', date: 'Samedi Prochain' } });
     get().fetchData();
   }
 }));
