@@ -73,19 +73,16 @@ export const useStore = create<ClubState>((set, get) => ({
     get().fetchData();
   },
 
-  uploadDogPhoto: async (dogId, file) => {
+ uploadDogPhoto: async (dogId, file) => { // Le nom officiel est ici
     try {
       const storageRef = ref(storage, `dogs/${dogId}_${Date.now()}`);
       const snapshot = await uploadBytes(storageRef, file);
       const downloadURL = await getDownloadURL(snapshot.ref);
-      
       const dRef = doc(db, "dogs", dogId);
       await updateDoc(dRef, { photo: downloadURL });
-      
       get().fetchData();
     } catch (e) {
       console.error("Erreur upload:", e);
-      alert("Erreur lors de l'envoi de l'image sur le stockage ACV");
     }
   },
 
