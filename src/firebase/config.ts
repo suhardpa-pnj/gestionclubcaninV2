@@ -16,5 +16,7 @@ authDomain: "gestionclubcaninv2.firebaseapp.com",
 };
 
 const app = initializeApp(firebaseConfig);
+
+// Exportation des services pour le reste de l'application
 export const db = getFirestore(app);
-export const storage = getStorage(app); // Export indispensable
+export const storage = getStorage(app);
