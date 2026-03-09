@@ -16,9 +16,7 @@ function App() {
   const { fetchData, isLoading, darkMode, dogs } = useStore();
   const [bgDog, setBgDog] = useState<string | null>(null);
 
-  useEffect(() => { 
-    fetchData(); 
-  }, [fetchData]);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   useEffect(() => {
     if (dogs.length > 0) {
@@ -44,12 +42,7 @@ function App() {
 
       <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden fixed top-5 left-5 z-40 p-3 bg-[#1B4332] text-white rounded-xl shadow-lg"><Menu size={20} /></button>
       
-      <Sidebar 
-        activeTab={activeTab} 
-        isOpen={isSidebarOpen} 
-        onClose={() => setIsSidebarOpen(false)} 
-        setActiveTab={(t) => { setActiveTab(t); setIsSidebarOpen(false); }} 
-      />
+      <Sidebar activeTab={activeTab} isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} setActiveTab={(t) => { setActiveTab(t); setIsSidebarOpen(false); }} />
 
       <main className="flex-1 p-6 lg:p-12 lg:ml-72 relative z-10">
         <div className="max-w-6xl mx-auto pt-12 lg:pt-0">
