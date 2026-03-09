@@ -1,90 +1,90 @@
 import React from 'react';
 import { useStore } from '../store/useStore';
-import { Dog, Plus, Camera, Award, Link as LinkIcon } from 'lucide-react';
+import { Dog, Plus, Camera, Link as LinkIcon } from 'lucide-react';
 
 const Dogs = () => {
-  const { dogs, members, darkMode, updateDogPhoto } = useStore();
+  // Correction : on utilise uploadDogPhoto au lieu de updateDogPhoto
+  const { dogs, members, darkMode, uploadDogPhoto } = useStore();
+
+  const handleFileUpload = async (dogId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      await uploadDogPhoto(dogId, file);
+    }
+  };
 
   return (
-    <div className="space-y-8">
-      {/* HEADER COMPACT */}
-      <div className="flex justify-between items-end">
+    <div className="space-y-12 animate-in fade-in duration-700">
+      {/* HEADER HARMONISÉ */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
-          <h2 className={`text-4xl font-black uppercase italic tracking-tighter ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
-            Les <span className="text-[#BC6C25]">Chiens</span>
+          <h2 className={`text-5xl font-serif italic tracking-tight ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
+            La <span className="text-[#BC6C25]">Meute</span>
           </h2>
-          <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest italic">Gestion de la meute • {dogs.length} chiens</p>
+          <p className="text-[#BC6C25] text-[10px] font-black uppercase tracking-[0.3em] mt-3 italic">
+            Amicale Canine Vernoise • {dogs.length} chiens
+          </p>
         </div>
-        <button className="p-3 bg-[#1B4332] text-white rounded-2xl shadow-lg hover:scale-105 transition-all">
-          <Plus size={20} />
+        <button className="p-5 bg-[#1B4332] text-white rounded-[24px] shadow-xl hover:scale-105 active:scale-95 transition-all">
+          <Plus size={24} />
         </button>
       </div>
 
-      {/* GRILLE DES CHIENS (VIGNETTES XS) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* GRILLE HARMONISÉE */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-8">
         {dogs.map((dog) => {
           const owner = members.find(m => m.id === dog.ownerId);
           
           return (
-            <div key={dog.id} className={`group relative p-4 rounded-[32px] border transition-all ${
-              darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-sm'
+            <div key={dog.id} className={`group relative p-8 rounded-[40px] border transition-all duration-500 hover:-translate-y-2 ${
+              darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-2xl shadow-emerald-900/5'
             }`}>
               
-              {/* PHOTO DE PROFIL */}
-              <div className="relative w-full aspect-square mb-4 rounded-[24px] overflow-hidden bg-[#FDFBF7] border border-slate-100">
+              {/* PHOTO DE PROFIL AVEC UPLOAD */}
+              <div className="relative w-full aspect-square mb-8 rounded-[32px] overflow-hidden bg-[#FDFBF7] border border-emerald-50 shadow-inner">
                 {dog.photo ? (
-                  <img src={dog.photo} alt={dog.name} className="w-full h-full object-cover" />
+                  <img src={dog.photo} alt={dog.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-[#DDA15E]/30">
-                    <Dog size={48} strokeWidth={1} />
+                  <div className="w-full h-full flex items-center justify-center text-[#DDA15E]/20">
+                    <Dog size={64} strokeWidth={1} />
                   </div>
                 )}
-                {/* BOUTON PHOTO RAPIDE */}
-                <button 
-                  onClick={() => {
-                    const url = prompt("URL de la photo (Google Drive ou autre) :");
-                    if (url) updateDogPhoto(dog.id, url);
-                  }}
-                  className="absolute bottom-2 right-2 p-2 bg-white/90 backdrop-blur text-[#1B4332] rounded-xl opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
-                >
-                  <Camera size={14} />
-                </button>
+                
+                {/* BOUTON PHOTO (APPAREIL) */}
+                <label className="absolute bottom-4 right-4 p-4 bg-white text-[#1B4332] rounded-2xl shadow-xl cursor-pointer opacity-0 group-hover:opacity-100 transition-all hover:bg-[#BC6C25] hover:text-white transform translate-y-2 group-hover:translate-y-0">
+                  <Camera size={20} />
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    className="hidden" 
+                    onChange={(e) => handleFileUpload(dog.id, e)}
+                  />
+                </label>
               </div>
 
-              {/* INFOS CHIEN */}
-              <div className="space-y-2">
-                <button className="text-left block w-full group/link">
-                  <h3 className={`text-sm font-black uppercase italic tracking-tight flex items-center gap-2 ${
-                    darkMode ? 'text-white' : 'text-[#1B4332]'
-                  }`}>
+              {/* INFOS CHIEN TYPO HARMONISÉE */}
+              <div className="space-y-4">
+                <div>
+                  <h3 className={`text-2xl font-serif italic tracking-tight leading-tight ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
                     {dog.name}
-                    <LinkIcon size={10} className="opacity-0 group-hover/link:opacity-100 text-[#BC6C25]" />
                   </h3>
-                </button>
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">
+                    Propriétaire : <span className="text-[#BC6C25]">{owner ? owner.name : 'NC'}</span>
+                  </p>
+                </div>
 
-                <p className="text-[9px] font-bold text-slate-400 uppercase leading-none">
-                  Proprio: <span className="text-slate-600">{owner ? `${owner.name} ${owner.firstName.charAt(0)}.` : 'Non assigné'}</span>
-                </p>
-
-                {/* SECTIONS (PASTILLES) */}
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {dog.sections && dog.sections.length > 0 ? (
-                    dog.sections.map((s: string) => (
-                      <span key={s} className="px-2 py-0.5 bg-[#1B4332]/5 text-[#1B4332] text-[7px] font-black uppercase rounded-md border border-[#1B4332]/10">
-                        {s}
-                      </span>
-                    ))
-                  ) : (
-                    <span className="text-[7px] font-bold text-slate-300 uppercase">Aucune section</span>
-                  )}
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {dog.sections?.map((s: string) => (
+                    <span key={s} className="px-3 py-1 bg-[#1B4332]/5 text-[#1B4332] text-[8px] font-black uppercase tracking-widest rounded-full border border-[#1B4332]/10 italic">
+                      {s}
+                    </span>
+                  ))}
                 </div>
               </div>
 
-              {/* BADGE AGE OU RACE (OPTIONNEL) */}
-              <div className="absolute top-6 left-6 pointer-events-none">
-                <span className="bg-[#BC6C25] text-white text-[7px] font-black px-2 py-1 rounded-lg uppercase shadow-lg">
-                  {dog.breed || 'NC'}
-                </span>
+              {/* PETIT BADGE RACE OU ID */}
+              <div className="absolute top-8 right-10 text-[8px] font-black text-slate-200 tracking-[0.3em] group-hover:text-[#BC6C25]/20 transition-colors">
+                {dog.breed || 'RACE NC'}
               </div>
             </div>
           );
