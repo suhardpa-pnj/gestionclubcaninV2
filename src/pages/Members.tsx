@@ -8,115 +8,33 @@ const Members = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const formatName = (first: string) => 
-    first ? first.charAt(0).toUpperCase() + first.slice(1).toLowerCase() : '';
-
-  const filteredMembers = members.filter(m => 
-    m.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    m.firstName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  if (selectedId) {
-    return <MemberDetail memberId={selectedId} onBack={() => setSelectedId(null)} />;
-  }
+  if (selectedId) return <MemberDetail memberId={selectedId} onBack={() => setSelectedId(null)} />;
 
   return (
-    <div className="space-y-12 animate-in fade-in duration-700">
-      {/* HEADER STYLE SECRÉTARIAT */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
-        <div>
-          <h2 className={`text-5xl font-serif italic tracking-tight ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
-            Les <span className="text-[#BC6C25]">Adhérents</span>
-          </h2>
-          <p className="text-[#BC6C25] text-[10px] font-black uppercase tracking-[0.3em] mt-3 italic">
-            Amicale Canine Vernoise • {members.length} membres
-          </p>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <div className="relative group">
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#BC6C25] transition-colors" size={20} />
-            <input 
-              type="text" 
-              placeholder="RECHERCHER..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className={`pl-14 pr-8 py-5 rounded-[24px] text-[10px] font-black tracking-[0.2em] border outline-none transition-all w-64 lg:w-96 ${
-                darkMode ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-emerald-50 shadow-2xl shadow-emerald-900/5'
-              } focus:ring-2 focus:ring-[#BC6C25]/20`}
-            />
-          </div>
-          <button className="p-5 bg-[#1B4332] text-white rounded-[24px] shadow-xl hover:scale-105 active:scale-95 transition-all">
-            <Plus size={24} />
-          </button>
+    <div className="space-y-10">
+      <div className="flex flex-col md:flex-row justify-between gap-6 items-end">
+        <h2 className={`text-4xl font-serif italic ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>Les Adhérents</h2>
+        <div className="flex gap-4">
+          <input type="text" placeholder="Rechercher..." onChange={(e)=>setSearchTerm(e.target.value)} className={`px-6 py-3 rounded-2xl outline-none text-xs font-bold border ${darkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-emerald-50 shadow-sm'}`} />
+          <button className="p-3 bg-[#1B4332] text-white rounded-2xl"><Plus size={20}/></button>
         </div>
       </div>
 
-      {/* GRILLE STYLE AI STUDIO */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10">
-        {filteredMembers.map((m) => {
-          const memberDogs = dogs.filter(d => d.ownerId === m.id || d.ownerName?.includes(m.name));
-          
+      <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-4">
+        {members.filter(m => m.name.toLowerCase().includes(searchTerm.toLowerCase())).map(m => {
+          const mDogs = dogs.filter(d => d.ownerId === m.id);
           return (
-            <div 
-              key={m.id} 
-              className={`group relative p-10 rounded-[40px] border transition-all duration-500 hover:-translate-y-2 ${
-                darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-2xl shadow-emerald-900/5'
-              }`}
-            >
-              <div className="flex items-start gap-6 mb-8">
-                {/* AVATAR ÉLÉGANT */}
-                <div className="w-16 h-16 bg-[#FDFBF7] border border-emerald-50 rounded-[24px] flex items-center justify-center text-[#DDA15E] shrink-0 shadow-inner group-hover:scale-110 transition-transform duration-500">
-                  <User size={28} />
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <button 
-                    onClick={() => setSelectedId(m.id)}
-                    className="text-left block w-full group/name"
-                  >
-                    <h3 className={`text-2xl font-serif italic leading-tight group-hover/name:text-[#BC6C25] transition-colors ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
-                      {m.name} {formatName(m.firstName)}
-                    </h3>
-                    {m.binome && (
-                      <p className="text-[9px] text-[#BC6C25] font-black uppercase tracking-[0.1em] mt-1 italic">
-                        & {m.binome}
-                      </p>
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {/* PASTILLES CHIENS */}
-              <div className="flex flex-wrap gap-2 mb-10">
-                {memberDogs.map(d => (
-                  <span key={d.id} className="px-3 py-1 bg-[#1B4332]/5 text-[#1B4332] text-[8px] font-black uppercase tracking-widest rounded-full border border-[#1B4332]/10 italic">
-                    {d.name}
-                  </span>
+            <div key={m.id} className={`p-6 rounded-[32px] border transition-all hover:shadow-lg ${darkMode ? 'bg-[#1A1F1C] border-slate-700' : 'bg-white border-emerald-50'}`}>
+              <button onClick={() => setSelectedId(m.id)} className="text-left w-full mb-4">
+                <h3 className={`text-sm font-black uppercase tracking-tight truncate ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>{m.name} {m.firstName.charAt(0)}.</h3>
+                {mDogs.map(d => (
+                  <p key={d.id} className="text-[#BC6C25] text-[16px] font-serif italic leading-tight mt-1">{d.name}</p>
                 ))}
-                {memberDogs.length === 0 && (
-                  <span className="text-[8px] font-black uppercase text-slate-300 tracking-widest italic">Aucun chien</span>
-                )}
-              </div>
-
-              {/* ACTIONS & DOCS */}
-              <div className="pt-8 border-t border-slate-50 flex items-center justify-between">
-                <a 
-                  href={`tel:${m.phone}`} 
-                  className="flex items-center gap-3 px-5 py-3 bg-[#1B4332] text-white rounded-2xl hover:bg-[#2D6A4F] transition-all text-[9px] font-black uppercase tracking-[0.2em] shadow-lg shadow-emerald-900/20"
-                >
-                  <Phone size={14} /> Appeler
+              </button>
+              <div className="flex justify-between items-center pt-4 border-t border-slate-50">
+                <a href={`tel:${m.phone}`} title={m.phone} className="flex items-center gap-2 px-3 py-2 bg-emerald-50 text-[#1B4332] rounded-xl text-[9px] font-black uppercase">
+                  <Phone size={12} /> <span className="hidden lg:inline">{m.phone}</span>
                 </a>
-                
-                <div className="flex gap-2">
-                  <DocIndicator status={m.docVaccin === 'oui'} label="V" />
-                  <DocIndicator status={m.docAssurance === 'oui'} label="A" />
-                  <DocIndicator status={m.docACMA === 'oui'} label="M" />
-                </div>
-              </div>
-
-              <div className="absolute top-8 right-10 text-[8px] font-black text-slate-200 tracking-[0.3em] group-hover:text-[#BC6C25]/20 transition-colors">
-                {m.id}
               </div>
             </div>
           );
@@ -125,15 +43,4 @@ const Members = () => {
     </div>
   );
 };
-
-const DocIndicator = ({ status, label }: { status: boolean; label: string }) => (
-  <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-[10px] font-black transition-all ${
-    status 
-      ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20' 
-      : 'bg-slate-100 text-slate-300'
-  }`}>
-    {label}
-  </div>
-);
-
 export default Members;
