@@ -1,116 +1,115 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useStore } from '../store/useStore';
 import { 
-  LayoutDashboard, Users, Dog, ShoppingBag, 
-  ClipboardCheck, Calendar, Layers, CreditCard, 
-  Network, FileText, DollarSign 
+  LayoutDashboard, Users, Dog, Landmark, 
+  ShoppingCart, FileText, ChevronDown, 
+  ChevronRight, Sun, Moon, X 
 } from 'lucide-react';
 
-const navigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Adhérents', href: '/members', icon: Users },
-  { name: 'Les Chiens', href: '/dogs', icon: Dog },
-  { name: 'Boutique', href: '/shop', icon: ShoppingBag },
-  { name: 'Présences', href: import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Users, 
-  Dog, 
-  ShoppingBag, 
-  ClipboardCheck, 
-  Calendar, 
-  Layers, 
-  CreditCard, 
-  Sitemap, 
-  FileText, 
-  DollarSign 
-} from 'lucide-react';
-
-const navigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Adhérents', href: '/members', icon: Users },
-  { name: 'Les Chiens', href: '/dogs', icon: Dog },
-  { name: 'Boutique', href: '/shop', icon: ShoppingBag },
-  { name: 'Présences', href: '/attendance', icon: ClipboardCheck },
-  { name: 'Planning', href: '/planning', icon: Calendar },
-  { name: 'Sections', href: '/sections', icon: Layers },
-  { name: 'Cotisations', href: '/fees', icon: CreditCard },
-  { name: 'Organigramme', href: '/org-chart', icon: Sitemap },
-  { name: 'Secrétariat', href: '/admin', icon: FileText },
-  { name: 'Finances', href: '/finances', icon: DollarSign },
-];
-
-export default function Sidebar() {
-  return (
-    <div className="flex flex-col w-64 bg-gray-900 text-white h-screen fixed left-0 top-0 overflow-y-auto border-r border-gray-800 transition-colors duration-300">
-      <div className="p-6">
-        <h1 className="text-2xl font-bold text-blue-500">ACV Gestion</h1>
-      </div>
-      <nav className="flex-1 px-4 space-y-1">
-        {navigation.map((item) => (
-          <NavLink
-            key={item.name}
-            to={item.href}
-            className={({ isActive }) =>
-              `flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
-                isActive
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20'
-                  : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-              }`
-            }
-          >
-            <item.icon className="mr-3 h-5 w-5" />
-            {item.name}
-          </NavLink>
-        ))}
-      </nav>
-    </div>
-  );
+interface SidebarProps {
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
-'/attendance', icon: ClipboardCheck },
-  { name: 'Planning', href: '/planning', icon: Calendar },
-  { name: 'Sections', href: '/sections', icon: Layers },
-  { name: 'Cotisations', href: '/fees', icon: CreditCard },
-  { name: 'Organigramme', href: '/org-chart', icon: Network },
-  { name: 'Secrétariat', href: '/admin', icon: FileText },
-  { name: 'Finances', href: '/finances', icon: DollarSign },
-];
 
-export default function Sidebar() {
+const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, onClose }) => {
+  const { darkMode, toggleDarkMode } = useStore();
+  const [sectionsOpen, setSectionsOpen] = useState(false);
+
+  const sections = [
+    { id: 'section-chiots', label: 'École du Chiot' },
+    { id: 'section-education', label: 'Éducation' },
+    { id: 'section-obeissance', label: 'Obéissance' },
+    { id: 'section-agility', label: 'Agility' },
+    { id: 'section-ring', label: 'Ring' },
+  ];
+
   return (
-    <div className="flex flex-col w-64 bg-[#1B4332] text-white h-screen fixed left-0 top-0 overflow-y-auto border-r border-emerald-900 shadow-2xl z-50">
-      <div className="p-8">
-        <h1 className="text-2xl font-serif italic font-bold text-white border-b border-emerald-700/50 pb-4">
-          ACV Gestion
+    <aside className={`fixed left-0 top-0 h-screen w-72 border-r z-50 transition-all duration-500 flex flex-col p-6
+      ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      ${darkMode ? 'bg-[#0A110D] border-slate-800' : 'bg-[#1B4332] border-emerald-900 text-white'}
+    `}>
+      <button onClick={onClose} className="lg:hidden absolute top-6 right-6 text-emerald-200"><X size={24} /></button>
+
+      {/* LOGO ACV */}
+      <div className="flex flex-col items-center mb-10 pt-4">
+        <img 
+          src="https://drive.google.com/thumbnail?id=1OpIY0AEaoBUT_CAqIIkV9Y8shhUvyq_u&sz=w200" 
+          alt="Logo ACV" 
+          className="w-24 h-24 mb-3 drop-shadow-xl"
+        />
+        <h1 className="text-[10px] font-black uppercase tracking-[0.3em] text-center opacity-80">
+          Amicale Canine<br/>Vernoise
         </h1>
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400/60 mt-2 italic">
-          Club Canin • Nature
-        </p>
       </div>
-      
-      <nav className="flex-1 px-4 pb-8 space-y-2">
-        {navigation.map((item) => (
-          <NavLink
-            key={item.name}
-            to={item.href}
-            className={({ isActive }) =>
-              `flex items-center px-6 py-3.5 text-sm font-medium rounded-2xl transition-all duration-300 ${
-                isActive
-                  ? 'bg-[#BC6C25] text-white shadow-lg translate-x-2 font-bold'
-                  : 'text-emerald-100/70 hover:bg-emerald-900/40 hover:text-white hover:translate-x-1'
-              }`
-            }
+
+      <nav className="flex-1 space-y-1 overflow-y-auto custom-scrollbar">
+        <NavItem id="dashboard" icon={<LayoutDashboard size={18}/>} label="Dashboard" active={activeTab} onClick={setActiveTab} />
+        <NavItem id="membres" icon={<Users size={18}/>} label="Adhérents" active={activeTab} onClick={setActiveTab} />
+        <NavItem id="leschiens" icon={<Dog size={18}/>} label="Les Chiens" active={activeTab} onClick={setActiveTab} />
+        
+        {/* MENU DÉROULANT SECTIONS */}
+        <div className="py-1">
+          <button 
+            onClick={() => setSectionsOpen(!sectionsOpen)}
+            className={`w-full flex items-center justify-between px-5 py-3 rounded-xl font-bold uppercase text-[10px] tracking-widest transition-all ${darkMode ? 'hover:bg-slate-900' : 'hover:bg-[#2D6A4F]'}`}
           >
-            {({ isActive }) => (
-              <>
-                <item.icon className={`mr-4 h-5 w-5 ${isActive ? 'text-white' : 'text-emerald-600'}`} />
-                <span>{item.name}</span>
-              </>
-            )}
-          </NavLink>
-        ))}
+            <div className="flex items-center gap-4">
+              <FileText size={18} />
+              <span>Sections</span>
+            </div>
+            {sectionsOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+          </button>
+          
+          {sectionsOpen && (
+            <div className="mt-1 ml-9 space-y-1 border-l border-emerald-700/30">
+              {sections.map(s => (
+                <button
+                  key={s.id}
+                  onClick={() => setActiveTab(s.id)}
+                  className={`w-full text-left px-4 py-2 text-[9px] font-bold uppercase tracking-wider transition-all rounded-r-lg ${
+                    activeTab === s.id ? 'text-white bg-emerald-500/20' : 'text-emerald-200/60 hover:text-white hover:bg-emerald-500/10'
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <NavItem id="secretariat" icon={<FileText size={18}/>} label="Secrétariat" active={activeTab} onClick={setActiveTab} />
+        <NavItem id="boutique" icon={<ShoppingCart size={18}/>} label="Boutique" active={activeTab} onClick={setActiveTab} />
+        <NavItem id="finances" icon={<Landmark size={18}/>} label="Finances" active={activeTab} onClick={setActiveTab} />
       </nav>
-    </div>
+
+      {/* BOUTON DARK MODE - UNIQUE ET CONTRASTÉ */}
+      <button 
+        onClick={toggleDarkMode}
+        className={`mt-6 mx-auto w-14 h-14 flex items-center justify-center rounded-full border-2 transition-all shadow-lg
+          ${darkMode 
+            ? 'bg-[#FDFBF7] border-white text-[#1B4332] hover:scale-110' 
+            : 'bg-[#0A110D] border-[#2D6A4F] text-emerald-400 hover:scale-110'}`}
+      >
+        {darkMode ? <Sun size={28} fill="currentColor" /> : <Moon size={28} fill="currentColor" />}
+      </button>
+    </aside>
   );
-}
+};
+
+const NavItem = ({ id, icon, label, active, onClick }: any) => (
+  <button
+    onClick={() => onClick(id)}
+    className={`w-full flex items-center space-x-4 px-5 py-4 rounded-xl font-bold uppercase text-[10px] tracking-widest transition-all ${
+      active === id 
+        ? 'bg-[#DDA15E] text-[#283618] shadow-lg' 
+        : 'hover:bg-white/5 text-emerald-100/70 hover:text-white'
+    }`}
+  >
+    {icon}
+    <span>{label}</span>
+  </button>
+);
+
+export default Sidebar;
