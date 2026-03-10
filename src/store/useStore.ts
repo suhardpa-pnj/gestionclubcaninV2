@@ -4,13 +4,14 @@ import { collection, addDoc, getDocs, query, orderBy, writeBatch, doc, updateDoc
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 interface ClubState {
-  members: any[]; dogs: any[]; transactions: any[]; products: any[];
+  members: any[]; dogs: any[]; transactions: any[]; products: any[]; attendances: any[];
   isLoading: boolean; darkMode: boolean;
   toggleDarkMode: () => void;
   fetchData: () => Promise<void>;
   addMember: (m: any) => Promise<void>;
   updateMember: (id: string, data: any) => Promise<void>;
   addTransaction: (t: any) => Promise<void>;
+  addAttendance: (a: any) => Promise<void>; // Nouvelle fonction
   uploadMemberPhoto: (id: string, file: File) => Promise<void>;
   uploadDogPhoto: (dogId: string, file: File) => Promise<void>;
   uploadProductPhoto: (productId: string, file: File) => Promise<void>;
@@ -19,24 +20,26 @@ interface ClubState {
 }
 
 export const useStore = create<ClubState>((set, get) => ({
-  members: [], dogs: [], transactions: [], products: [],
+  members: [], dogs: [], transactions: [], products: [], attendances: [],
   isLoading: true, darkMode: false,
 
   toggleDarkMode: () => set((state) => ({ darkMode: !state.darkMode })),
 
   fetchData: async () => {
     try {
-      const [mS, dS, tS, pS] = await Promise.all([
+      const [mS, dS, tS, pS, aS] = await Promise.all([
         getDocs(collection(db, "members")),
         getDocs(collection(db, "dogs")),
         getDocs(query(collection(db, "transactions"), orderBy("date", "desc"))),
-        getDocs(collection(db, "products"))
+        getDocs(collection(db, "products")),
+        getDocs(query(collection(db, "attendances"), orderBy("date", "desc"))) // Chargement des présences
       ]);
       set({ 
         members: mS.docs.map(d => ({ id: d.id, ...d.data() })),
         dogs: dS.docs.map(d => ({ id: d.id, ...d.data() })),
         transactions: tS.docs.map(d => ({ id: d.id, ...d.data() })),
         products: pS.docs.map(d => ({ id: d.id, ...d.data() })),
+        attendances: aS.docs.map(d => ({ id: d.id, ...d.data() })),
         isLoading: false 
       });
     } catch (e) { set({ isLoading: false }); }
@@ -57,6 +60,12 @@ export const useStore = create<ClubState>((set, get) => ({
     get().fetchData();
   },
 
+  addAttendance: async (a) => {
+    await addDoc(collection(db, "attendances"), a);
+    get().fetchData();
+  },
+
+  // ... (le reste de tes fonctions upload et boutique reste identique)
   uploadMemberPhoto: async (id, file) => {
     const storageRef = ref(storage, `members/${id}`);
     const snapshot = await uploadBytes(storageRef, file);
@@ -75,7 +84,7 @@ export const useStore = create<ClubState>((set, get) => ({
 
   uploadProductPhoto: async (productId, file) => {
     const storageRef = ref(storage, `products/${productId}`);
-    const snapshot = await uploadBytes(storageRef, file);
+    const snapshot = await uploadBytes(snapshot.ref, file);
     const url = await getDownloadURL(snapshot.ref);
     await updateDoc(doc(db, "products", productId), { img: url });
     get().fetchData();
