@@ -6,19 +6,20 @@ import Dashboard from './pages/Dashboard';
 import Members from './pages/Members';
 import Dogs from './pages/Dogs';
 
-// Pages temporaires (pour éviter les erreurs de build)
-const Shop = () => <div className="p-10 text-[#1B4332] font-serif italic text-3xl">Boutique • À venir</div>;
-const Attendance = () => <div className="p-10 text-[#1B4332] font-serif italic text-3xl">Présences</div>;
-const Planning = () => <div className="p-10 text-[#1B4332] font-serif italic text-3xl">Planning</div>;
-const Sections = () => <div className="p-10 text-[#1B4332] font-serif italic text-3xl">Sections</div>;
-const Fees = () => <div className="p-10 text-[#1B4332] font-serif italic text-3xl">Cotisations</div>;
-const OrgChart = () => <div className="p-10 text-[#1B4332] font-serif italic text-3xl">Organigramme</div>;
-const Admin = () => <div className="p-10 text-[#1B4332] font-serif italic text-3xl">Secrétariat</div>;
-const Finances = () => <div className="p-10 text-[#1B4332] font-serif italic text-3xl">Finances</div>;
+// Pages temporaires respectant ton thème Nature
+const Placeholder = ({ title }: { title: string }) => (
+  <div className="p-10">
+    <h2 className="text-5xl font-serif italic text-[#1B4332]">{title}</h2>
+    <p className="text-[#BC6C25] text-[10px] font-black uppercase tracking-[0.3em] mt-3 italic">
+      Amicale Canine Vernoise • Section en cours de préparation
+    </p>
+  </div>
+);
 
 function App() {
   const { fetchData } = useStore();
 
+  // IMPORTANT : C'est cette ligne qui fait apparaître tes 55 membres et tes chiens
   useEffect(() => {
     fetchData();
   }, [fetchData]);
@@ -29,7 +30,7 @@ function App() {
         <Sidebar />
         
         <main className="flex-1 ml-64 min-h-screen relative overflow-hidden">
-          {/* Image de fond "Nature" discrète */}
+          {/* Ton image de fond Nature d'origine */}
           <div 
             className="absolute inset-0 z-0 opacity-10 pointer-events-none"
             style={{
@@ -39,19 +40,19 @@ function App() {
             }}
           />
           
-          <div className="relative z-10 p-4">
+          <div className="relative z-10 p-8">
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/members" element={<Members />} />
               <Route path="/dogs" element={<Dogs />} />
-              <Route path="/shop" element={<Shop />} />
-              <Route path="/attendance" element={<Attendance />} />
-              <Route path="/planning" element={<Planning />} />
-              <Route path="/sections" element={<Sections />} />
-              <Route path="/fees" element={<Fees />} />
-              <Route path="/org-chart" element={<OrgChart />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/finances" element={<Finances />} />
+              <Route path="/shop" element={<Placeholder title="La Boutique" />} />
+              <Route path="/attendance" element={<Placeholder title="Présences" />} />
+              <Route path="/planning" element={<Placeholder title="Planning" />} />
+              <Route path="/sections" element={<Placeholder title="Sections" />} />
+              <Route path="/fees" element={<Placeholder title="Cotisations" />} />
+              <Route path="/org-chart" element={<Placeholder title="Organigramme" />} />
+              <Route path="/admin" element={<Placeholder title="Secrétariat" />} />
+              <Route path="/finances" element={<Placeholder title="Finances" />} />
             </Routes>
           </div>
         </main>
