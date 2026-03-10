@@ -4,16 +4,17 @@ import Sidebar from './components/layout/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Members from './pages/Members';
 import Dogs from './pages/Dogs';
-import Shop from './pages/Shop';
 
-// Composants temporaires pour les nouvelles pages
-const Attendance = () => <div className="p-8"><h1 className="text-3xl font-bold">Présences</h1><p className="mt-4 text-gray-400">Page en cours de création...</p></div>;
-const Planning = () => <div className="p-8"><h1 className="text-3xl font-bold">Planning</h1><p className="mt-4 text-gray-400">Page en cours de création...</p></div>;
-const Sections = () => <div className="p-8"><h1 className="text-3xl font-bold">Sections</h1><p className="mt-4 text-gray-400">Page en cours de création...</p></div>;
-const Fees = () => <div className="p-8"><h1 className="text-3xl font-bold">Cotisations</h1><p className="mt-4 text-gray-400">Page en cours de création...</p></div>;
-const OrgChart = () => <div className="p-8"><h1 className="text-3xl font-bold">Organigramme</h1><p className="mt-4 text-gray-400">Page en cours de création...</p></div>;
-const Admin = () => <div className="p-8"><h1 className="text-3xl font-bold">Secrétariat</h1><p className="mt-4 text-gray-400">Page en cours de création...</p></div>;
-const Finances = () => <div className="p-8"><h1 className="text-3xl font-bold">Finances</h1><p className="mt-4 text-gray-400">En attente...</p></div>;
+// On simule Shop s'il n'est pas encore créé proprement pour éviter l'erreur de build
+const Shop = () => <div className="p-8"><h1 className="text-3xl font-bold text-white">Boutique</h1><p className="mt-4 text-gray-400">Page boutique en cours...</p></div>;
+
+const Attendance = () => <div className="p-8"><h1 className="text-3xl font-bold text-white">Présences</h1><p className="mt-4 text-gray-400">Page en cours de création...</p></div>;
+const Planning = () => <div className="p-8"><h1 className="text-3xl font-bold text-white">Planning</h1><p className="mt-4 text-gray-400">Page en cours de création...</p></div>;
+const Sections = () => <div className="p-8"><h1 className="text-3xl font-bold text-white">Sections</h1><p className="mt-4 text-gray-400">Page en cours de création...</p></div>;
+const Fees = () => <div className="p-8"><h1 className="text-3xl font-bold text-white">Cotisations</h1><p className="mt-4 text-gray-400">Page en cours de création...</p></div>;
+const OrgChart = () => <div className="p-8"><h1 className="text-3xl font-bold text-white">Organigramme</h1><p className="mt-4 text-gray-400">Page en cours de création...</p></div>;
+const Admin = () => <div className="p-8"><h1 className="text-3xl font-bold text-white">Secrétariat</h1><p className="mt-4 text-gray-400">Page en cours de création...</p></div>;
+const Finances = () => <div className="p-8"><h1 className="text-3xl font-bold text-white">Finances</h1><p className="mt-4 text-gray-400">En attente...</p></div>;
 
 function App() {
   return (
@@ -21,7 +22,6 @@ function App() {
       <div className="flex min-h-screen bg-gray-950 text-gray-100 font-sans">
         <Sidebar />
         <main className="flex-1 ml-64 min-h-screen relative overflow-hidden">
-          {/* Image de fond avec contraste augmenté comme demandé */}
           <div 
             className="absolute inset-0 z-0 opacity-20 pointer-events-none"
             style={{
