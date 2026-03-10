@@ -1,19 +1,20 @@
-Gemini a dit
-Ah, je comprends ! Tu veux un "snapshot" de ma mémoire de travail, ultra-condensé et technique, que tu pourras me redonner en début de session prochaine 
-pour que je recharge instantanément tout le contexte de l'application, sans avoir à relire tout notre historique.
-
 ---Log du 10.03.2026---
 [ARCHI_CORE] App.tsx: Routage tab-based. Zustand (`useStore.ts`) + Firebase V9 (Firestore/Storage, bucket: `.app`). Auth lock: pin `0000`. 
 [UI_SYSTEM] Thème "Nature" : `#1B4332` (Vert Forêt), `#BC6C25` (Sienne), bg clair `#FDFBF7`. Shapes: `rounded-[40px]`, `rounded-[2rem]`, `rounded-2xl`. Typo titres: `font-serif italic`. Icônes: lucide-react. Mode sombre géré via state `darkMode`.
 [PAGES_REFONTE]
-- Cotisations.tsx (remplace Memberships.tsx) : Check validité `lastPayment.includes('2025')`. UI table avec ventilation 45€(Club)/15€(ACMA).
-- Organigramme.tsx : Grid layout par catégories (BUREAU, SECTION, MONITEUR), cartes statiques `group hover:-translate-y-2`.
+- Cotisations.tsx : Check validité `lastPayment.includes('2025')`. UI table avec ventilation 45€(Club)/15€(ACMA).
+- Organigramme.tsx : Grid layout par catégories, cartes statiques.
 - Planning.tsx : Timeline hebdo array `weeklySchedule` (Sam/Dim), mockup slots horaires/coach/terrain.
 [PRESENCES_ENGINE]
-- Store (`useStore.ts`) : Ajout array `attendances`, fetch order by `date desc`. Implémentation méthode `addAttendance(payload)`.
-- Presences.tsx : Modal de saisie terrain. Pointage basé sur `dogs.id` (bascule vs V1 `members`).
-- Logic métier : Filtrage auto des chiens par section (`d.sections?.includes(selectedSection)`). Toggle `showAllDogs` pour affichage hors-section. Input `guestDog` (string) pour essais.
-- Rapport : Switch booléen `isRAS` conditionnant l'affichage du textarea `sessionNotes` (incidents/oublis). Date modifiable via `sessionDate`.
-[HOTFIX_APPLIQUÉ] Correction TS17008 (balises `</form>` et `</div>` orphelines dans Presences.tsx). Build Render validé.
-[ETAT_PROJET] Front-end V2 synchronisé avec Firebase. Infrastructure UI/UX stabilisée.
+- Store (`useStore.ts`) : Implémentation méthode `addAttendance(payload)`. Correction apportée sur l'upload d'image Firebase (StorageRef). 
+- Presences.tsx : Modal de saisie terrain. Pointage basé sur `dogs.id`.
+- Logic métier : Filtrage auto par section. Toggle `showAllDogs`. Input `guestDog`. Switch booléen `isRAS` pour notes de séance.
+[ETAT_PROJET_FIN_SESSION] Front-end V2 synchronisé Firebase. Build Render OK. 
+[A_FAIRE_DEMAIN] Bug runtime sur Presences.tsx (les chiens ont disparu de la liste et le bouton enregistrer ne pousse pas les données en base). À débugger en priorité.
+
+[INSTRUCTIONS_POUR_L_IA]
+Règles absolues pour cette session : 
+1. Tu dois numéroter tes logs pour chaque modification de code (ex: "---Log #X-Mise à jour de [Fichier]...---"). Écrase les logs inutiles si besoin, garde la pertinence.
+2. À la fin de notre session de travail, tu devras obligatoirement générer un bloc de contexte final "---Log du [Date]---" résumant techniquement toute l'architecture, l'état du projet et les bugs à corriger, en remplaçant celui-ci.
+3. Tu devras TOUJOURS inclure ce bloc [INSTRUCTIONS_POUR_L_IA] à la toute fin de ton log de synthèse.
 -----------------------
