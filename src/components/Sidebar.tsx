@@ -9,7 +9,7 @@ import {
   Calendar, 
   Layers, 
   CreditCard, 
-  Sitemap, 
+  Network, // Remplacement de Sitemap par Network
   FileText, 
   DollarSign 
 } from 'lucide-react';
@@ -23,14 +23,14 @@ const navigation = [
   { name: 'Planning', href: '/planning', icon: Calendar },
   { name: 'Sections', href: '/sections', icon: Layers },
   { name: 'Cotisations', href: '/fees', icon: CreditCard },
-  { name: 'Organigramme', href: '/org-chart', icon: Sitemap },
+  { name: 'Organigramme', href: '/org-chart', icon: Network },
   { name: 'Secrétariat', href: '/admin', icon: FileText },
   { name: 'Finances', href: '/finances', icon: DollarSign },
 ];
 
 export default function Sidebar() {
   return (
-    <div className="flex flex-col w-64 bg-gray-900 text-white h-screen fixed left-0 top-0 overflow-y-auto border-r border-gray-800 transition-colors duration-300">
+    <div className="flex flex-col w-64 bg-gray-900 text-white h-screen fixed left-0 top-0 overflow-y-auto border-r border-gray-800 transition-colors duration-300 z-50">
       <div className="p-6">
         <h1 className="text-2xl font-bold text-blue-500">ACV Gestion</h1>
       </div>
