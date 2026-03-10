@@ -79,4 +79,25 @@ const Planning = () => {
                       <span className="text-[11px] font-bold uppercase tracking-tight">{session.coach}</span>
                     </div>
                     <div className="flex items-center gap-3 text-slate-400">
-                      <MapPin size={14} className="text-[#BC6C
+                      <MapPin size={14} className="text-[#BC6C25]/50" />
+                      <span className="text-[11px] font-bold uppercase tracking-tight italic">{session.spot}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* NOTE DE BAS DE PAGE */}
+      <div className={`p-10 rounded-[40px] border-2 border-dashed text-center ${darkMode ? 'border-slate-800' : 'border-emerald-100'}`}>
+        <p className="text-slate-400 font-serif italic">
+          Les horaires peuvent varier en fonction de la météo ou des événements exceptionnels.
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default Planning;
