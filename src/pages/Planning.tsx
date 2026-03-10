@@ -25,7 +25,6 @@ const Planning = () => {
 
   return (
     <div className="space-y-12 animate-in fade-in duration-700">
-      {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <h2 className={`text-5xl font-serif italic ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
@@ -41,11 +40,9 @@ const Planning = () => {
         </div>
       </div>
 
-      {/* TIMELINE PAR JOUR */}
       <div className="space-y-16">
         {weeklySchedule.map((dayPlan) => (
           <div key={dayPlan.day} className="relative">
-            {/* LIGNE DE SÉPARATION JOUR */}
             <div className="flex items-center gap-4 mb-8">
               <h3 className={`text-2xl font-serif italic px-6 py-2 rounded-full border ${
                 darkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-[#1B4332] border-transparent text-white'
@@ -55,24 +52,18 @@ const Planning = () => {
               <div className={`h-px flex-1 ${darkMode ? 'bg-slate-800' : 'bg-emerald-100'}`}></div>
             </div>
 
-            {/* GRILLE DES SESSIONS */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {dayPlan.sessions.map((session, idx) => (
                 <div key={idx} className={`group p-8 rounded-[40px] border transition-all duration-500 hover:-translate-y-2 ${
                   darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-xl shadow-emerald-900/5'
                 }`}>
-                  {/* HEURE */}
                   <div className="flex items-center gap-2 text-[#BC6C25] mb-6">
                     <Clock size={16} />
                     <span className="text-[10px] font-black uppercase tracking-widest">{session.time}</span>
                   </div>
-
-                  {/* TITRE */}
                   <h4 className={`text-2xl font-serif italic mb-6 leading-tight ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
                     {session.title}
                   </h4>
-
-                  {/* DETAILS */}
                   <div className="space-y-3 pt-6 border-t border-slate-100/10">
                     <div className="flex items-center gap-3 text-slate-400">
                       <User size={14} className="text-[#BC6C25]/50" />
@@ -88,13 +79,6 @@ const Planning = () => {
             </div>
           </div>
         ))}
-      </div>
-
-      {/* NOTE DE BAS DE PAGE */}
-      <div className={`p-10 rounded-[40px] border-2 border-dashed text-center ${darkMode ? 'border-slate-800' : 'border-emerald-100'}`}>
-        <p className="text-slate-400 font-serif italic">
-          Les horaires peuvent varier en fonction de la météo ou des événements exceptionnels.
-        </p>
       </div>
     </div>
   );
