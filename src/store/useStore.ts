@@ -11,7 +11,7 @@ interface ClubState {
   addMember: (m: any) => Promise<void>;
   updateMember: (id: string, data: any) => Promise<void>;
   addTransaction: (t: any) => Promise<void>;
-  addAttendance: (a: any) => Promise<void>; // Nouvelle fonction
+  addAttendance: (a: any) => Promise<void>;
   uploadMemberPhoto: (id: string, file: File) => Promise<void>;
   uploadDogPhoto: (dogId: string, file: File) => Promise<void>;
   uploadProductPhoto: (productId: string, file: File) => Promise<void>;
@@ -32,7 +32,7 @@ export const useStore = create<ClubState>((set, get) => ({
         getDocs(collection(db, "dogs")),
         getDocs(query(collection(db, "transactions"), orderBy("date", "desc"))),
         getDocs(collection(db, "products")),
-        getDocs(query(collection(db, "attendances"), orderBy("date", "desc"))) // Chargement des présences
+        getDocs(query(collection(db, "attendances"), orderBy("date", "desc")))
       ]);
       set({ 
         members: mS.docs.map(d => ({ id: d.id, ...d.data() })),
@@ -65,7 +65,6 @@ export const useStore = create<ClubState>((set, get) => ({
     get().fetchData();
   },
 
-  // ... (le reste de tes fonctions upload et boutique reste identique)
   uploadMemberPhoto: async (id, file) => {
     const storageRef = ref(storage, `members/${id}`);
     const snapshot = await uploadBytes(storageRef, file);
@@ -84,7 +83,8 @@ export const useStore = create<ClubState>((set, get) => ({
 
   uploadProductPhoto: async (productId, file) => {
     const storageRef = ref(storage, `products/${productId}`);
-    const snapshot = await uploadBytes(snapshot.ref, file);
+    // C'est ici qu'était l'erreur ! Corrigé avec storageRef :
+    const snapshot = await uploadBytes(storageRef, file); 
     const url = await getDownloadURL(snapshot.ref);
     await updateDoc(doc(db, "products", productId), { img: url });
     get().fetchData();
