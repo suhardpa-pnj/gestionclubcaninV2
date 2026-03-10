@@ -1,62 +1,56 @@
-import React, { useState, useEffect } from 'react';
-import Sidebar from './components/Sidebar';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Sidebar from './components/layout/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Members from './pages/Members';
 import Dogs from './pages/Dogs';
-import Boutique from './pages/Boutique';
-import Secretariat from './pages/Secretariat';
-import Login from './components/Login';
-import { useStore } from './store/useStore';
-import { Menu } from 'lucide-react';
+import Shop from './pages/Shop';
+
+// Composants temporaires pour les nouvelles pages
+const Attendance = () => <div className="p-8"><h1 className="text-3xl font-bold">Présences</h1><p className="mt-4 text-gray-400">Page en cours de création...</p></div>;
+const Planning = () => <div className="p-8"><h1 className="text-3xl font-bold">Planning</h1><p className="mt-4 text-gray-400">Page en cours de création...</p></div>;
+const Sections = () => <div className="p-8"><h1 className="text-3xl font-bold">Sections</h1><p className="mt-4 text-gray-400">Page en cours de création...</p></div>;
+const Fees = () => <div className="p-8"><h1 className="text-3xl font-bold">Cotisations</h1><p className="mt-4 text-gray-400">Page en cours de création...</p></div>;
+const OrgChart = () => <div className="p-8"><h1 className="text-3xl font-bold">Organigramme</h1><p className="mt-4 text-gray-400">Page en cours de création...</p></div>;
+const Admin = () => <div className="p-8"><h1 className="text-3xl font-bold">Secrétariat</h1><p className="mt-4 text-gray-400">Page en cours de création...</p></div>;
+const Finances = () => <div className="p-8"><h1 className="text-3xl font-bold">Finances</h1><p className="mt-4 text-gray-400">En attente...</p></div>;
 
 function App() {
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [userRole, setUserRole] = useState<string | null>(localStorage.getItem('acv_role'));
-  const { fetchData, isLoading, darkMode, dogs } = useStore();
-  const [bgDog, setBgDog] = useState<string | null>(null);
-
-  useEffect(() => { fetchData(); }, [fetchData]);
-
-  useEffect(() => {
-    const dogsWithPhotos = dogs.filter(d => d.photo && d.photo !== '');
-    if (dogsWithPhotos.length > 0) {
-      const dailyIdx = new Date().getDate() % dogsWithPhotos.length;
-      setBgDog(dogsWithPhotos[dailyIdx].photo);
-    }
-  }, [dogs]);
-
-  const handleLogin = (role: string) => {
-    localStorage.setItem('acv_role', role);
-    setUserRole(role);
-  };
-
-  if (!userRole) return <Login onLogin={handleLogin} />;
-  
   return (
-    <div className={`flex min-h-screen relative transition-colors duration-500 ${
-      darkMode ? 'bg-[#121614] text-slate-200' : 'bg-[#F4F1EA] text-[#334155]'
-    }`}>
-      {!darkMode && bgDog && (
-        <div className="fixed inset-0 pointer-events-none opacity-5 z-0">
-          <img src={bgDog} className="w-full h-full object-cover grayscale" alt="" />
-        </div>
-      )}
-
-      <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden fixed top-5 left-5 z-40 p-3 bg-[#1B4332] text-white rounded-xl shadow-lg"><Menu size={20} /></button>
-      
-      <Sidebar activeTab={activeTab} isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} setActiveTab={(t) => { setActiveTab(t); setIsSidebarOpen(false); }} />
-
-      <main className="flex-1 p-6 lg:p-12 lg:ml-72 relative z-10">
-        <div className="max-w-6xl mx-auto pt-12 lg:pt-0">
-          {activeTab === 'dashboard' && <Dashboard />}
-          {activeTab === 'membres' && <Members />}
-          {activeTab === 'leschiens' && <Dogs />}
-          {activeTab === 'boutique' && <Boutique />}
-          {activeTab === 'secretariat' && <Secretariat />}
-        </div>
-      </main>
-    </div>
+    <Router>
+      <div className="flex min-h-screen bg-gray-950 text-gray-100 font-sans">
+        <Sidebar />
+        <main className="flex-1 ml-64 min-h-screen relative overflow-hidden">
+          {/* Image de fond avec contraste augmenté comme demandé */}
+          <div 
+            className="absolute inset-0 z-0 opacity-20 pointer-events-none"
+            style={{
+              backgroundImage: 'url("https://images.unsplash.com/photo-1541364983171-a8ba01d95cfc?auto=format&fit=crop&q=80")',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              filter: 'contrast(130%) brightness(80%)'
+            }}
+          />
+          
+          <div className="relative z-10">
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/members" element={<Members />} />
+              <Route path="/dogs" element={<Dogs />} />
+              <Route path="/shop" element={<Shop />} />
+              <Route path="/attendance" element={<Attendance />} />
+              <Route path="/planning" element={<Planning />} />
+              <Route path="/sections" element={<Sections />} />
+              <Route path="/fees" element={<Fees />} />
+              <Route path="/org-chart" element={<OrgChart />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/finances" element={<Finances />} />
+            </Routes>
+          </div>
+        </main>
+      </div>
+    </Router>
   );
 }
+
 export default App;
