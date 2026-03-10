@@ -3,7 +3,8 @@ import { useStore } from '../store/useStore';
 import { 
   LayoutDashboard, Users, Dog, Landmark, 
   ShoppingCart, FileText, ChevronDown, 
-  ChevronRight, Sun, Moon, X 
+  ChevronRight, Sun, Moon, X, Network,
+  CreditCard, ClipboardCheck, Calendar, Settings, History
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -15,14 +16,13 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, onClose }) => {
   const { darkMode, toggleDarkMode } = useStore();
-  const [sectionsOpen, setSectionsOpen] = useState(false);
 
   const sections = [
     { id: 'section-chiots', label: 'École du Chiot' },
-    { id: 'section-education', label: 'Éducation' },
-    { id: 'section-obeissance', label: 'Obéissance' },
-    { id: 'section-agility', label: 'Agility' },
     { id: 'section-ring', label: 'Ring' },
+    { id: 'section-agility', label: 'Agility' },
+    { id: 'section-obeissance', label: 'Obéissance' },
+    { id: 'section-education', label: 'Éducation' },
   ];
 
   return (
@@ -33,66 +33,58 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, onCl
       <button onClick={onClose} className="lg:hidden absolute top-6 right-6 text-emerald-200"><X size={24} /></button>
 
       {/* LOGO ACV */}
-      <div className="flex flex-col items-center mb-10 pt-4">
+      <div className="flex flex-col items-center mb-8 pt-4">
         <img 
           src="https://drive.google.com/thumbnail?id=1OpIY0AEaoBUT_CAqIIkV9Y8shhUvyq_u&sz=w200" 
           alt="Logo ACV" 
-          className="w-24 h-24 mb-3 drop-shadow-xl"
+          className="w-20 h-20 mb-3 drop-shadow-xl"
         />
-        <h1 className="text-[10px] font-black uppercase tracking-[0.3em] text-center opacity-80">
+        <h1 className="text-[9px] font-black uppercase tracking-[0.3em] text-center opacity-80">
           Amicale Canine<br/>Vernoise
         </h1>
       </div>
 
-      <nav className="flex-1 space-y-1 overflow-y-auto custom-scrollbar">
-        <NavItem id="dashboard" icon={<LayoutDashboard size={18}/>} label="Dashboard" active={activeTab} onClick={setActiveTab} />
-        <NavItem id="membres" icon={<Users size={18}/>} label="Adhérents" active={activeTab} onClick={setActiveTab} />
-        <NavItem id="leschiens" icon={<Dog size={18}/>} label="Les Chiens" active={activeTab} onClick={setActiveTab} />
-        
-        {/* MENU DÉROULANT SECTIONS */}
-        <div className="py-1">
-          <button 
-            onClick={() => setSectionsOpen(!sectionsOpen)}
-            className={`w-full flex items-center justify-between px-5 py-3 rounded-xl font-bold uppercase text-[10px] tracking-widest transition-all ${darkMode ? 'hover:bg-slate-900' : 'hover:bg-[#2D6A4F]'}`}
-          >
-            <div className="flex items-center gap-4">
-              <FileText size={18} />
-              <span>Sections</span>
-            </div>
-            {sectionsOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-          </button>
-          
-          {sectionsOpen && (
-            <div className="mt-1 ml-9 space-y-1 border-l border-emerald-700/30">
-              {sections.map(s => (
-                <button
-                  key={s.id}
-                  onClick={() => setActiveTab(s.id)}
-                  className={`w-full text-left px-4 py-2 text-[9px] font-bold uppercase tracking-wider transition-all rounded-r-lg ${
-                    activeTab === s.id ? 'text-white bg-emerald-500/20' : 'text-emerald-200/60 hover:text-white hover:bg-emerald-500/10'
-                  }`}
-                >
-                  {s.label}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <NavItem id="secretariat" icon={<FileText size={18}/>} label="Secrétariat" active={activeTab} onClick={setActiveTab} />
-        <NavItem id="boutique" icon={<ShoppingCart size={18}/>} label="Boutique" active={activeTab} onClick={setActiveTab} />
+      <nav className="flex-1 space-y-1 overflow-y-auto custom-scrollbar pr-2">
+        <NavItem id="dashboard" icon={<LayoutDashboard size={18}/>} label="Tableau de bord" active={activeTab} onClick={setActiveTab} />
+        <NavItem id="organigramme" icon={<Network size={18}/>} label="L'Organigramme" active={activeTab} onClick={setActiveTab} />
+        <NavItem id="membres" icon={<Users size={18}/>} label="Membres" active={activeTab} onClick={setActiveTab} />
+        <NavItem id="leschiens" icon={<Dog size={18}/>} label="Chiens" active={activeTab} onClick={setActiveTab} />
+        <NavItem id="cotisations" icon={<CreditCard size={18}/>} label="Cotisations" active={activeTab} onClick={setActiveTab} />
+        <NavItem id="boutique" icon={<ShoppingCart size={18}/>} label="Croquettes" active={activeTab} onClick={setActiveTab} />
         <NavItem id="finances" icon={<Landmark size={18}/>} label="Finances" active={activeTab} onClick={setActiveTab} />
+        <NavItem id="presences" icon={<ClipboardCheck size={18}/>} label="Présences" active={activeTab} onClick={setActiveTab} />
+        <NavItem id="planning" icon={<Calendar size={18}/>} label="Planning" active={activeTab} onClick={setActiveTab} />
+        <NavItem id="secretariat" icon={<FileText size={18}/>} label="Secrétariat" active={activeTab} onClick={setActiveTab} />
+
+        {/* ACTIVITÉS / SECTIONS */}
+        <div className="pt-6 pb-2 text-[8px] font-black uppercase tracking-[0.2em] opacity-40 px-5">Activités</div>
+        {sections.map(s => (
+          <button
+            key={s.id}
+            onClick={() => setActiveTab(s.id)}
+            className={`w-full flex items-center px-5 py-2 text-[9px] font-bold uppercase tracking-widest transition-all rounded-xl mb-1 ${
+              activeTab === s.id ? 'bg-emerald-500/20 text-white' : 'text-emerald-100/50 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <div className={`w-1.5 h-1.5 rounded-full border mr-4 ${activeTab === s.id ? 'bg-emerald-400 border-emerald-400' : 'border-emerald-500'}`}></div>
+            {s.label}
+          </button>
+        ))}
+
+        {/* SYSTÈME */}
+        <div className="pt-6 pb-2 text-[8px] font-black uppercase tracking-[0.2em] opacity-40 px-5">Système</div>
+        <NavItem id="logs" icon={<History size={16}/>} label="Logs" active={activeTab} onClick={setActiveTab} />
+        <NavItem id="parametres" icon={<Settings size={16}/>} label="Paramètres" active={activeTab} onClick={setActiveTab} />
       </nav>
 
-      {/* BOUTON DARK MODE - UNIQUE ET CONTRASTÉ */}
       <button 
         onClick={toggleDarkMode}
-        className={`mt-6 mx-auto w-14 h-14 flex items-center justify-center rounded-full border-2 transition-all shadow-lg
+        className={`mt-4 mx-auto w-12 h-12 flex items-center justify-center rounded-full border transition-all shadow-lg
           ${darkMode 
-            ? 'bg-[#FDFBF7] border-white text-[#1B4332] hover:scale-110' 
-            : 'bg-[#0A110D] border-[#2D6A4F] text-emerald-400 hover:scale-110'}`}
+            ? 'bg-[#FDFBF7] border-white text-[#1B4332]' 
+            : 'bg-[#0A110D] border-[#2D6A4F] text-emerald-400'}`}
       >
-        {darkMode ? <Sun size={28} fill="currentColor" /> : <Moon size={28} fill="currentColor" />}
+        {darkMode ? <Sun size={24} fill="currentColor" /> : <Moon size={24} fill="currentColor" />}
       </button>
     </aside>
   );
@@ -101,9 +93,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, onCl
 const NavItem = ({ id, icon, label, active, onClick }: any) => (
   <button
     onClick={() => onClick(id)}
-    className={`w-full flex items-center space-x-4 px-5 py-4 rounded-xl font-bold uppercase text-[10px] tracking-widest transition-all ${
+    className={`w-full flex items-center space-x-4 px-5 py-3 rounded-xl font-bold uppercase text-[10px] tracking-widest transition-all mb-1 ${
       active === id 
-        ? 'bg-[#DDA15E] text-[#283618] shadow-lg' 
+        ? 'bg-[#BC6C25] text-white shadow-lg' 
         : 'hover:bg-white/5 text-emerald-100/70 hover:text-white'
     }`}
   >
