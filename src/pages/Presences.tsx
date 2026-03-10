@@ -85,7 +85,7 @@ const Presences = () => {
                 <span className="text-[10px] font-bold text-slate-400">{att.date}</span>
               </div>
               <h3 className={`text-xl font-serif italic mb-4 ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
-                {att.presentDogIds?.length + (att.guestDog ? 1 : 0)} Chiens présents
+                {(att.presentDogIds?.length || 0) + (att.guestDog ? 1 : 0)} Chiens présents
               </h3>
               <div className="flex items-center gap-2 text-slate-400 text-[10px] font-bold uppercase tracking-tight">
                 <User size={14} className="text-[#BC6C25]" /> Moniteur : {coach?.name || 'Inconnu'}
@@ -149,4 +149,56 @@ const Presences = () => {
 
               {/* BINÔMES ET ESSAIS */}
               <div className="space-y-4">
-                <label className="text-[10px] font
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Appel des binômes ({sectionDogs.length})</label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {sectionDogs.map(dog => (
+                    <button type="button" key={dog.id} onClick={() => toggleDog(dog.id)}
+                      className={`p-4 rounded-2xl text-[10px] font-black uppercase tracking-tight transition-all border flex items-center justify-between ${
+                        presentDogIds.includes(dog.id) ? 'bg-[#1B4332] text-white border-transparent' : 'bg-white text-slate-400 border-slate-100'
+                      }`}
+                    >
+                      <span className="truncate">{dog.name}</span>
+                      {presentDogIds.includes(dog.id) && <Check size={14} />}
+                    </button>
+                  ))}
+                </div>
+                
+                <div className={`mt-4 p-4 rounded-2xl flex items-center gap-3 ${darkMode ? 'bg-slate-800' : 'bg-white shadow-inner'}`}>
+                  <Dog size={16} className="text-[#BC6C25]" />
+                  <input type="text" placeholder="Chien en essai (Nom)..." value={guestDog} onChange={(e) => setGuestDog(e.target.value)}
+                    className="w-full bg-transparent border-none outline-none font-bold text-xs"
+                  />
+                </div>
+              </div>
+
+              {/* RAS / NOTES */}
+              <div className="pt-6 border-t border-slate-100/10 space-y-4">
+                <label onClick={() => setIsRAS(!isRAS)} className="flex items-center gap-3 cursor-pointer group">
+                  <div className={`w-6 h-6 rounded-lg border flex items-center justify-center transition-all ${isRAS ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 group-hover:border-[#BC6C25]'}`}>
+                    {isRAS && <Check size={16} />}
+                  </div>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Rien à signaler (RAS)</span>
+                </label>
+
+                {!isRAS && (
+                  <textarea value={sessionNotes} onChange={(e) => setSessionNotes(e.target.value)}
+                    className={`w-full p-6 rounded-[2rem] border-none outline-none font-medium text-sm min-h-[100px] ${darkMode ? 'bg-slate-800 text-white' : 'bg-white shadow-inner'}`}
+                    placeholder="Détaillez ici l'incident (morsure, oubli ramassage, gâteau dû...)"
+                  />
+                )}
+              </div>
+            </div>
+
+            <div className="p-10 bg-[#1B4332]/5">
+              <button type="submit" className="w-full py-6 bg-[#1B4332] text-white rounded-[2rem] font-black uppercase tracking-[0.2em] text-[11px] shadow-xl hover:bg-[#BC6C25] transition-all">
+                Enregistrer la fiche de séance
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Presences;
