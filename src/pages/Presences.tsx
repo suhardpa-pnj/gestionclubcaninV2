@@ -125,4 +125,28 @@ const Presences = () => {
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Date du cours</label>
                   <input type="date" value={sessionDate} onChange={(e) => setSessionDate(e.target.value)}
-                    className={`w-full p-4 rounded-2xl border-none
+                    className={`w-full p-4 rounded-2xl border-none font-bold outline-none text-sm ${darkMode ? 'bg-slate-800 text-white' : 'bg-white shadow-inner'}`}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Cours / Section</label>
+                  <select value={selectedSection} onChange={(e) => { setSelectedSection(e.target.value); setShowAllDogs(false); }}
+                    className={`w-full p-4 rounded-2xl border-none font-bold outline-none h-[52px] ${darkMode ? 'bg-slate-800 text-white' : 'bg-white shadow-inner'}`}
+                  >
+                    {sectionsList.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Moniteur</label>
+                  <select required value={responsibleId} onChange={(e) => setResponsibleId(e.target.value)}
+                    className={`w-full p-4 rounded-2xl border-none font-bold outline-none h-[52px] ${darkMode ? 'bg-slate-800 text-white' : 'bg-white shadow-inner'}`}
+                  >
+                    <option value="">Sélectionner...</option>
+                    {members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              {/* BINÔMES ET ESSAIS */}
+              <div className="space-y-4">
+                <label className="text-[10px] font
