@@ -1,116 +1,51 @@
-import React, { useState, useEffect } from 'react';
-import { db } from '../firebase/config'; // Chemin corrigé selon ton fichier
-import { collection, onSnapshot } from 'firebase/firestore';
-import { Search, X, Mail, Phone, MapPin, Calendar, ExternalLink } from 'lucide-react';
+import React, { useState } from 'react';
+import { useStore } from '../store/useStore';
+import { User, Phone, Search } from 'lucide-react';
+import MemberDetail from './MemberDetail';
 
-interface Member {
-  id: string;
-  firstName: string;
-  lastName: string;
-  photoUrl: string;
-  email: string;
-  phone: string;
-  address: string;
-  city: string;
-  zipCode: string;
-  joinDate: string;
-  status: 'A jour' | 'En retard';
-  dogName: string;
-  dogPhotoUrl: string;
-}
-
-export default function Members() {
-  const [members, setMembers] = useState<Member[]>([]);
+const Members = () => {
+  const { members, dogs, darkMode } = useStore();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedMember, setSelectedMember] = useState<Member | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  useEffect(() => {
-    // On écoute la collection 'members' (vérifie si c'est bien ce nom dans ta console Firebase)
-    const unsubscribe = onSnapshot(collection(db, 'members'), (snapshot) => {
-      const data = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Member[];
-      setMembers(data);
-      setLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  const filteredMembers = members.filter(m =>
-    m.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    m.dogName?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  if (loading) return <div className="p-8 text-white">Connexion à la base de données...</div>;
+  if (selectedId) return <MemberDetail memberId={selectedId} onBack={() => setSelectedId(null)} />;
 
   return (
-    <div className="p-4 md:p-8">
-      <div className="mb-8">
-        <h1 className="text-4xl font-extrabold text-white">Adhérents</h1>
-        <p className="text-gray-400 mt-2">Gestion des {members.length} membres</p>
-      </div>
-
-      <div className="relative max-w-md mb-8">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5" />
-        <input
-          type="text"
-          placeholder="Rechercher un prénom..."
-          className="w-full bg-gray-900/50 border border-gray-800 rounded-xl py-3 pl-10 pr-4 text-white focus:border-blue-500 transition-all outline-none"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredMembers.map((member) => (
-          <div
-            key={member.id}
-            onClick={() => setSelectedMember(member)}
-            className="bg-gray-900/80 backdrop-blur-sm border border-gray-800 rounded-2xl p-5 flex items-center space-x-6 cursor-pointer hover:border-blue-500 transition-all group shadow-xl"
-          >
-            <img
-              src={member.photoUrl || 'https://via.placeholder.com/150'}
-              className="h-24 w-24 rounded-full object-cover border-2 border-gray-700 group-hover:border-blue-500 transition-colors"
-              alt={member.firstName}
-            />
-            <div className="overflow-hidden">
-              <h3 className="text-xl font-bold text-white truncate">{member.firstName}</h3>
-              <p className="text-blue-400 font-medium text-sm truncate">Chien : {member.dogName || 'N/C'}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {selectedMember && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-          <div className="bg-gray-950 border border-gray-800 w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-2xl relative">
-            <button onClick={() => setSelectedMember(null)} className="absolute top-6 right-6 p-2 bg-gray-900 rounded-full text-white z-20"><X className="h-6 w-6" /></button>
-            <div className="h-72 relative bg-gray-900">
-              <img src={selectedMember.photoUrl || 'https://via.placeholder.com/400'} className="w-full h-full object-cover opacity-80" alt="" />
-              <div className="absolute bottom-4 right-6 text-right">
-                <p className="text-[10px] text-white font-bold uppercase mb-1 tracking-widest">Compagnon</p>
-                <img src={selectedMember.dogPhotoUrl || 'https://via.placeholder.com/150'} className="h-24 w-24 rounded-2xl object-cover border-4 border-gray-950 shadow-2xl transform rotate-3" alt="" />
-              </div>
-            </div>
-            <div className="px-8 pb-10 -mt-10 relative">
-              <h2 className="text-4xl font-black text-white">{selectedMember.firstName}</h2>
-              <p className="text-gray-500 font-medium uppercase tracking-widest text-sm">{selectedMember.lastName}</p>
-              <div className="mt-8 space-y-4">
-                <a href={`tel:${selectedMember.phone}`} className="flex items-center space-x-4 p-4 bg-blue-500/10 rounded-2xl border border-blue-500/20">
-                  <Phone className="h-5 w-5 text-blue-500" />
-                  <span className="text-white font-bold text-lg">{selectedMember.phone || 'Non renseigné'}</span>
-                </a>
-                <div className="flex items-center space-x-4 p-4 bg-gray-900/50 rounded-2xl">
-                  <Mail className="h-5 w-5 text-gray-400" />
-                  <span className="text-white truncate">{selectedMember.email}</span>
-                </div>
-              </div>
-            </div>
-          </div>
+    <div className="space-y-8">
+      <div className="flex flex-col md:flex-row justify-between gap-6 items-end">
+        <h2 className={`text-4xl font-serif italic ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>Les Adhérents</h2>
+        <div className="relative group">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
+          <input type="text" placeholder="RECHERCHER..." onChange={(e)=>setSearchTerm(e.target.value)} className={`pl-12 pr-6 py-3 rounded-2xl outline-none text-[10px] font-black tracking-widest border transition-all ${darkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-emerald-50 shadow-sm'}`} />
         </div>
-      )}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-4">
+        {members.filter(m => m.name.toLowerCase().includes(searchTerm.toLowerCase())).map(m => {
+          const mDogs = dogs.filter(d => d.ownerId === m.id);
+          return (
+            <div key={m.id} className={`p-4 rounded-[32px] border transition-all hover:border-[#BC6C25] ${darkMode ? 'bg-[#1A1F1C] border-slate-700' : 'bg-white border-emerald-50'}`}>
+              <button onClick={() => setSelectedId(m.id)} className="flex items-center gap-4 text-left w-full mb-4">
+                <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-emerald-50 overflow-hidden shrink-0">
+                  {m.photo ? <img src={m.photo} className="w-full h-full object-cover" /> : <User className="w-full h-full p-3 text-slate-200"/>}
+                </div>
+                <div className="min-w-0">
+                  <h3 className={`text-[12px] font-black uppercase truncate ${darkMode ? 'text-slate-300' : 'text-[#1B4332]'}`}>{m.name} {m.firstName.charAt(0)}.</h3>
+                  {mDogs.map(d => (
+                    <p key={d.id} className="text-[#BC6C25] text-[20px] font-serif italic leading-none mt-1 truncate">{d.name}</p>
+                  ))}
+                </div>
+              </button>
+              <div className="pt-3 border-t border-slate-50/5 flex justify-between items-center">
+                <a href={`tel:${m.phone}`} className="flex items-center gap-2 px-3 py-2 bg-[#1B4332]/5 text-[#1B4332] rounded-xl text-[10px] font-black uppercase">
+                  <Phone size={12} /> {m.phone}
+                </a>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
-}
+};
+export default Members;
