@@ -1,38 +1,45 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Sidebar from './components/layout/Sidebar';
+import { useStore } from './store/useStore';
+import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Members from './pages/Members';
 import Dogs from './pages/Dogs';
-import Shop from './pages/Shop';
 
-// Composants temporaires pour les nouvelles pages
-const Attendance = () => <div className="p-8"><h1 className="text-3xl font-bold">Présences</h1><p className="mt-4 text-gray-400">Page en cours de création...</p></div>;
-const Planning = () => <div className="p-8"><h1 className="text-3xl font-bold">Planning</h1><p className="mt-4 text-gray-400">Page en cours de création...</p></div>;
-const Sections = () => <div className="p-8"><h1 className="text-3xl font-bold">Sections</h1><p className="mt-4 text-gray-400">Page en cours de création...</p></div>;
-const Fees = () => <div className="p-8"><h1 className="text-3xl font-bold">Cotisations</h1><p className="mt-4 text-gray-400">Page en cours de création...</p></div>;
-const OrgChart = () => <div className="p-8"><h1 className="text-3xl font-bold">Organigramme</h1><p className="mt-4 text-gray-400">Page en cours de création...</p></div>;
-const Admin = () => <div className="p-8"><h1 className="text-3xl font-bold">Secrétariat</h1><p className="mt-4 text-gray-400">Page en cours de création...</p></div>;
-const Finances = () => <div className="p-8"><h1 className="text-3xl font-bold">Finances</h1><p className="mt-4 text-gray-400">En attente...</p></div>;
+// Pages temporaires (pour éviter les erreurs de build)
+const Shop = () => <div className="p-10 text-[#1B4332] font-serif italic text-3xl">Boutique • À venir</div>;
+const Attendance = () => <div className="p-10 text-[#1B4332] font-serif italic text-3xl">Présences</div>;
+const Planning = () => <div className="p-10 text-[#1B4332] font-serif italic text-3xl">Planning</div>;
+const Sections = () => <div className="p-10 text-[#1B4332] font-serif italic text-3xl">Sections</div>;
+const Fees = () => <div className="p-10 text-[#1B4332] font-serif italic text-3xl">Cotisations</div>;
+const OrgChart = () => <div className="p-10 text-[#1B4332] font-serif italic text-3xl">Organigramme</div>;
+const Admin = () => <div className="p-10 text-[#1B4332] font-serif italic text-3xl">Secrétariat</div>;
+const Finances = () => <div className="p-10 text-[#1B4332] font-serif italic text-3xl">Finances</div>;
 
 function App() {
+  const { fetchData } = useStore();
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
   return (
     <Router>
-      <div className="flex min-h-screen bg-gray-950 text-gray-100 font-sans">
+      <div className="flex min-h-screen bg-slate-50 font-sans">
         <Sidebar />
+        
         <main className="flex-1 ml-64 min-h-screen relative overflow-hidden">
-          {/* Image de fond avec contraste augmenté comme demandé */}
+          {/* Image de fond "Nature" discrète */}
           <div 
-            className="absolute inset-0 z-0 opacity-20 pointer-events-none"
+            className="absolute inset-0 z-0 opacity-10 pointer-events-none"
             style={{
               backgroundImage: 'url("https://images.unsplash.com/photo-1541364983171-a8ba01d95cfc?auto=format&fit=crop&q=80")',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
-              filter: 'contrast(130%) brightness(80%)'
             }}
           />
           
-          <div className="relative z-10">
+          <div className="relative z-10 p-4">
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/members" element={<Members />} />
