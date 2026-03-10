@@ -6,15 +6,14 @@ import Dogs from './pages/Dogs';
 import Boutique from './pages/Boutique';
 import Secretariat from './pages/Secretariat';
 import Organigramme from './pages/Organigramme';
-import Cotisations from './pages/Cotisations';
-import Treasury from './pages/Treasury'; // C'est ta page Finance existante
+import Cotisations from './pages/Cotisations'; // Pointera vers ton ancien Memberships renommé
+import Treasury from './pages/Treasury';
 import Presences from './pages/Presences';
 import Planning from './pages/Planning';
 import Login from './components/Login';
 import { useStore } from './store/useStore';
 import { Menu } from 'lucide-react';
 
-// Composant pour les onglets qui n'ont pas encore de page dédiée (Activités, Logs)
 const SectionPlaceholder = ({ title }: { title: string }) => (
   <div className="p-10 animate-in fade-in duration-700">
     <h2 className="text-5xl font-serif italic text-[#1B4332]">{title}</h2>
@@ -33,7 +32,6 @@ function App() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  // Gestion du fond d'écran dynamique
   useEffect(() => {
     const dogsWithPhotos = dogs.filter(d => d.photo && d.photo !== '');
     if (dogsWithPhotos.length > 0) {
@@ -53,14 +51,12 @@ function App() {
     <div className={`flex min-h-screen relative transition-colors duration-500 ${
       darkMode ? 'bg-[#121614] text-slate-200' : 'bg-[#F4F1EA] text-[#334155]'
     }`}>
-      {/* Fond d'écran discret */}
       {!darkMode && bgDog && (
         <div className="fixed inset-0 pointer-events-none opacity-5 z-0">
           <img src={bgDog} className="w-full h-full object-cover grayscale" alt="" />
         </div>
       )}
 
-      {/* Bouton Menu Mobile */}
       <button 
         onClick={() => setIsSidebarOpen(true)} 
         className="lg:hidden fixed top-5 left-5 z-40 p-3 bg-[#1B4332] text-white rounded-xl shadow-lg"
@@ -77,7 +73,6 @@ function App() {
 
       <main className="flex-1 p-6 lg:p-12 lg:ml-72 relative z-10">
         <div className="max-w-6xl mx-auto pt-12 lg:pt-0">
-          {/* Rendu conditionnel des onglets */}
           {activeTab === 'dashboard' && <Dashboard />}
           {activeTab === 'organigramme' && <Organigramme />}
           {activeTab === 'membres' && <Members />}
@@ -89,7 +84,6 @@ function App() {
           {activeTab === 'planning' && <Planning />}
           {activeTab === 'secretariat' && <Secretariat />}
 
-          {/* Placeholders pour les activités et le système */}
           {activeTab.startsWith('section-') && <SectionPlaceholder title="Activités Club" />}
           {activeTab === 'logs' && <SectionPlaceholder title="Historique" />}
           {activeTab === 'parametres' && <SectionPlaceholder title="Paramètres" />}
