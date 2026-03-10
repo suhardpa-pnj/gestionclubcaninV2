@@ -30,7 +30,7 @@ const navigation = [
 
 export default function Sidebar() {
   return (
-    <div className="flex flex-col w-64 bg-[#1B4332] text-white h-screen fixed left-0 top-0 overflow-y-auto border-r border-emerald-900 shadow-2xl z-50 font-sans">
+    <div className="flex flex-col w-64 bg-[#1B4332] text-white h-screen fixed left-0 top-0 overflow-y-auto border-r border-emerald-900 shadow-2xl z-50">
       <div className="p-8">
         <h1 className="text-2xl font-serif italic font-bold text-white border-b border-emerald-700/50 pb-4">
           ACV Gestion
@@ -53,24 +53,17 @@ export default function Sidebar() {
               }`
             }
           >
-            <item.icon className={`mr-4 h-5 w-5 ${isActive ? 'text-white' : 'text-emerald-500'}`} />
-            <span className={isActive ? 'font-bold' : 'font-medium'}>
-              {item.name}
-            </span>
+            {({ isActive }) => (
+              <>
+                <item.icon className={`mr-4 h-5 w-5 ${isActive ? 'text-white' : 'text-emerald-500'}`} />
+                <span className={isActive ? 'font-bold' : 'font-medium'}>
+                  {item.name}
+                </span>
+              </>
+            )}
           </NavLink>
         ))}
       </nav>
-
-      <div className="p-6 border-t border-emerald-800/30">
-        <div className="bg-emerald-900/30 rounded-2xl p-4 flex items-center gap-3 text-emerald-400">
-          <div className="w-8 h-8 rounded-full bg-emerald-800 flex items-center justify-center text-[10px] font-bold border border-emerald-700">
-            AC
-          </div>
-          <div className="text-[10px] font-bold uppercase tracking-widest">
-            Session Admin
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
