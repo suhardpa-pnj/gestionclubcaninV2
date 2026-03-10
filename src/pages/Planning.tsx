@@ -5,4 +5,4 @@ const Planning = () => (
     <p className="text-[#BC6C25] text-[10px] font-black uppercase tracking-[0.3em] mt-3 italic">Administration • ACV</p>
   </div>
 );
-export default Organigramme;
+export default Planning;
