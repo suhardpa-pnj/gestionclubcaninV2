@@ -4,7 +4,8 @@ import {
   LayoutDashboard, Users, Dog, Landmark, 
   ShoppingCart, FileText, ChevronDown, 
   ChevronRight, Sun, Moon, X, Network,
-  CreditCard, ClipboardCheck, Calendar, Settings, History
+  CreditCard, ClipboardCheck, Calendar, Settings, History,
+  MessageSquare // <--- Ajouté ici pour le support
 } from 'lucide-react';
 
 interface SidebarProps {
