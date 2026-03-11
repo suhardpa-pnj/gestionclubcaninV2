@@ -12,7 +12,8 @@ interface ClubState {
   updateMember: (id: string, data: any) => Promise<void>;
   addTransaction: (t: any) => Promise<void>;
   addAttendance: (a: any) => Promise<void>;
-  addFeedback: (f: any) => Promise<void>; // Nouvelle méthode
+  addFeedback: (f: any) => Promise<void>;
+  uploadFeedbackFile: (file: File) => Promise<string>; // Nouvelle méthode
   uploadMemberPhoto: (id: string, file: File) => Promise<void>;
   uploadDogPhoto: (dogId: string, file: File) => Promise<void>;
   uploadProductPhoto: (productId: string, file: File) => Promise<void>;
@@ -72,6 +73,13 @@ export const useStore = create<ClubState>((set, get) => ({
       timestamp: new Date().toISOString(),
       status: 'new'
     });
+  },
+
+  uploadFeedbackFile: async (file) => {
+    const fileId = Date.now();
+    const storageRef = ref(storage, `feedback/${fileId}_${file.name}`);
+    const snapshot = await uploadBytes(storageRef, file);
+    return await getDownloadURL(snapshot.ref);
   },
 
   uploadMemberPhoto: async (id, file) => {
