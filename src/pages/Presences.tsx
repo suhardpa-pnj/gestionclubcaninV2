@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useStore } from '../store/useStore';
-import { Plus, User, Check, X, Dog, ChevronUp, Calendar, AlertTriangle, Map as MapIcon, Globe } from 'lucide-react';
+import { Plus, User, Check, X, Dog, ChevronUp, Calendar, AlertTriangle, Map as MapIcon, Globe, MapPin } from 'lucide-react';
 
 const Presences = () => {
   const { members, dogs, attendances, darkMode, addAttendance } = useStore();
@@ -15,12 +15,22 @@ const Presences = () => {
   const [isRAS, setIsRAS] = useState(true);
   const [sessionNotes, setSessionNotes] = useState('');
   
-  // Nouveaux états : Terrain et Extérieur
-  const [selectedTerrain, setSelectedTerrain] = useState('Terrain A');
+  // Nouveaux états Terrains ACV
+  const [selectedTerrain, setSelectedTerrain] = useState('Principal - Zone A');
   const [isExterior, setIsExterior] = useState(false);
+  const [exteriorLocation, setExteriorLocation] = useState('');
 
   const sectionsList = ['École du Chiot', 'Éducation', 'Obéissance', 'Agility', 'Ring'];
-  const terrains = ['Terrain A', 'Terrain B', 'Terrain Ring', 'Terrain Agility'];
+  
+  // Liste basée sur le plan de l'Amicale Canine Vernoise
+  const terrainsACV = [
+    { id: 'Principal - Zone A', label: 'Principal A' },
+    { id: 'Principal - Zone B', label: 'Principal B' },
+    { id: 'Chiots', label: 'Chiots' },
+    { id: 'Agility', label: 'Agility' },
+    { id: 'Du Fond', label: 'Terrain du Fond' },
+    { id: 'Prairie', label: 'Prairie' }
+  ];
 
   const formatDateDisplay = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -52,15 +62,17 @@ const Presences = () => {
         guestDog,
         isRAS,
         notes: sessionNotes,
-        terrain: isExterior ? 'Extérieur' : selectedTerrain,
+        terrain: isExterior ? `Extérieur : ${exteriorLocation}` : selectedTerrain,
         type: isExterior ? 'EXTERIOR' : 'CLUB'
       });
       setIsModalOpen(false);
+      // Reset
       setPresentDogIds([]);
       setGuestDog('');
       setSessionNotes('');
       setIsRAS(true);
       setIsExterior(false);
+      setExteriorLocation('');
     } catch (error) {
       alert("⚠️ Erreur lors de l'enregistrement.");
     }
@@ -74,7 +86,7 @@ const Presences = () => {
             Feuilles de <span className="text-[#BC6C25]">Présence</span>
           </h2>
           <p className="text-[#BC6C25] text-[10px] font-black uppercase tracking-[0.3em] mt-3 italic">
-            Suivi des appels et participations
+            Suivi des appels • AC Vernoise
           </p>
         </div>
         <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-3 px-8 py-4 bg-[#1B4332] text-white rounded-[24px] font-black uppercase text-[10px] tracking-widest shadow-xl hover:scale-105 transition-all">
@@ -98,10 +110,10 @@ const Presences = () => {
               </h3>
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2 text-slate-400 text-[10px] font-bold uppercase tracking-tight">
-                  <User size={14} className="text-[#BC6C25]" /> Moniteur : {coach?.name || 'Inconnu'}
+                  <User size={14} className="text-[#BC6C25]" /> {coach?.name || 'Moniteur'}
                 </div>
                 <div className="flex items-center gap-2 text-slate-400 text-[10px] font-bold uppercase tracking-tight">
-                  <MapIcon size={14} className="text-[#BC6C25]" /> {att.terrain || 'Terrain non défini'}
+                  <MapPin size={14} className="text-[#BC6C25]" /> {att.terrain}
                 </div>
               </div>
             </div>
@@ -111,12 +123,12 @@ const Presences = () => {
 
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#0A110D]/80 backdrop-blur-md">
-          <form onSubmit={handleSubmit} className={`w-full max-w-4xl rounded-[3rem] shadow-2xl overflow-hidden border ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-[#FDFBF7] border-white'}`}>
+          <form onSubmit={handleSubmit} className={`w-full max-w-5xl rounded-[3rem] shadow-2xl overflow-hidden border ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-[#FDFBF7] border-white'}`}>
             <div className="p-10 border-b border-slate-100/10 flex justify-between items-center">
               <div>
                 <h3 className={`text-3xl font-serif italic ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>Fiche de séance</h3>
                 <p className="text-[10px] font-black text-[#BC6C25] uppercase tracking-widest mt-1 italic">
-                  Ouverte le {formatDateDisplay(new Date().toISOString())}
+                  Fiche créée le {formatDateDisplay(new Date().toISOString())}
                 </p>
               </div>
               <button type="button" onClick={() => setIsModalOpen(false)} className="p-4 hover:bg-white/10 rounded-2xl transition-all">
@@ -128,39 +140,44 @@ const Presences = () => {
               <div className="space-y-8">
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Date du cours</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Date</label>
                     <input type="date" value={sessionDate} onChange={(e) => setSessionDate(e.target.value)} className={`w-full p-4 rounded-2xl border-none font-bold outline-none text-sm ${darkMode ? 'bg-slate-800 text-white' : 'bg-white shadow-inner'}`} />
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Moniteur</label>
                     <select value={responsibleId} onChange={(e) => setResponsibleId(e.target.value)} className={`w-full p-4 rounded-2xl border-none font-bold outline-none h-[52px] ${darkMode ? 'bg-slate-800 text-white' : 'bg-white shadow-inner'}`}>
-                      <option value="">Choisir...</option>
+                      <option value="">Sélectionner...</option>
                       {members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                     </select>
                   </div>
                 </div>
 
-                {/* CARTE DU CLUB STYLISÉE */}
                 <div className="space-y-4">
                   <div className="flex justify-between items-center px-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Localisation du cours</label>
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Terrain utilisé</label>
                     <button type="button" onClick={() => setIsExterior(!isExterior)} className={`flex items-center gap-2 px-3 py-1 rounded-lg text-[9px] font-black uppercase transition-all ${isExterior ? 'bg-[#BC6C25] text-white' : 'bg-slate-100 text-slate-400'}`}>
-                      <Globe size={12} /> Extérieur
+                      <Globe size={12} /> À l'extérieur
                     </button>
                   </div>
 
                   {!isExterior ? (
-                    <div className="grid grid-cols-2 gap-3 p-4 bg-emerald-900/5 rounded-[2.5rem] border border-emerald-900/10">
-                      {terrains.map(t => (
-                        <button key={t} type="button" onClick={() => setSelectedTerrain(t)} className={`h-24 rounded-2xl border-2 flex flex-col items-center justify-center gap-2 transition-all ${selectedTerrain === t ? 'bg-[#1B4332] border-[#BC6C25] text-white shadow-lg' : 'bg-white border-transparent text-slate-400 hover:border-emerald-200'}`}>
-                          <MapIcon size={20} className={selectedTerrain === t ? 'text-[#BC6C25]' : 'text-slate-200'} />
-                          <span className="text-[9px] font-black uppercase tracking-widest">{t}</span>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 bg-emerald-900/5 rounded-[2.5rem] border border-emerald-900/10">
+                      {terrainsACV.map(t => (
+                        <button key={t.id} type="button" onClick={() => setSelectedTerrain(t.id)} className={`h-20 rounded-2xl border-2 flex flex-col items-center justify-center gap-1 transition-all ${selectedTerrain === t.id ? 'bg-[#1B4332] border-[#BC6C25] text-white' : 'bg-white border-transparent text-slate-400'}`}>
+                          <span className="text-[8px] font-black uppercase tracking-widest text-center px-1">{t.label}</span>
                         </button>
                       ))}
                     </div>
                   ) : (
-                    <div className="h-24 bg-[#BC6C25]/10 border-2 border-dashed border-[#BC6C25]/30 rounded-[2.5rem] flex items-center justify-center text-[#BC6C25] font-serif italic text-sm">
-                      Cours hors des enceintes du club
+                    <div className="space-y-3 p-6 bg-[#BC6C25]/5 border-2 border-dashed border-[#BC6C25]/20 rounded-[2.5rem] animate-in slide-in-from-top-2">
+                       <label className="text-[9px] font-black uppercase tracking-widest text-[#BC6C25]">Lieu de l'activité (Ville, Site, Autre club...)</label>
+                       <input 
+                        type="text" 
+                        value={exteriorLocation} 
+                        onChange={(e) => setExteriorLocation(e.target.value)} 
+                        className={`w-full p-4 rounded-2xl border-none font-bold outline-none text-sm ${darkMode ? 'bg-slate-800 text-white' : 'bg-white shadow-md'}`}
+                        placeholder="Ex: Forêt de Vern, Club de Segré..."
+                       />
                     </div>
                   )}
                 </div>
@@ -169,7 +186,7 @@ const Presences = () => {
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Section</label>
                   <div className="flex flex-wrap gap-2">
                     {sectionsList.map(s => (
-                      <button key={s} type="button" onClick={() => setSelectedSection(s)} className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${selectedSection === s ? 'bg-[#1B4332] text-white' : 'bg-white text-slate-400 border border-slate-100'}`}>
+                      <button key={s} type="button" onClick={() => setSelectedSection(s)} className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${selectedSection === s ? 'bg-[#1B4332] text-white shadow-lg' : 'bg-white text-slate-400'}`}>
                         {s}
                       </button>
                     ))}
@@ -179,19 +196,22 @@ const Presences = () => {
 
               <div className="space-y-8">
                 <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Appel ({sectionDogs.length})</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Appel des présents ({sectionDogs.length})</label>
                   <div className="grid grid-cols-2 gap-2">
                     {sectionDogs.map(dog => (
-                      <button type="button" key={dog.id} onClick={() => toggleDog(dog.id)} className={`p-4 rounded-2xl text-[10px] font-black uppercase tracking-tight border flex items-center justify-between transition-all ${presentDogIds.includes(dog.id) ? 'bg-[#1B4332] text-white border-transparent' : 'bg-white text-slate-400 border-slate-100'}`}>
+                      <button type="button" key={dog.id} onClick={() => toggleDog(dog.id)} className={`p-4 rounded-2xl text-[10px] font-black uppercase tracking-tight border flex items-center justify-between transition-all ${presentDogIds.includes(dog.id) ? 'bg-[#1B4332] text-white border-transparent' : 'bg-white text-slate-400'}`}>
                         <span className="truncate">{dog.name}</span>
                         {presentDogIds.includes(dog.id) && <Check size={14} />}
                       </button>
                     ))}
                   </div>
+                  <button type="button" onClick={() => setShowAllDogs(!showAllDogs)} className="text-[9px] font-black uppercase tracking-widest text-[#BC6C25] flex items-center gap-2 mt-2">
+                    {showAllDogs ? <ChevronUp size={14}/> : <Plus size={14}/>} {showAllDogs ? 'Masquer' : 'Toutes les sections'}
+                  </button>
                 </div>
 
                 <div className="pt-6 border-t border-slate-100/10 space-y-4">
-                  <button type="button" onClick={() => setIsRAS(!isRAS)} className="flex items-center gap-3 group">
+                  <button type="button" onClick={() => setIsRAS(!isRAS)} className="flex items-center gap-3">
                     <div className={`w-6 h-6 rounded-lg border flex items-center justify-center transition-all ${isRAS ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300'}`}>
                       {isRAS && <Check size={16} />}
                     </div>
