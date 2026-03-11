@@ -12,8 +12,8 @@ interface ClubState {
   updateMember: (id: string, data: any) => Promise<void>;
   addTransaction: (t: any) => Promise<void>;
   addAttendance: (a: any) => Promise<void>;
-  addFeedback: (f: any) => Promise<void>; // Nouvelle méthode
-  uploadFeedbackFile: (file: File) => Promise<string>; // Nouvelle méthode
+  addFeedback: (f: any) => Promise<void>;
+  uploadFeedbackFile: (file: File) => Promise<string>;
   uploadMemberPhoto: (id: string, file: File) => Promise<void>;
   uploadDogPhoto: (dogId: string, file: File) => Promise<void>;
   uploadProductPhoto: (productId: string, file: File) => Promise<void>;
@@ -92,7 +92,8 @@ export const useStore = create<ClubState>((set, get) => ({
 
   uploadDogPhoto: async (dogId, file) => {
     const storageRef = ref(storage, `dogs/${dogId}`);
-    const snapshot = await uploadBytes(snapshot.ref, file);
+    // CORRECTION ICI : on utilise storageRef pour l'upload
+    const snapshot = await uploadBytes(storageRef, file); 
     const url = await getDownloadURL(snapshot.ref);
     await updateDoc(doc(db, "dogs", dogId), { photo: url });
     get().fetchData();
@@ -100,7 +101,6 @@ export const useStore = create<ClubState>((set, get) => ({
 
   uploadProductPhoto: async (productId, file) => {
     const storageRef = ref(storage, `products/${productId}`);
-    // C'est ici qu'était l'erreur ! Corrigé avec storageRef :
     const snapshot = await uploadBytes(storageRef, file); 
     const url = await getDownloadURL(snapshot.ref);
     await updateDoc(doc(db, "products", productId), { img: url });
