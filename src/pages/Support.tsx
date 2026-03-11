@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useStore } from '../store/useStore';
-import { Send, Smartphone, Monitor, Layout, MessageSquare, AlertCircle, CheckCircle } from 'lucide-react';
+import { Send, Smartphone, Layout, MessageSquare, AlertCircle, CheckCircle, Camera, X } from 'lucide-react';
 
 const Support = () => {
-  const { darkMode, addFeedback } = useStore();
+  const { darkMode, addFeedback, uploadFeedbackFile } = useStore();
   const [sent, setSent] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [formData, setFormData] = useState({
     device: 'PC / Mac',
@@ -13,15 +15,39 @@ const Support = () => {
     description: ''
   });
 
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setPreviewUrl(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setUploading(true);
     try {
-      await addFeedback(formData);
+      let imageUrl = null;
+      if (selectedFile) {
+        imageUrl = await uploadFeedbackFile(selectedFile);
+      }
+
+      await addFeedback({ ...formData, screenshot: imageUrl });
+      
       setSent(true);
       setFormData({ ...formData, description: '' });
+      setSelectedFile(null);
+      setPreviewUrl(null);
       setTimeout(() => setSent(false), 5000);
     } catch (err) {
-      alert("Erreur lors de l'envoi du feedback.");
+      alert("Erreur lors de l'envoi.");
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -38,7 +64,6 @@ const Support = () => {
 
       <form onSubmit={handleSubmit} className={`p-10 rounded-[40px] border space-y-8 ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-xl'}`}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* SUPPORT */}
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2 flex items-center gap-2">
               <Smartphone size={12} /> Support utilisé
@@ -55,7 +80,6 @@ const Support = () => {
             </select>
           </div>
 
-          {/* PAGE */}
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2 flex items-center gap-2">
               <Layout size={12} /> Page / Onglet
@@ -76,7 +100,7 @@ const Support = () => {
           </div>
         </div>
 
-        {/* TYPE DE RETOUR */}
+        {/* NATURE DU RETOUR */}
         <div className="space-y-4">
           <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Nature du retour</label>
           <div className="grid grid-cols-3 gap-3">
@@ -86,9 +110,7 @@ const Support = () => {
                 type="button"
                 onClick={() => setFormData({...formData, type: t})}
                 className={`py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${
-                  formData.type === t 
-                  ? 'bg-[#BC6C25] text-white border-transparent shadow-lg' 
-                  : 'bg-slate-50 text-slate-400 border-transparent hover:border-emerald-200'
+                  formData.type === t ? 'bg-[#BC6C25] text-white border-transparent shadow-lg' : 'bg-slate-50 text-slate-400 border-transparent hover:border-emerald-200'
                 }`}
               >
                 {t}
@@ -97,41 +119,59 @@ const Support = () => {
           </div>
         </div>
 
+        {/* CAPTURE D'ÉCRAN */}
+        <div className="space-y-4">
+          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Capture d'écran (Optionnel)</label>
+          <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleFileChange} />
+          
+          {!previewUrl ? (
+            <button 
+              type="button" 
+              onClick={() => fileInputRef.current?.click()}
+              className={`w-full h-32 rounded-[2rem] border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all ${darkMode ? 'border-slate-800 bg-slate-900/50 hover:bg-slate-800' : 'border-emerald-100 bg-emerald-50/30 hover:bg-emerald-50'}`}
+            >
+              <Camera size={24} className="text-[#BC6C25]" />
+              <span className="text-[9px] font-black uppercase text-slate-400">Cliquer pour charger une image</span>
+            </button>
+          ) : (
+            <div className="relative group rounded-[2rem] overflow-hidden border-2 border-[#BC6C25]">
+              <img src={previewUrl} alt="Preview" className="w-full h-48 object-cover" />
+              <button 
+                type="button" 
+                onClick={() => { setSelectedFile(null); setPreviewUrl(null); }}
+                className="absolute top-4 right-4 p-2 bg-rose-500 text-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          )}
+        </div>
+
         {/* DESCRIPTION */}
         <div className="space-y-2">
           <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2 flex items-center gap-2">
-            <MessageSquare size={12} /> Description libre
+            <MessageSquare size={12} /> Description
           </label>
           <textarea 
             required
             value={formData.description}
             onChange={(e) => setFormData({...formData, description: e.target.value})}
-            className={`w-full p-6 rounded-[2rem] border-none outline-none font-medium text-xs min-h-[150px] leading-relaxed ${darkMode ? 'bg-slate-800 text-white' : 'bg-white shadow-inner'}`}
-            placeholder="Détaillez ici le problème (ce qui s'est passé) ou votre idée d'amélioration..."
+            className={`w-full p-6 rounded-[2rem] border-none outline-none font-medium text-xs min-h-[120px] ${darkMode ? 'bg-slate-800 text-white' : 'bg-white shadow-inner'}`}
+            placeholder="Détaillez ici votre retour..."
           />
         </div>
 
-        {/* BOUTON ENVOI */}
-        <div className="relative pt-4">
-          <button 
-            type="submit" 
-            disabled={sent}
-            className={`w-full py-6 rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] shadow-xl transition-all flex items-center justify-center gap-3 ${
-              sent ? 'bg-emerald-500 text-white' : 'bg-[#1B4332] text-white hover:bg-[#BC6C25]'
-            }`}
-          >
-            {sent ? <CheckCircle size={18} /> : <Send size={16} />}
-            {sent ? 'Retour envoyé !' : 'Transmettre au développeur'}
-          </button>
-        </div>
+        <button 
+          type="submit" 
+          disabled={sent || uploading}
+          className={`w-full py-6 rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] shadow-xl transition-all flex items-center justify-center gap-3 ${
+            sent ? 'bg-emerald-500 text-white' : 'bg-[#1B4332] text-white hover:bg-[#BC6C25]'
+          }`}
+        >
+          {uploading ? 'Envoi en cours...' : (sent ? <CheckCircle size={18} /> : <Send size={16} />)}
+          {!uploading && (sent ? 'Retour envoyé !' : 'Transmettre au développeur')}
+        </button>
       </form>
-
-      <div className={`p-8 rounded-[40px] border-2 border-dashed flex items-start gap-4 ${darkMode ? 'border-slate-800 bg-slate-900/50' : 'border-emerald-100 bg-emerald-50/30'}`}>
-        <AlertCircle className="text-[#BC6C25] shrink-0" size={20} />
-        <p className="text-[11px] text-slate-500 leading-relaxed font-serif italic">
-          Chaque retour est enregistré avec un horodatage et les informations de session. Merci de contribuer à rendre l'application de l'Amicale Canine Vernoise plus performante.
-        </p>
-      </div>
     </div>
   );
 };
