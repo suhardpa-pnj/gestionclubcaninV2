@@ -12,6 +12,7 @@ interface ClubState {
   updateMember: (id: string, data: any) => Promise<void>;
   addTransaction: (t: any) => Promise<void>;
   addAttendance: (a: any) => Promise<void>;
+  addFeedback: (f: any) => Promise<void>; // Nouvelle méthode
   uploadMemberPhoto: (id: string, file: File) => Promise<void>;
   uploadDogPhoto: (dogId: string, file: File) => Promise<void>;
   uploadProductPhoto: (productId: string, file: File) => Promise<void>;
@@ -65,6 +66,14 @@ export const useStore = create<ClubState>((set, get) => ({
     get().fetchData();
   },
 
+  addFeedback: async (f) => {
+    await addDoc(collection(db, "feedback"), {
+      ...f,
+      timestamp: new Date().toISOString(),
+      status: 'new'
+    });
+  },
+
   uploadMemberPhoto: async (id, file) => {
     const storageRef = ref(storage, `members/${id}`);
     const snapshot = await uploadBytes(storageRef, file);
@@ -83,7 +92,6 @@ export const useStore = create<ClubState>((set, get) => ({
 
   uploadProductPhoto: async (productId, file) => {
     const storageRef = ref(storage, `products/${productId}`);
-    // C'est ici qu'était l'erreur ! Corrigé avec storageRef :
     const snapshot = await uploadBytes(storageRef, file); 
     const url = await getDownloadURL(snapshot.ref);
     await updateDoc(doc(db, "products", productId), { img: url });
