@@ -6,6 +6,8 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 interface ClubState {
   members: any[]; dogs: any[]; transactions: any[]; products: any[]; attendances: any[];
   isLoading: boolean; darkMode: boolean;
+  activeTab: string; // Réintégré
+  setActiveTab: (tab: string) => void; // Réintégré
   toggleDarkMode: () => void;
   fetchData: () => Promise<void>;
   addMember: (m: any) => Promise<void>;
@@ -13,7 +15,7 @@ interface ClubState {
   addTransaction: (t: any) => Promise<void>;
   addAttendance: (a: any) => Promise<void>;
   addFeedback: (f: any) => Promise<void>;
-  uploadFeedbackFile: (file: File) => Promise<string>; // Nouvelle méthode
+  uploadFeedbackFile: (file: File) => Promise<string>;
   uploadMemberPhoto: (id: string, file: File) => Promise<void>;
   uploadDogPhoto: (dogId: string, file: File) => Promise<void>;
   uploadProductPhoto: (productId: string, file: File) => Promise<void>;
@@ -24,7 +26,9 @@ interface ClubState {
 export const useStore = create<ClubState>((set, get) => ({
   members: [], dogs: [], transactions: [], products: [], attendances: [],
   isLoading: true, darkMode: false,
+  activeTab: 'dashboard', // État initial
 
+  setActiveTab: (tab) => set({ activeTab: tab }),
   toggleDarkMode: () => set((state) => ({ darkMode: !state.darkMode })),
 
   fetchData: async () => {
