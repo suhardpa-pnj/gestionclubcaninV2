@@ -11,8 +11,10 @@ import Treasury from './pages/Treasury';
 import Presences from './pages/Presences';
 import Planning from './pages/Planning';
 import Login from './components/Login';
+import Support from './pages/Support';
 import { useStore } from './store/useStore';
 import { Menu } from 'lucide-react';
+
 
 const SectionPlaceholder = ({ title }: { title: string }) => (
   <div className="p-10 animate-in fade-in duration-700">
@@ -83,6 +85,7 @@ function App() {
           {activeTab === 'presences' && <Presences />}
           {activeTab === 'planning' && <Planning />}
           {activeTab === 'secretariat' && <Secretariat />}
+          {activeTab === 'support' && <Support />}
 
           {activeTab.startsWith('section-') && <SectionPlaceholder title="Activités Club" />}
           {activeTab === 'logs' && <SectionPlaceholder title="Historique" />}
