@@ -3,12 +3,14 @@ import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Members from './pages/Members';
 import Dogs from './pages/Dogs';
-import Cotisations from './pages/Cotisations'; // Anciennement Memberships
+import Organigramme from './pages/Organigramme';
+import Cotisations from './pages/Cotisations';
 import Boutique from './pages/Boutique';
 import Treasury from './pages/Treasury';
 import Presences from './pages/Presences';
 import Planning from './pages/Planning';
-import Support from './pages/Support'; // <--- IMPORT ICI
+import Secretariat from './pages/Secretariat';
+import Support from './pages/Support';
 import { useStore } from './store/useStore';
 
 function App() {
@@ -23,12 +25,14 @@ function App() {
       case 'dashboard': return <Dashboard />;
       case 'members': return <Members />;
       case 'dogs': return <Dogs />;
+      case 'sections': return <Organigramme />;
       case 'cotisations': return <Cotisations />;
-      case 'boutique': return <Boutique />;
-      case 'finances': return <Treasury />;
       case 'presences': return <Presences />;
       case 'planning': return <Planning />;
-      case 'support': return <Support />; // <--- AJOUT ICI
+      case 'boutique': return <Boutique />;
+      case 'finances': return <Treasury />;
+      case 'secretariat': return <Secretariat />;
+      case 'support': return <Support />;
       default: return <Dashboard />;
     }
   };
