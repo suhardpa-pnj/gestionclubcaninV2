@@ -3,13 +3,13 @@ import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Members from './pages/Members';
 import Dogs from './pages/Dogs';
-import Organigramme from './pages/Organigramme';
+import Organigramme from './pages/Organigramme'; // Pour l'onglet Sections
 import Cotisations from './pages/Cotisations';
 import Boutique from './pages/Boutique';
 import Treasury from './pages/Treasury';
 import Presences from './pages/Presences';
 import Planning from './pages/Planning';
-import Secretariat from './pages/Secretariat';
+import Secretariat from './pages/Secretariat'; // Pour les logs/documents
 import Support from './pages/Support';
 import { useStore } from './store/useStore';
 
@@ -33,6 +33,7 @@ function App() {
       case 'finances': return <Treasury />;
       case 'secretariat': return <Secretariat />;
       case 'support': return <Support />;
+      case 'settings': return <div className="p-10 font-serif italic text-slate-400">Page de configuration en cours...</div>;
       default: return <Dashboard />;
     }
   };
