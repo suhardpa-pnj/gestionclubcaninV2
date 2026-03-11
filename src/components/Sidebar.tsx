@@ -2,7 +2,8 @@ import React from 'react';
 import { 
   LayoutDashboard, Users, Dog, Layers, CreditCard, 
   ShoppingBag, Wallet, ClipboardCheck, Calendar, 
-  FileText, MessageSquare, Sun, Moon 
+  FileText, MessageSquare, Settings as SettingsIcon,
+  Sun, Moon
 } from 'lucide-react';
 import { useStore } from '../store/useStore';
 
@@ -21,6 +22,7 @@ const Sidebar = () => {
     { id: 'finances', label: 'Trésorerie', icon: Wallet },
     { id: 'secretariat', label: 'Secrétariat', icon: FileText },
     { id: 'support', label: 'Support & Idées', icon: MessageSquare },
+    { id: 'settings', label: 'Paramètres', icon: SettingsIcon },
   ];
 
   return (
@@ -30,29 +32,29 @@ const Sidebar = () => {
         <p className="text-[10px] font-black text-[#BC6C25] uppercase tracking-widest mt-1">Gestion Club</p>
       </div>
 
-      <nav className="flex-1 px-4 space-y-2 overflow-y-auto custom-scrollbar">
+      <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
         {menuItems.map((item) => (
           <button
             key={item.id}
             onClick={() => setActiveTab(item.id)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all ${
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[11px] font-bold transition-all ${
               activeTab === item.id
-                ? 'bg-[#1B4332] text-white shadow-lg shadow-emerald-900/20'
+                ? 'bg-[#1B4332] text-white shadow-lg'
                 : 'text-slate-400 hover:bg-emerald-50 hover:text-[#1B4332]'
             }`}
           >
-            <item.icon size={18} />
+            <item.icon size={16} />
             {item.label}
           </button>
         ))}
       </nav>
 
-      <div className="p-4 border-t border-slate-100/10 space-y-2">
+      <div className="p-4 border-t border-slate-100/10">
         <button
           onClick={toggleDarkMode}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold text-slate-400 hover:bg-slate-100 transition-all"
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[11px] font-bold text-slate-400 hover:bg-slate-100 transition-all"
         >
-          {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+          {darkMode ? <Sun size={16} /> : <Moon size={16} />}
           {darkMode ? 'Mode Clair' : 'Mode Sombre'}
         </button>
       </div>
