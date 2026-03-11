@@ -75,6 +75,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, isOpen, onCl
         <div className="pt-6 pb-2 text-[8px] font-black uppercase tracking-[0.2em] opacity-40 px-5">Système</div>
         <NavItem id="logs" icon={<History size={16}/>} label="Logs" active={activeTab} onClick={setActiveTab} />
         <NavItem id="parametres" icon={<Settings size={16}/>} label="Paramètres" active={activeTab} onClick={setActiveTab} />
+        <NavItem id="support" icon={<MessageSquare size={16}/>} label="Support & Idées" active={activeTab} onClick={setActiveTab} />
       </nav>
 
       <button 
