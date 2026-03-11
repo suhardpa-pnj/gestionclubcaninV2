@@ -1,8 +1,8 @@
 import React from 'react';
 import { 
-  LayoutDashboard, Users, Dog, CreditCard, 
+  LayoutDashboard, Users, Dog, Layers, CreditCard, 
   ShoppingBag, Wallet, ClipboardCheck, Calendar, 
-  MessageSquare, Sun, Moon, LogOut 
+  FileText, MessageSquare, Sun, Moon 
 } from 'lucide-react';
 import { useStore } from '../store/useStore';
 
@@ -13,22 +13,24 @@ const Sidebar = () => {
     { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
     { id: 'members', label: 'Membres', icon: Users },
     { id: 'dogs', label: 'Les Chiens', icon: Dog },
+    { id: 'sections', label: 'Sections', icon: Layers },
     { id: 'cotisations', label: 'Cotisations', icon: CreditCard },
     { id: 'presences', label: 'Présences', icon: ClipboardCheck },
     { id: 'planning', label: 'Planning', icon: Calendar },
     { id: 'boutique', label: 'Boutique', icon: ShoppingBag },
     { id: 'finances', label: 'Trésorerie', icon: Wallet },
-    { id: 'support', label: 'Support & Idées', icon: MessageSquare }, // <--- AJOUT ICI
+    { id: 'secretariat', label: 'Secrétariat', icon: FileText },
+    { id: 'support', label: 'Support & Idées', icon: MessageSquare },
   ];
 
   return (
-    <aside className={`w-64 flex flex-col border-r transition-colors ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50'}`}>
+    <aside className={`w-64 flex flex-col border-r transition-colors hidden md:flex ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50'}`}>
       <div className="p-8">
         <h1 className="text-2xl font-serif italic font-bold text-[#1B4332]">AC Vernoise</h1>
         <p className="text-[10px] font-black text-[#BC6C25] uppercase tracking-widest mt-1">Gestion Club</p>
       </div>
 
-      <nav className="flex-1 px-4 space-y-2">
+      <nav className="flex-1 px-4 space-y-2 overflow-y-auto custom-scrollbar">
         {menuItems.map((item) => (
           <button
             key={item.id}
