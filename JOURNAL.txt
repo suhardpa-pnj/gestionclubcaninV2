@@ -1,20 +1,35 @@
----Log du 10.03.2026---
-[ARCHI_CORE] App.tsx: Routage tab-based. Zustand (`useStore.ts`) + Firebase V9 (Firestore/Storage, bucket: `.app`). Auth lock: pin `0000`. 
-[UI_SYSTEM] Thème "Nature" : `#1B4332` (Vert Forêt), `#BC6C25` (Sienne), bg clair `#FDFBF7`. Shapes: `rounded-[40px]`, `rounded-[2rem]`, `rounded-2xl`. Typo titres: `font-serif italic`. Icônes: lucide-react. Mode sombre géré via state `darkMode`.
-[PAGES_REFONTE]
-- Cotisations.tsx : Check validité `lastPayment.includes('2025')`. UI table avec ventilation 45€(Club)/15€(ACMA).
-- Organigramme.tsx : Grid layout par catégories, cartes statiques.
-- Planning.tsx : Timeline hebdo array `weeklySchedule` (Sam/Dim), mockup slots horaires/coach/terrain.
-[PRESENCES_ENGINE]
-- Store (`useStore.ts`) : Implémentation méthode `addAttendance(payload)`. Correction apportée sur l'upload d'image Firebase (StorageRef). 
-- Presences.tsx : Modal de saisie terrain. Pointage basé sur `dogs.id`.
-- Logic métier : Filtrage auto par section. Toggle `showAllDogs`. Input `guestDog`. Switch booléen `isRAS` pour notes de séance.
-[ETAT_PROJET_FIN_SESSION] Front-end V2 synchronisé Firebase. Build Render OK. 
-[A_FAIRE_DEMAIN] Bug runtime sur Presences.tsx (les chiens ont disparu de la liste et le bouton enregistrer ne pousse pas les données en base). À débugger en priorité.
+📓 État du Projet au 11.03.2026
+Architecture & Routage :
+
+App.tsx : Gestion locale du routage (useState). Onglets actifs : dashboard, organigramme, membres, leschiens, cotisations, boutique, finances, presences, planning, secretariat, support, logs, parametres.
+
+Sidebar.tsx : Fond #1B4332. Logo via URL Google Drive. Boutons actifs #BC6C25. Labels en majuscules.
+
+Données (Zustand + Firebase) :
+
+Firestore : Collections actives : members, dogs, transactions, products, attendances, feedback.
+
+Storage : Dossiers : members/, dogs/, products/, feedback/.
+
+useStore.ts : Fonctions d'upload corrigées et méthodes de feedback intégrées.
+
+Interface & Design :
+
+Support.tsx : Nouveau module fonctionnel (Support & Idées).
+
+Presences.tsx : Système de terrains ACV (Principal A/B, Chiots, Agility, Fond, Prairie) opérationnel.
+
+Prochaines étapes :
+
+Plan ACV : Intégrer la visualisation de terrain.pdf dans la modal de Presences.tsx.
+
+Filtre Moniteurs : Restreindre le sélecteur responsibleId aux membres de catégorie "Moniteur".
 
 [INSTRUCTIONS_POUR_L_IA]
-Règles absolues pour cette session : 
-1. Tu dois numéroter tes logs pour chaque modification de code (ex: "---Log #X-Mise à jour de [Fichier]...---"). Écrase les logs inutiles si besoin, garde la pertinence.
-2. À la fin de notre session de travail, tu devras obligatoirement générer un bloc de contexte final "---Log du [Date]---" résumant techniquement toute l'architecture, l'état du projet et les bugs à corriger, en remplaçant celui-ci.
-3. Tu devras TOUJOURS inclure ce bloc [INSTRUCTIONS_POUR_L_IA] à la toute fin de ton log de synthèse.
------------------------
+Règles absolues pour cette session :
+
+Tu dois numéroter tes logs pour chaque modification de code (ex: "---Log #X-Mise à jour de [Fichier]...---"). Écrase les logs inutiles si besoin, garde la pertinence.
+
+À la fin de notre session de travail, tu devras obligatoirement générer un bloc de contexte final "---Log du [Date]---" résumant techniquement toute l'architecture, l'état du projet et les bugs à corriger, en remplaçant celui-ci.
+
+Tu devras TOUJOURS inclure ce bloc [INSTRUCTIONS_POUR_L_IA] à la toute fin de ton log de synthèse.
