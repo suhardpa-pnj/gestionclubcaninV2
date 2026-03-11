@@ -17,8 +17,21 @@ const Presences = () => {
   const [sessionNotes, setSessionNotes] = useState('');
 
   const sectionsList = ['École du Chiot', 'Éducation', 'Obéissance', 'Agility', 'Ring'];
-  const sectionDogs = dogs.filter(d => d.sections?.includes(selectedSection));
-  const otherDogs = dogs.filter(d => !d.sections?.includes(selectedSection));
+  
+  // Filtrage robuste des chiens (gère les champs inexistants ou au format string)
+  const sectionDogs = dogs.filter(d => {
+    const dogSections = d.sections || d.section || d.Activités || '';
+    return typeof dogSections === 'string' 
+      ? dogSections.includes(selectedSection) 
+      : Array.isArray(dogSections) && dogSections.includes(selectedSection);
+  });
+  
+  const otherDogs = dogs.filter(d => {
+    const dogSections = d.sections || d.section || d.Activités || '';
+    return typeof dogSections === 'string' 
+      ? !dogSections.includes(selectedSection) 
+      : Array.isArray(dogSections) && !dogSections.includes(selectedSection);
+  });
 
   const toggleDog = (id: string) => {
     setPresentDogIds(prev => 
@@ -28,27 +41,35 @@ const Presences = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!responsibleId) return alert("Sélectionnez un moniteur !");
+    if (!responsibleId) {
+      alert("⚠️ Sélectionnez un moniteur !");
+      return;
+    }
 
-    const payload = {
-      date: sessionDate,
-      createdAt: new Date().toISOString(),
-      section: selectedSection,
-      responsibleId,
-      presentDogIds,
-      guestDog,
-      isRAS,
-      notes: sessionNotes,
-    };
+    try {
+      const payload = {
+        date: sessionDate,
+        createdAt: new Date().toISOString(),
+        section: selectedSection,
+        responsibleId,
+        presentDogIds,
+        guestDog,
+        isRAS,
+        notes: sessionNotes,
+      };
 
-    await addAttendance(payload);
-    
-    // Reset et Fermeture
-    setIsModalOpen(false);
-    setPresentDogIds([]);
-    setGuestDog('');
-    setSessionNotes('');
-    setIsRAS(true);
+      await addAttendance(payload);
+      
+      // Reset et Fermeture
+      setIsModalOpen(false);
+      setPresentDogIds([]);
+      setGuestDog('');
+      setSessionNotes('');
+      setIsRAS(true);
+    } catch (error) {
+      console.error("Erreur de sauvegarde Firebase:", error);
+      alert("⚠️ Erreur lors de l'enregistrement. Vérifiez la console.");
+    }
   };
 
   return (
@@ -119,86 +140,3 @@ const Presences = () => {
                 <X size={24} className="text-slate-400" />
               </button>
             </div>
-
-            <div className="p-10 space-y-8 max-h-[60vh] overflow-y-auto custom-scrollbar">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Date du cours</label>
-                  <input type="date" value={sessionDate} onChange={(e) => setSessionDate(e.target.value)}
-                    className={`w-full p-4 rounded-2xl border-none font-bold outline-none text-sm ${darkMode ? 'bg-slate-800 text-white' : 'bg-white shadow-inner'}`}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Cours / Section</label>
-                  <select value={selectedSection} onChange={(e) => { setSelectedSection(e.target.value); setShowAllDogs(false); }}
-                    className={`w-full p-4 rounded-2xl border-none font-bold outline-none h-[52px] ${darkMode ? 'bg-slate-800 text-white' : 'bg-white shadow-inner'}`}
-                  >
-                    {sectionsList.map(s => <option key={s} value={s}>{s}</option>)}
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Moniteur</label>
-                  <select required value={responsibleId} onChange={(e) => setResponsibleId(e.target.value)}
-                    className={`w-full p-4 rounded-2xl border-none font-bold outline-none h-[52px] ${darkMode ? 'bg-slate-800 text-white' : 'bg-white shadow-inner'}`}
-                  >
-                    <option value="">Sélectionner...</option>
-                    {members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-                  </select>
-                </div>
-              </div>
-
-              {/* BINÔMES ET ESSAIS */}
-              <div className="space-y-4">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Appel des binômes ({sectionDogs.length})</label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {sectionDogs.map(dog => (
-                    <button type="button" key={dog.id} onClick={() => toggleDog(dog.id)}
-                      className={`p-4 rounded-2xl text-[10px] font-black uppercase tracking-tight transition-all border flex items-center justify-between ${
-                        presentDogIds.includes(dog.id) ? 'bg-[#1B4332] text-white border-transparent' : 'bg-white text-slate-400 border-slate-100'
-                      }`}
-                    >
-                      <span className="truncate">{dog.name}</span>
-                      {presentDogIds.includes(dog.id) && <Check size={14} />}
-                    </button>
-                  ))}
-                </div>
-                
-                <div className={`mt-4 p-4 rounded-2xl flex items-center gap-3 ${darkMode ? 'bg-slate-800' : 'bg-white shadow-inner'}`}>
-                  <Dog size={16} className="text-[#BC6C25]" />
-                  <input type="text" placeholder="Chien en essai (Nom)..." value={guestDog} onChange={(e) => setGuestDog(e.target.value)}
-                    className="w-full bg-transparent border-none outline-none font-bold text-xs"
-                  />
-                </div>
-              </div>
-
-              {/* RAS / NOTES */}
-              <div className="pt-6 border-t border-slate-100/10 space-y-4">
-                <label onClick={() => setIsRAS(!isRAS)} className="flex items-center gap-3 cursor-pointer group">
-                  <div className={`w-6 h-6 rounded-lg border flex items-center justify-center transition-all ${isRAS ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300 group-hover:border-[#BC6C25]'}`}>
-                    {isRAS && <Check size={16} />}
-                  </div>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Rien à signaler (RAS)</span>
-                </label>
-
-                {!isRAS && (
-                  <textarea value={sessionNotes} onChange={(e) => setSessionNotes(e.target.value)}
-                    className={`w-full p-6 rounded-[2rem] border-none outline-none font-medium text-sm min-h-[100px] ${darkMode ? 'bg-slate-800 text-white' : 'bg-white shadow-inner'}`}
-                    placeholder="Détaillez ici l'incident (morsure, oubli ramassage, gâteau dû...)"
-                  />
-                )}
-              </div>
-            </div>
-
-            <div className="p-10 bg-[#1B4332]/5">
-              <button type="submit" className="w-full py-6 bg-[#1B4332] text-white rounded-[2rem] font-black uppercase tracking-[0.2em] text-[11px] shadow-xl hover:bg-[#BC6C25] transition-all">
-                Enregistrer la fiche de séance
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default Presences;
