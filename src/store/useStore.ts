@@ -12,6 +12,8 @@ interface ClubState {
   updateMember: (id: string, data: any) => Promise<void>;
   addTransaction: (t: any) => Promise<void>;
   addAttendance: (a: any) => Promise<void>;
+  addFeedback: (f: any) => Promise<void>; // Nouvelle méthode
+  uploadFeedbackFile: (file: File) => Promise<string>; // Nouvelle méthode
   uploadMemberPhoto: (id: string, file: File) => Promise<void>;
   uploadDogPhoto: (dogId: string, file: File) => Promise<void>;
   uploadProductPhoto: (productId: string, file: File) => Promise<void>;
@@ -65,6 +67,21 @@ export const useStore = create<ClubState>((set, get) => ({
     get().fetchData();
   },
 
+  addFeedback: async (f) => {
+    await addDoc(collection(db, "feedback"), {
+      ...f,
+      timestamp: new Date().toISOString(),
+      status: 'new'
+    });
+  },
+
+  uploadFeedbackFile: async (file) => {
+    const fileId = Date.now();
+    const storageRef = ref(storage, `feedback/${fileId}_${file.name}`);
+    const snapshot = await uploadBytes(storageRef, file);
+    return await getDownloadURL(snapshot.ref);
+  },
+
   uploadMemberPhoto: async (id, file) => {
     const storageRef = ref(storage, `members/${id}`);
     const snapshot = await uploadBytes(storageRef, file);
@@ -75,7 +92,7 @@ export const useStore = create<ClubState>((set, get) => ({
 
   uploadDogPhoto: async (dogId, file) => {
     const storageRef = ref(storage, `dogs/${dogId}`);
-    const snapshot = await uploadBytes(storageRef, file);
+    const snapshot = await uploadBytes(snapshot.ref, file);
     const url = await getDownloadURL(snapshot.ref);
     await updateDoc(doc(db, "dogs", dogId), { photo: url });
     get().fetchData();
