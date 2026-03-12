@@ -1,35 +1,29 @@
 📓 État du Projet au 11.03.2026
 Architecture & Routage :
-
 App.tsx : Gestion locale du routage (useState). Onglets actifs : dashboard, organigramme, membres, leschiens, cotisations, boutique, finances, presences, planning, secretariat, support, logs, parametres.
-
 Sidebar.tsx : Fond #1B4332. Logo via URL Google Drive. Boutons actifs #BC6C25. Labels en majuscules.
-
 Données (Zustand + Firebase) :
-
 Firestore : Collections actives : members, dogs, transactions, products, attendances, feedback.
-
 Storage : Dossiers : members/, dogs/, products/, feedback/.
-
 useStore.ts : Fonctions d'upload corrigées et méthodes de feedback intégrées.
-
 Interface & Design :
-
 Support.tsx : Nouveau module fonctionnel (Support & Idées).
-
 Presences.tsx : Système de terrains ACV (Principal A/B, Chiots, Agility, Fond, Prairie) opérationnel.
-
 Prochaines étapes :
-
 Plan ACV : Intégrer la visualisation de terrain.pdf dans la modal de Presences.tsx.
-
 Filtre Moniteurs : Restreindre le sélecteur responsibleId aux membres de catégorie "Moniteur".
 
 [INSTRUCTIONS_POUR_L_IA]
 Règles absolues pour cette session :
+Tu dois créer un log ( numéroté "---Log #X-Mise à jour de [Fichier]...---" ) après chaque modification de mon code.
+tu dois écraser les logs inutiles si besoin, garde la pertinence, pas de blabla, logs destinés à l'IA, pas à l'humain.
 
-Tu dois numéroter tes logs pour chaque modification de code (ex: "---Log #X-Mise à jour de [Fichier]...---"). Écrase les logs inutiles si besoin, garde la pertinence.
+interdiction formelle de modifier l'apparence visuelle de l'appli, pour chaque modification du code, tu demandera le fichier existant pour intégrer les ajouts ou modifications le plus proprement possible.
 
-À la fin de notre session de travail, tu devras obligatoirement générer un bloc de contexte final "---Log du [Date]---" résumant techniquement toute l'architecture, l'état du projet et les bugs à corriger, en remplaçant celui-ci.
+interdiction formelle de prendre des initiatives de codage sans ma permission. 
+
+À la fin de notre session de travail (quand je te le dirai), tu devras obligatoirement générer un bloc synthétisé de contexte final "---Log du [Date]---"
+
+
 
 Tu devras TOUJOURS inclure ce bloc [INSTRUCTIONS_POUR_L_IA] à la toute fin de ton log de synthèse.
