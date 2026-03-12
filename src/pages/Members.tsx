@@ -11,13 +11,13 @@ const Members = () => {
   if (selectedId) return <MemberDetail memberId={selectedId} onBack={() => setSelectedId(null)} />;
 
   const filteredMembers = members.filter(m => 
-    (m.firstName + ' ' + m.name).toLowerCase().includes(searchTerm.toLowerCase())
+    (m.firstName + ' ' + (m.name || '')).toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700 relative">
       
-      {/* BARRE DE RECHERCHE - Positionnée en haut pour ne pas masquer le titre */}
+      {/* BARRE DE RECHERCHE - Alignée avec le bouton sidebar */}
       <div className="absolute -top-12 lg:-top-6 right-0 z-20">
         <div className={`relative flex items-center rounded-2xl border transition-all ${
           darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-sm'
@@ -33,7 +33,7 @@ const Members = () => {
         </div>
       </div>
 
-      {/* HEADER BI-COULEUR */}
+      {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h2 className={`text-4xl font-serif italic tracking-tight ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
@@ -45,74 +45,63 @@ const Members = () => {
         </div>
       </div>
 
-      {/* GRILLE DES VIGNETTES */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+      {/* GRILLE DES CARTES (Format plus large, 2 ou 3 colonnes pour l'ergonomie) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {filteredMembers.map((m) => {
-          // On récupère TOUS les chiens du membre
           const memberDogs = dogs.filter(d => d.ownerId === m.id);
           
           return (
             <div 
               key={m.id} 
               onClick={() => setSelectedId(m.id)}
-              className={`group relative p-6 rounded-[32px] border transition-all duration-500 hover:border-[#BC6C25] cursor-pointer ${
+              className={`group relative p-6 rounded-[40px] border transition-all duration-500 hover:shadow-2xl hover:shadow-[#BC6C25]/5 cursor-pointer flex items-center gap-6 ${
                 darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-xl shadow-emerald-900/5'
               }`}
             >
-              <div className="flex items-end gap-2 mb-4">
-                {/* PHOTO MEMBRE (Grande - 64px) */}
-                <div className="relative w-16 h-16 rounded-2xl overflow-hidden bg-slate-50 border border-emerald-50 shrink-0 shadow-inner z-10">
-                  {m.photo ? (
-                    <img src={m.photo} alt={m.firstName} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-slate-200">
-                      <User size={24} strokeWidth={1} />
-                    </div>
-                  )}
-                </div>
-
-                {/* PHOTOS DES CHIENS (Petites - 40px) en éventail */}
-                <div className="flex -space-x-4 mb-0.5">
-                  {memberDogs.length > 0 ? (
-                    memberDogs.slice(0, 3).map((dog, index) => (
-                      <div 
-                        key={dog.id} 
-                        className="relative w-10 h-10 rounded-xl overflow-hidden bg-[#FDFBF7] border-2 border-white shrink-0 shadow-sm transition-transform group-hover:translate-x-1"
-                        style={{ zIndex: 5 - index }}
-                      >
-                        {dog.photo ? (
-                          <img src={dog.photo} alt={dog.name} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-[#DDA15E]/20">
-                            <DogIcon size={16} strokeWidth={1} />
-                          </div>
-                        )}
-                      </div>
-                    ))
-                  ) : (
-                    <div className="w-10 h-10 rounded-xl border border-dashed border-slate-200 flex items-center justify-center text-slate-200">
-                      <DogIcon size={16} strokeWidth={1} />
-                    </div>
-                  )}
-                </div>
+              {/* NUMÉRO ADHÉRENT - En haut à droite */}
+              <div className="absolute top-6 right-8">
+                <span className="text-[7px] font-black text-slate-300 uppercase tracking-[0.2em] group-hover:text-[#BC6C25] transition-colors">
+                  adhérent ACV / ACMA n°A{m.id.slice(0,4).toUpperCase()}
+                </span>
               </div>
 
-              {/* INFOS MEMBRE */}
-              <div className="space-y-1">
-                <h3 className={`text-2xl font-serif italic tracking-tight lowercase leading-tight ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
+              {/* PHOTO MEMBRE (Grande et à gauche) */}
+              <div className="relative w-28 h-28 rounded-[32px] overflow-hidden bg-slate-50 border-4 border-white shrink-0 shadow-lg group-hover:rotate-2 transition-transform">
+                {m.photo ? (
+                  <img src={m.photo} alt={m.firstName} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-slate-200">
+                    <User size={40} strokeWidth={1} />
+                  </div>
+                )}
+              </div>
+
+              {/* INFOS CENTRALES */}
+              <div className="flex-1 min-w-0">
+                <h3 className={`text-3xl font-serif italic tracking-tight lowercase leading-none ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
                   {m.firstName}
                 </h3>
-                
-                {/* LISTE DES NOMS DES CHIENS */}
-                <p className="text-[#BC6C25] text-sm font-serif italic truncate">
+                <p className="text-[#BC6C25] text-lg font-serif italic mt-1 truncate">
                   {memberDogs.map(d => d.name).join(' & ') || 'Aucun chien'}
                 </p>
+              </div>
 
-                <div className="pt-2 border-t border-slate-50 mt-2">
-                  <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest block">
-                    adhérent ACV / ACMA n°A{m.id.slice(0,4).toUpperCase()}
-                  </span>
-                </div>
+              {/* PHOTOS DES CHIENS (Alignées verticalement à droite) */}
+              <div className="flex flex-col gap-2 shrink-0 pr-2">
+                {memberDogs.slice(0, 3).map((dog) => (
+                  <div 
+                    key={dog.id} 
+                    className="w-12 h-12 rounded-2xl overflow-hidden bg-[#FDFBF7] border-2 border-white shadow-sm transition-transform hover:scale-110"
+                  >
+                    {dog.photo ? (
+                      <img src={dog.photo} alt={dog.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[#DDA15E]/20">
+                        <DogIcon size={20} strokeWidth={1} />
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           );
