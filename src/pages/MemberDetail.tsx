@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useStore } from '../store/useStore';
 import { 
   ArrowLeft, User, Phone, Mail, MapPin, 
-  Dog, ShieldCheck, Edit3, X, Save, Camera
+  Dog, ShieldCheck, Edit3, X, Save, Camera, Calendar // Ajout de Calendar ici
 } from 'lucide-react';
 
 interface MemberDetailProps {
