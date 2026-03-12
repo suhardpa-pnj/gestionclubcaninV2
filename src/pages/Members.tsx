@@ -10,7 +10,6 @@ const Members = () => {
 
   if (selectedId) return <MemberDetail memberId={selectedId} onBack={() => setSelectedId(null)} />;
 
-  // Filtrage par Nom ou Prénom
   const filteredMembers = members.filter(m => 
     (m.firstName + ' ' + m.name).toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -18,8 +17,8 @@ const Members = () => {
   return (
     <div className="space-y-8 animate-in fade-in duration-700 relative">
       
-      {/* BARRE DE RECHERCHE ALIGNÉE EN HAUT À DROITE (Harmonisée avec les chiens) */}
-      <div className="absolute top-0 right-0 z-20">
+      {/* BARRE DE RECHERCHE - Remontée au niveau du bouton sidebar */}
+      <div className="absolute -top-12 lg:-top-6 right-0 z-20">
         <div className={`relative flex items-center rounded-2xl border transition-all ${
           darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-sm'
         }`}>
@@ -34,7 +33,7 @@ const Members = () => {
         </div>
       </div>
 
-      {/* HEADER BI-COULEUR & SOUS-TITRE */}
+      {/* HEADER BI-COULEUR HARMONISÉ */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h2 className={`text-4xl font-serif italic tracking-tight ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
@@ -46,70 +45,62 @@ const Members = () => {
         </div>
       </div>
 
-      {/* GRILLE HARMONISÉE (6 colonnes sur XL) */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+      {/* GRILLE - Taille restaurée (4 colonnes max) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         {filteredMembers.map((m) => {
-          // On récupère le premier chien pour la vue "couple"
           const firstDog = dogs.find(d => d.ownerId === m.id);
           
           return (
             <div 
               key={m.id} 
               onClick={() => setSelectedId(m.id)}
-              className={`group relative p-4 rounded-[24px] border transition-all duration-500 hover:-translate-y-1 cursor-pointer ${
-                darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-lg shadow-emerald-900/5'
+              className={`group relative p-6 rounded-[32px] border transition-all duration-500 hover:border-[#BC6C25] cursor-pointer ${
+                darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-xl shadow-emerald-900/5'
               }`}
             >
-              
-              {/* VUE DU COUPLE : PHOTO MAITRE & PHOTO CHIEN */}
-              <div className="flex gap-2 mb-3">
-                {/* Photo Membre */}
-                <div className="relative w-1/2 aspect-square rounded-[12px] overflow-hidden bg-slate-50 border border-emerald-50 shadow-inner">
+              <div className="flex items-center gap-4 mb-4">
+                {/* PHOTO MAITRE (Grande) */}
+                <div className="relative w-16 h-16 rounded-2xl overflow-hidden bg-slate-50 border border-emerald-50 shrink-0 shadow-inner">
                   {m.photo ? (
-                    <img src={m.photo} alt={m.firstName} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    <img src={m.photo} alt={m.firstName} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-slate-200">
-                      <User size={20} strokeWidth={1.5} />
+                      <User size={24} strokeWidth={1} />
                     </div>
                   )}
                 </div>
-                
-                {/* Photo Chien associé */}
-                <div className="relative w-1/2 aspect-square rounded-[12px] overflow-hidden bg-[#FDFBF7] border border-emerald-50 shadow-inner">
+
+                {/* PHOTO CHIEN (Petite) */}
+                <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-[#FDFBF7] border border-emerald-50 shrink-0 shadow-sm -ml-2 mt-6">
                   {firstDog?.photo ? (
-                    <img src={firstDog.photo} alt={firstDog.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    <img src={firstDog.photo} alt={firstDog.name} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-[#DDA15E]/20">
-                      <DogIcon size={20} strokeWidth={1.5} />
+                      <DogIcon size={16} strokeWidth={1} />
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* INFOS MEMBRE : TYPO INVERSÉE */}
+              {/* INFOS MEMBRE */}
               <div className="space-y-1">
-                <div className="overflow-hidden">
-                  <h3 className={`text-sm font-serif italic tracking-tight truncate lowercase ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
-                    {m.firstName}
-                  </h3>
-                  <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest truncate">
-                    {m.name}
+                <h3 className={`text-2xl font-serif italic tracking-tight lowercase leading-tight ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
+                  {m.firstName}
+                </h3>
+                
+                {/* NOM DU CHIEN RESTAURÉ */}
+                {firstDog && (
+                  <p className="text-[#BC6C25] text-sm font-serif italic">
+                    {firstDog.name}
                   </p>
-                </div>
+                )}
 
-                <div className="pt-1">
-                  <span className="text-[6px] font-black text-[#BC6C25] uppercase tracking-widest block italic opacity-70">
-                    adhérent ACV / ACMA n°{m.id.slice(0,5).toUpperCase()}
+                <div className="pt-2 border-t border-slate-50 mt-2">
+                  <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest block">
+                    adhérent ACV / ACMA n°A{m.id.slice(0,4).toUpperCase()}
                   </span>
                 </div>
               </div>
-
-              {/* NOM DU CHIEN EN BADGE AU SURVOL */}
-              {firstDog && (
-                <div className="absolute top-4 right-5 text-[6px] font-black text-[#BC6C25] tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
-                  {firstDog.name.toUpperCase()}
-                </div>
-              )}
             </div>
           );
         })}
