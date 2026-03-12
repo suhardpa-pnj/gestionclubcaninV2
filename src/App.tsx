@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Members from './pages/Members';
+import MemberDetail from './pages/MemberDetail'; // Ajout de l'import
 import Dogs from './pages/Dogs';
-import DogDetail from './pages/DogDetail'; // Ajout de l'import
+import DogDetail from './pages/DogDetail';
 import Boutique from './pages/Boutique';
 import Secretariat from './pages/Secretariat';
 import Organigramme from './pages/Organigramme';
@@ -16,7 +17,6 @@ import Support from './pages/Support';
 import { useStore } from './store/useStore';
 import { Menu } from 'lucide-react';
 
-
 const SectionPlaceholder = ({ title }: { title: string }) => (
   <div className="p-10 animate-in fade-in duration-700">
     <h2 className="text-5xl font-serif italic text-[#1B4332]">{title}</h2>
@@ -28,7 +28,8 @@ const SectionPlaceholder = ({ title }: { title: string }) => (
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [selectedDogId, setSelectedDogId] = useState<string | null>(null); // État pour le chien sélectionné
+  const [selectedDogId, setSelectedDogId] = useState<string | null>(null);
+  const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null); // État pour le membre
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(localStorage.getItem('acv_role'));
   const { fetchData, isLoading, darkMode, dogs } = useStore();
@@ -49,6 +50,13 @@ function App() {
     setUserRole(role);
   };
 
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    setSelectedDogId(null);
+    setSelectedMemberId(null); // Reset membre au changement d'onglet
+    setIsSidebarOpen(false);
+  };
+
   if (!userRole) return <Login onLogin={handleLogin} />;
   
   return (
@@ -61,6 +69,7 @@ function App() {
         </div>
       )}
 
+      {/* Menu Mobile */}
       <button 
         onClick={() => setIsSidebarOpen(true)} 
         className="lg:hidden fixed top-5 left-5 z-40 p-3 bg-[#1B4332] text-white rounded-xl shadow-lg"
@@ -72,25 +81,35 @@ function App() {
         activeTab={activeTab} 
         isOpen={isSidebarOpen} 
         onClose={() => setIsSidebarOpen(false)} 
-        setActiveTab={(t) => { 
-          setActiveTab(t); 
-          setSelectedDogId(null); // Reset la sélection quand on change d'onglet
-          setIsSidebarOpen(false); 
-        }} 
+        setActiveTab={handleTabChange} 
       />
 
       <main className="flex-1 p-6 lg:p-12 lg:ml-72 relative z-10">
         <div className="max-w-6xl mx-auto pt-12 lg:pt-0">
           {activeTab === 'dashboard' && <Dashboard />}
           {activeTab === 'organigramme' && <Organigramme />}
-          {activeTab === 'membres' && <Members />}
           
-          {/* Correction de l'affichage des chiens */}
+          {/* Membres : Liste ou Détail */}
+          {activeTab === 'membres' && (
+            selectedMemberId ? (
+              <MemberDetail memberId={selectedMemberId} onBack={() => setSelectedMemberId(null)} />
+            ) : (
+              <Members /> 
+            )
+          )}
+          
+          {/* Chiens : Liste ou Détail */}
           {activeTab === 'leschiens' && (
             selectedDogId ? (
               <DogDetail dogId={selectedDogId} onBack={() => setSelectedDogId(null)} />
             ) : (
-              <Dogs onSelectDog={(id) => setSelectedDogId(id)} />
+              <Dogs 
+                onSelectDog={(id) => setSelectedDogId(id)} 
+                onSelectMember={(id) => {
+                  setSelectedMemberId(id);
+                  setActiveTab('membres');
+                }}
+              />
             )
           )}
 
