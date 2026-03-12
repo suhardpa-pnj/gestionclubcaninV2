@@ -2,32 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { useStore } from '../store/useStore';
 import { 
   User, ShieldCheck, Star, GraduationCap, 
-  Edit3, X, Save, Check
+  Edit3, X, Check
 } from 'lucide-react';
 
 const Organigramme = () => {
-  const { darkMode, members } = useStore();
+  const { darkMode, members, organigramme, updateOrganigramme } = useStore();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [orgData, setOrgData] = useState<any>({});
 
-  // État local pour gérer les attributions (à terme, cela pourrait être stocké en base)
-  const [orgData, setOrgData] = useState({
-    president: '',
-    presidentAdj: '',
-    secretaire: '',
-    secretaireAdj: '',
-    tresorier: '',
-    tresorierAdj: '',
-    responsableRing: '',
-    responsableAgility: '',
-    responsableObe: '',
-    responsableChiot: '',
-    responsableEduc: '',
-    moniteur1: '',
-    moniteur2: '',
-    moniteur3: ''
-  });
+  // Synchronise les données locales quand celles du store changent
+  useEffect(() => {
+    if (organigramme) {
+      setOrgData(organigramme);
+    }
+  }, [organigramme]);
 
-  // Fonction pour trouver un membre par son ID et retourner son objet
+  const handleSave = async () => {
+    await updateOrganigramme(orgData);
+    setIsEditModalOpen(false);
+  };
+
   const getMember = (id: string) => members.find(m => m.id === id);
 
   const categories = [
@@ -136,7 +130,6 @@ const Organigramme = () => {
         </div>
       ))}
 
-      {/* MODALE D'ÉDITION */}
       {isEditModalOpen && (
         <div className="fixed inset-0 z-[400] flex items-center justify-center p-4 bg-[#1B4332]/60 backdrop-blur-md animate-in fade-in duration-300">
           <div className={`w-full max-w-4xl max-h-[90vh] rounded-[40px] shadow-2xl overflow-hidden border ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50'}`}>
@@ -146,24 +139,24 @@ const Organigramme = () => {
             </div>
             
             <div className="p-8 overflow-y-auto max-h-[60vh] space-y-8">
-              {/* SÉLECTEUR POUR CHAQUE RÔLE */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {[
                   { label: 'Président', key: 'president' }, { label: 'Adjoint Prés.', key: 'presidentAdj' },
                   { label: 'Secrétaire', key: 'secretaire' }, { label: 'Adjoint Sec.', key: 'secretaireAdj' },
                   { label: 'Trésorier', key: 'tresorier' }, { label: 'Adjoint Tré.', key: 'tresorierAdj' },
                   { label: 'Resp. Ring', key: 'responsableRing' }, { label: 'Resp. Agility', key: 'responsableAgility' },
-                  { label: 'Resp. École du Chiot', key: 'responsableChiot' }, { label: 'Moniteur Chef', key: 'moniteur1' }
+                  { label: 'Resp. École du Chiot', key: 'responsableChiot' }, { label: 'Resp. Éducation', key: 'responsableEduc' },
+                  { label: 'Moniteur 1', key: 'moniteur1' }, { label: 'Moniteur 2', key: 'moniteur2' }, { label: 'Moniteur 3', key: 'moniteur3' }
                 ].map((item) => (
                   <div key={item.key} className="space-y-2">
                     <label className="text-[9px] font-black uppercase text-[#BC6C25] ml-2 tracking-widest">{item.label}</label>
                     <select 
-                      value={orgData[item.key as keyof typeof orgData]} 
+                      value={orgData[item.key] || ''} 
                       onChange={(e) => setOrgData({...orgData, [item.key]: e.target.value})}
                       className={`w-full p-4 rounded-2xl border-none outline-none font-serif italic text-sm ${darkMode ? 'bg-slate-800 text-white' : 'bg-slate-50 shadow-inner'}`}
                     >
                       <option value="">Sélectionner un adhérent...</option>
-                      {members.sort((a,b) => a.firstName.localeCompare(b.firstName)).map(m => (
+                      {members.sort((a,b) => (a.firstName || '').localeCompare(b.firstName || '')).map(m => (
                         <option key={m.id} value={m.id}>{m.firstName} {m.name}</option>
                       ))}
                     </select>
@@ -174,7 +167,7 @@ const Organigramme = () => {
 
             <div className="p-8 border-t border-slate-50">
               <button 
-                onClick={() => setIsEditModalOpen(false)}
+                onClick={handleSave}
                 className="w-full py-5 rounded-[24px] bg-[#1B4332] text-white font-black uppercase tracking-[0.2em] text-[10px] shadow-xl hover:bg-[#BC6C25] transition-all flex items-center justify-center gap-3"
               >
                 <Check size={18} /> Enregistrer l'organigramme
