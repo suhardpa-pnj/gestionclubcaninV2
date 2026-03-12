@@ -68,7 +68,18 @@ Repositionnement de la barre de recherche au-dessus du titre pour éviter les ch
 Optimisation de la "Vue Couple" pour supporter plusieurs chiens par membre. Les photos des chiens sont désormais affichées sous forme de pile (stack) à côté de la photo du maître. Les noms des chiens sont listés et séparés par des "&". Maintien des tailles originales : Membre (16x16/64px) et Chiens (10x10/40px).
 ---Log #46-Refonte ergonomique de Members.tsx (Style Carte d'identité)---
 Passage à un affichage de type "Carte" plus spacieux (3 colonnes max). Photo du membre agrandie à gauche (w-28). Prénom centré en typographie large. Alignement vertical des chiens (jusqu'à 3) sur le bord droit de la carte. Repositionnement du numéro ACMA dans le coin supérieur droit pour épurer la zone de texte.
-
+---Log #47-Mise à jour de Organigramme.tsx (Nouvelle Structure)---
+Refonte visuelle de l'organigramme pour adopter le style "Carte d'Identité" (Photo membre large à gauche, rôle au centre, chiens à droite). Ajout d'un bouton "Édition" global. Intégration des postes d'adjoints (Vice-Président, etc.) et des étiquettes spécifiques "Membre" pour le bureau. Extension des sections (Obéissance, Hoopers, École du Chiot, Éducation) et création du pôle "Moniteurs".
+---Log #48-Mise à jour de Organigramme.tsx (Refonte des duos)---
+Application du concept de duo (Principal + Adjoint) sur une même carte via le système de superposition de photos (Grosse/Petite). Ajout de l'étiquette "Membre" pour les adhérents du bureau sans poste spécifique. Complétion de toutes les sections club (Ring, Agility, Obéissance, École du Chiot, Éducation, Hoopers) et création du pôle "Moniteurs". Intégration du bouton "Édition Bureau" et du numéro ACV/ACMA.
+---Log #49-Évolution de l'Organigramme dynamique---
+Suppression de la section "Hoopers" (erronée). Renommage du pôle "Corps Enseignant" en "Moniteurs". Activation du bouton d'édition : création d'une modale plein écran permettant d'assigner chaque rôle à un adhérent réel de la base de données. L'affichage des cartes se met désormais à jour automatiquement avec la photo et le prénom de l'adhérent sélectionné.
+---Log #50-Organigramme persistant et dynamique---
+Liaison complète avec Firebase. Ajout de la méthode updateOrganigramme dans le store. L'organigramme est maintenant stocké dans un document unique (settings/organigramme). Les photos et prénoms s'affichent en temps réel en fonction des adhérents sélectionnés dans la modale. Harmonisation du pôle "Moniteurs" et suppression de la section superflue.
+---Log #51-Persistance Firebase de l'Organigramme---
+Mise à jour du store : ajout d'une méthode updateOrganigramme utilisant setDoc pour sauvegarder la configuration dans settings/organigramme. Modification de fetchData pour charger cette configuration au démarrage. Dans la page Organigramme.tsx : suppression de la section Hoopers, renommage du pôle moniteurs, et connexion du bouton "Enregistrer" au store pour une sauvegarde permanente.
+---Log #52-Clôture de session : Harmonisation et Persistance---
+Finalisation de la refonte ergonomique des pages Membres et Organigramme. Mise en place de la persistance des données du bureau via Firebase (settings/organigramme). Correction des bugs d'UX (scroll auto) et de data (normalisation du sexe). L'application est désormais plus robuste et plus facile à administrer sans toucher au code.
 
 
 
