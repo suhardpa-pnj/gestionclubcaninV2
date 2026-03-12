@@ -17,7 +17,7 @@ const Members = () => {
   return (
     <div className="space-y-8 animate-in fade-in duration-700 relative">
       
-      {/* BARRE DE RECHERCHE - Remontée au niveau du bouton sidebar */}
+      {/* BARRE DE RECHERCHE - Positionnée en haut pour ne pas masquer le titre */}
       <div className="absolute -top-12 lg:-top-6 right-0 z-20">
         <div className={`relative flex items-center rounded-2xl border transition-all ${
           darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-sm'
@@ -33,7 +33,7 @@ const Members = () => {
         </div>
       </div>
 
-      {/* HEADER BI-COULEUR HARMONISÉ */}
+      {/* HEADER BI-COULEUR */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h2 className={`text-4xl font-serif italic tracking-tight ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
@@ -45,10 +45,11 @@ const Members = () => {
         </div>
       </div>
 
-      {/* GRILLE - Taille restaurée (4 colonnes max) */}
+      {/* GRILLE DES VIGNETTES */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         {filteredMembers.map((m) => {
-          const firstDog = dogs.find(d => d.ownerId === m.id);
+          // On récupère TOUS les chiens du membre
+          const memberDogs = dogs.filter(d => d.ownerId === m.id);
           
           return (
             <div 
@@ -58,9 +59,9 @@ const Members = () => {
                 darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-xl shadow-emerald-900/5'
               }`}
             >
-              <div className="flex items-center gap-4 mb-4">
-                {/* PHOTO MAITRE (Grande) */}
-                <div className="relative w-16 h-16 rounded-2xl overflow-hidden bg-slate-50 border border-emerald-50 shrink-0 shadow-inner">
+              <div className="flex items-end gap-2 mb-4">
+                {/* PHOTO MEMBRE (Grande - 64px) */}
+                <div className="relative w-16 h-16 rounded-2xl overflow-hidden bg-slate-50 border border-emerald-50 shrink-0 shadow-inner z-10">
                   {m.photo ? (
                     <img src={m.photo} alt={m.firstName} className="w-full h-full object-cover" />
                   ) : (
@@ -70,12 +71,26 @@ const Members = () => {
                   )}
                 </div>
 
-                {/* PHOTO CHIEN (Petite) */}
-                <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-[#FDFBF7] border border-emerald-50 shrink-0 shadow-sm -ml-2 mt-6">
-                  {firstDog?.photo ? (
-                    <img src={firstDog.photo} alt={firstDog.name} className="w-full h-full object-cover" />
+                {/* PHOTOS DES CHIENS (Petites - 40px) en éventail */}
+                <div className="flex -space-x-4 mb-0.5">
+                  {memberDogs.length > 0 ? (
+                    memberDogs.slice(0, 3).map((dog, index) => (
+                      <div 
+                        key={dog.id} 
+                        className="relative w-10 h-10 rounded-xl overflow-hidden bg-[#FDFBF7] border-2 border-white shrink-0 shadow-sm transition-transform group-hover:translate-x-1"
+                        style={{ zIndex: 5 - index }}
+                      >
+                        {dog.photo ? (
+                          <img src={dog.photo} alt={dog.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-[#DDA15E]/20">
+                            <DogIcon size={16} strokeWidth={1} />
+                          </div>
+                        )}
+                      </div>
+                    ))
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-[#DDA15E]/20">
+                    <div className="w-10 h-10 rounded-xl border border-dashed border-slate-200 flex items-center justify-center text-slate-200">
                       <DogIcon size={16} strokeWidth={1} />
                     </div>
                   )}
@@ -88,12 +103,10 @@ const Members = () => {
                   {m.firstName}
                 </h3>
                 
-                {/* NOM DU CHIEN RESTAURÉ */}
-                {firstDog && (
-                  <p className="text-[#BC6C25] text-sm font-serif italic">
-                    {firstDog.name}
-                  </p>
-                )}
+                {/* LISTE DES NOMS DES CHIENS */}
+                <p className="text-[#BC6C25] text-sm font-serif italic truncate">
+                  {memberDogs.map(d => d.name).join(' & ') || 'Aucun chien'}
+                </p>
 
                 <div className="pt-2 border-t border-slate-50 mt-2">
                   <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest block">
