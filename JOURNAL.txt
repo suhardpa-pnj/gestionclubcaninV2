@@ -14,16 +14,13 @@ Plan ACV : Intégrer la visualisation de terrain.pdf dans la modal de Presences.
 Filtre Moniteurs : Restreindre le sélecteur responsibleId aux membres de catégorie "Moniteur".
 
 [INSTRUCTIONS_POUR_L_IA]
-Règles absolues pour cette session :
+Règles absolues pour chaque session :
 Tu dois créer un log ( numéroté "---Log #X-Mise à jour de [Fichier]...---" ) après chaque modification de mon code.
 tu dois écraser les logs inutiles si besoin, garde la pertinence, pas de blabla, logs destinés à l'IA, pas à l'humain.
-
 interdiction formelle de modifier l'apparence visuelle de l'appli, pour chaque modification du code, tu demandera le fichier existant pour intégrer les ajouts ou modifications le plus proprement possible.
-
 interdiction formelle de prendre des initiatives de codage sans ma permission. 
-
 À la fin de notre session de travail (quand je te le dirai), tu devras obligatoirement générer un bloc synthétisé de contexte final "---Log du [Date]---"
 
 
 
-Tu devras TOUJOURS inclure ce bloc [INSTRUCTIONS_POUR_L_IA] à la toute fin de ton log de synthèse.
+
