@@ -16,6 +16,7 @@ interface ClubState {
   uploadFeedbackFile: (file: File) => Promise<string>;
   uploadMemberPhoto: (id: string, file: File) => Promise<void>;
   uploadDogPhoto: (dogId: string, file: File) => Promise<void>;
+  updateDog: (id: string, data: any) => Promise<void>; // Nouvelle méthode
   uploadProductPhoto: (productId: string, file: File) => Promise<void>;
   seedBoutique: () => Promise<void>;
   sellProduct: (pId: string, qty: number, price: number) => Promise<void>;
@@ -92,10 +93,14 @@ export const useStore = create<ClubState>((set, get) => ({
 
   uploadDogPhoto: async (dogId, file) => {
     const storageRef = ref(storage, `dogs/${dogId}`);
-    // CORRECTION ICI : on utilise storageRef pour l'upload
     const snapshot = await uploadBytes(storageRef, file); 
     const url = await getDownloadURL(snapshot.ref);
     await updateDoc(doc(db, "dogs", dogId), { photo: url });
+    get().fetchData();
+  },
+
+  updateDog: async (id, data) => {
+    await updateDoc(doc(db, "dogs", id), data);
     get().fetchData();
   },
 
