@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useStore } from '../store/useStore';
-import { User, Phone, Search } from 'lucide-react';
+import { User, Search, Dog as DogIcon } from 'lucide-react';
 import MemberDetail from './MemberDetail';
 
 const Members = () => {
@@ -10,37 +10,106 @@ const Members = () => {
 
   if (selectedId) return <MemberDetail memberId={selectedId} onBack={() => setSelectedId(null)} />;
 
+  // Filtrage par Nom ou Prénom
+  const filteredMembers = members.filter(m => 
+    (m.firstName + ' ' + m.name).toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col md:flex-row justify-between gap-6 items-end">
-        <h2 className={`text-4xl font-serif italic ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>Les Adhérents</h2>
-        <div className="relative group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
-          <input type="text" placeholder="RECHERCHER..." onChange={(e)=>setSearchTerm(e.target.value)} className={`pl-12 pr-6 py-3 rounded-2xl outline-none text-[10px] font-black tracking-widest border transition-all ${darkMode ? 'bg-slate-800 border-slate-700 text-white' : 'bg-white border-emerald-50 shadow-sm'}`} />
+    <div className="space-y-8 animate-in fade-in duration-700 relative">
+      
+      {/* BARRE DE RECHERCHE ALIGNÉE EN HAUT À DROITE (Harmonisée avec les chiens) */}
+      <div className="absolute top-0 right-0 z-20">
+        <div className={`relative flex items-center rounded-2xl border transition-all ${
+          darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-sm'
+        }`}>
+          <Search size={14} className="ml-4 text-[#BC6C25]" />
+          <input 
+            type="text"
+            placeholder="Chercher un membre..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="bg-transparent border-none outline-none p-3 text-[10px] font-bold uppercase tracking-widest w-40 md:w-64"
+          />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-4">
-        {members.filter(m => m.name.toLowerCase().includes(searchTerm.toLowerCase())).map(m => {
-          const mDogs = dogs.filter(d => d.ownerId === m.id);
+      {/* HEADER BI-COULEUR & SOUS-TITRE */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h2 className={`text-4xl font-serif italic tracking-tight ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
+            Les <span className="text-[#BC6C25]">Membres</span>
+          </h2>
+          <p className="text-[#BC6C25] text-[10px] font-black uppercase tracking-[0.3em] mt-2 italic">
+            Amicale Canine Vernoise • {filteredMembers.length} membres
+          </p>
+        </div>
+      </div>
+
+      {/* GRILLE HARMONISÉE (6 colonnes sur XL) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+        {filteredMembers.map((m) => {
+          // On récupère le premier chien pour la vue "couple"
+          const firstDog = dogs.find(d => d.ownerId === m.id);
+          
           return (
-            <div key={m.id} className={`p-4 rounded-[32px] border transition-all hover:border-[#BC6C25] ${darkMode ? 'bg-[#1A1F1C] border-slate-700' : 'bg-white border-emerald-50'}`}>
-              <button onClick={() => setSelectedId(m.id)} className="flex items-center gap-4 text-left w-full mb-4">
-                <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-emerald-50 overflow-hidden shrink-0">
-                  {m.photo ? <img src={m.photo} className="w-full h-full object-cover" /> : <User className="w-full h-full p-3 text-slate-200"/>}
+            <div 
+              key={m.id} 
+              onClick={() => setSelectedId(m.id)}
+              className={`group relative p-4 rounded-[24px] border transition-all duration-500 hover:-translate-y-1 cursor-pointer ${
+                darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-lg shadow-emerald-900/5'
+              }`}
+            >
+              
+              {/* VUE DU COUPLE : PHOTO MAITRE & PHOTO CHIEN */}
+              <div className="flex gap-2 mb-3">
+                {/* Photo Membre */}
+                <div className="relative w-1/2 aspect-square rounded-[12px] overflow-hidden bg-slate-50 border border-emerald-50 shadow-inner">
+                  {m.photo ? (
+                    <img src={m.photo} alt={m.firstName} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-slate-200">
+                      <User size={20} strokeWidth={1.5} />
+                    </div>
+                  )}
                 </div>
-                <div className="min-w-0">
-                  <h3 className={`text-[12px] font-black uppercase truncate ${darkMode ? 'text-slate-300' : 'text-[#1B4332]'}`}>{m.name} {m.firstName.charAt(0)}.</h3>
-                  {mDogs.map(d => (
-                    <p key={d.id} className="text-[#BC6C25] text-[20px] font-serif italic leading-none mt-1 truncate">{d.name}</p>
-                  ))}
+                
+                {/* Photo Chien associé */}
+                <div className="relative w-1/2 aspect-square rounded-[12px] overflow-hidden bg-[#FDFBF7] border border-emerald-50 shadow-inner">
+                  {firstDog?.photo ? (
+                    <img src={firstDog.photo} alt={firstDog.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-[#DDA15E]/20">
+                      <DogIcon size={20} strokeWidth={1.5} />
+                    </div>
+                  )}
                 </div>
-              </button>
-              <div className="pt-3 border-t border-slate-50/5 flex justify-between items-center">
-                <a href={`tel:${m.phone}`} className="flex items-center gap-2 px-3 py-2 bg-[#1B4332]/5 text-[#1B4332] rounded-xl text-[10px] font-black uppercase">
-                  <Phone size={12} /> {m.phone}
-                </a>
               </div>
+
+              {/* INFOS MEMBRE : TYPO INVERSÉE */}
+              <div className="space-y-1">
+                <div className="overflow-hidden">
+                  <h3 className={`text-sm font-serif italic tracking-tight truncate lowercase ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
+                    {m.firstName}
+                  </h3>
+                  <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest truncate">
+                    {m.name}
+                  </p>
+                </div>
+
+                <div className="pt-1">
+                  <span className="text-[6px] font-black text-[#BC6C25] uppercase tracking-widest block italic opacity-70">
+                    adhérent ACV / ACMA n°{m.id.slice(0,5).toUpperCase()}
+                  </span>
+                </div>
+              </div>
+
+              {/* NOM DU CHIEN EN BADGE AU SURVOL */}
+              {firstDog && (
+                <div className="absolute top-4 right-5 text-[6px] font-black text-[#BC6C25] tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
+                  {firstDog.name.toUpperCase()}
+                </div>
+              )}
             </div>
           );
         })}
@@ -48,4 +117,5 @@ const Members = () => {
     </div>
   );
 };
+
 export default Members;
