@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useStore } from '../store/useStore';
 import { 
   ArrowLeft, Dog, Calendar, Fingerprint, 
@@ -16,7 +16,16 @@ const DogDetail: React.FC<DogDetailProps> = ({ dogId, onBack }) => {
   const owner = members.find(m => m.id === dog?.ownerId);
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [formData, setFormData] = useState(dog || {});
+  const [formData, setFormData] = useState<any>(null);
+
+  // 1. Force le scroll en haut de page à l'ouverture de la fiche
+  // 2. Synchronise les données du formulaire avec le chien sélectionné
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    if (dog) {
+      setFormData({ ...dog });
+    }
+  }, [dogId, dog]);
 
   if (!dog) return null;
 
@@ -31,6 +40,13 @@ const DogDetail: React.FC<DogDetailProps> = ({ dogId, onBack }) => {
     e.preventDefault();
     await updateDog(dog.id, formData);
     setIsEditModalOpen(false);
+  };
+
+  // Fonction utilitaire pour vérifier le sexe de manière robuste
+  const isMale = (sex: string) => {
+    if (!sex) return false;
+    const s = sex.toUpperCase();
+    return s === 'M' || s === 'MÂLE' || s === 'MA LE';
   };
 
   const InfoCard = ({ icon: Icon, label, value, color }: any) => (
@@ -81,7 +97,6 @@ const DogDetail: React.FC<DogDetailProps> = ({ dogId, onBack }) => {
             )}
           </div>
           
-          {/* BOUTON MODIF PHOTO (Remplaçant l'os) */}
           <label className="absolute -bottom-2 -right-2 bg-[#BC6C25] text-white p-4 rounded-full shadow-2xl cursor-pointer hover:scale-110 transition-all z-10">
             <Camera size={20} />
             <input type="file" className="hidden" accept="image/*" onChange={handlePhotoUpload} />
@@ -98,9 +113,9 @@ const DogDetail: React.FC<DogDetailProps> = ({ dogId, onBack }) => {
                 {dog.breed || 'Race Inconnue'}
               </span>
               <span className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-full border ${
-                dog.sex === 'M' ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-rose-50 text-rose-600 border-rose-100'
+                isMale(dog.sex) ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-rose-50 text-rose-600 border-rose-100'
               }`}>
-                {dog.sex === 'M' ? 'Mâle' : 'Femelle'}
+                {isMale(dog.sex) ? 'Mâle' : 'Femelle'}
               </span>
             </div>
           </div>
@@ -129,8 +144,8 @@ const DogDetail: React.FC<DogDetailProps> = ({ dogId, onBack }) => {
         </div>
       </div>
 
-      {/* MODALE D'ÉDITION DU CHIEN */}
-      {isEditModalOpen && (
+      {/* MODALE D'ÉDITION DU CHIEN COMPLÉTÉE */}
+      {isEditModalOpen && formData && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-[#1B4332]/40 backdrop-blur-sm animate-in fade-in duration-300">
           <div className={`w-full max-w-xl rounded-[40px] shadow-2xl overflow-hidden border ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50'}`}>
             <div className="p-8 flex items-center justify-between border-b border-slate-50">
@@ -138,41 +153,61 @@ const DogDetail: React.FC<DogDetailProps> = ({ dogId, onBack }) => {
               <button onClick={() => setIsEditModalOpen(false)} className="p-2 hover:bg-rose-50 hover:text-rose-500 rounded-full transition-colors"><X size={20}/></button>
             </div>
             
-            <form onSubmit={handleUpdate} className="p-8 space-y-4">
+            <form onSubmit={handleUpdate} className="p-8 space-y-4 max-h-[70vh] overflow-y-auto custom-scrollbar">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-[9px] font-black uppercase text-slate-400 ml-2 tracking-widest">Nom</label>
-                  <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className={`w-full p-3 rounded-xl border-none outline-none font-bold text-xs ${darkMode ? 'bg-slate-800 text-white' : 'bg-slate-50 shadow-inner'}`} />
+                  <label className="text-[9px] font-black uppercase text-slate-400 ml-2">Nom</label>
+                  <input type="text" value={formData.name || ''} onChange={e => setFormData({...formData, name: e.target.value})} className={`w-full p-3 rounded-xl border-none outline-none font-bold text-xs ${darkMode ? 'bg-slate-800 text-white' : 'bg-slate-50 shadow-inner'}`} />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[9px] font-black uppercase text-slate-400 ml-2 tracking-widest">Race</label>
-                  <input type="text" value={formData.breed} onChange={e => setFormData({...formData, breed: e.target.value})} className={`w-full p-3 rounded-xl border-none outline-none font-bold text-xs ${darkMode ? 'bg-slate-800 text-white' : 'bg-slate-50 shadow-inner'}`} />
+                  <label className="text-[9px] font-black uppercase text-slate-400 ml-2">Race</label>
+                  <input type="text" value={formData.breed || ''} onChange={e => setFormData({...formData, breed: e.target.value})} className={`w-full p-3 rounded-xl border-none outline-none font-bold text-xs ${darkMode ? 'bg-slate-800 text-white' : 'bg-slate-50 shadow-inner'}`} />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[9px] font-black uppercase text-slate-400 ml-2 tracking-widest">Sexe</label>
-                  <select value={formData.sex} onChange={e => setFormData({...formData, sex: e.target.value})} className={`w-full p-3 rounded-xl border-none outline-none font-bold text-xs ${darkMode ? 'bg-slate-800 text-white' : 'bg-slate-50 shadow-inner'}`}>
+                  <label className="text-[9px] font-black uppercase text-slate-400 ml-2">Sexe</label>
+                  <select value={formData.sex || 'M'} onChange={e => setFormData({...formData, sex: e.target.value})} className={`w-full p-3 rounded-xl border-none outline-none font-bold text-xs ${darkMode ? 'bg-slate-800 text-white' : 'bg-slate-50 shadow-inner'}`}>
                     <option value="M">Mâle</option>
                     <option value="F">Femelle</option>
                   </select>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[9px] font-black uppercase text-slate-400 ml-2 tracking-widest">Date de naissance</label>
-                  <input type="date" value={formData.birthDate} onChange={e => setFormData({...formData, birthDate: e.target.value})} className={`w-full p-3 rounded-xl border-none outline-none font-bold text-xs ${darkMode ? 'bg-slate-800 text-white' : 'bg-slate-50 shadow-inner'}`} />
+                  <label className="text-[9px] font-black uppercase text-slate-400 ml-2">Date de naissance</label>
+                  <input type="date" value={formData.birthDate || ''} onChange={e => setFormData({...formData, birthDate: e.target.value})} className={`w-full p-3 rounded-xl border-none outline-none font-bold text-xs ${darkMode ? 'bg-slate-800 text-white' : 'bg-slate-50 shadow-inner'}`} />
+                </div>
+              </div>
+
+              {/* CHAMPS DE SECTION ET NIVEAU AJOUTÉS */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[9px] font-black uppercase text-slate-400 ml-2">Section Club</label>
+                  <select value={formData.section || ''} onChange={e => setFormData({...formData, section: e.target.value})} className={`w-full p-3 rounded-xl border-none outline-none font-bold text-xs ${darkMode ? 'bg-slate-800 text-white' : 'bg-slate-50 shadow-inner'}`}>
+                    <option value="">Sélectionner...</option>
+                    <option value="École du Chiot">École du Chiot</option>
+                    <option value="Éducation">Éducation</option>
+                    <option value="Agility">Agility</option>
+                    <option value="Obéissance">Obéissance</option>
+                    <option value="Ring">Ring</option>
+                    <option value="Hoopers">Hoopers</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[9px] font-black uppercase text-slate-400 ml-2">Niveau de travail</label>
+                  <input type="text" value={formData.level || ''} onChange={e => setFormData({...formData, level: e.target.value})} placeholder="Ex: Débutant, Brevet..." className={`w-full p-3 rounded-xl border-none outline-none font-bold text-xs ${darkMode ? 'bg-slate-800 text-white' : 'bg-slate-50 shadow-inner'}`} />
                 </div>
               </div>
               
               <div className="space-y-1">
-                <label className="text-[9px] font-black uppercase text-slate-400 ml-2 tracking-widest">ICAD / Puce</label>
-                <input type="text" value={formData.icad} onChange={e => setFormData({...formData, icad: e.target.value})} className={`w-full p-3 rounded-xl border-none outline-none font-bold text-xs ${darkMode ? 'bg-slate-800 text-white' : 'bg-slate-50 shadow-inner'}`} />
+                <label className="text-[9px] font-black uppercase text-slate-400 ml-2">ICAD / Puce</label>
+                <input type="text" value={formData.icad || ''} onChange={e => setFormData({...formData, icad: e.target.value})} className={`w-full p-3 rounded-xl border-none outline-none font-bold text-xs ${darkMode ? 'bg-slate-800 text-white' : 'bg-slate-50 shadow-inner'}`} />
               </div>
 
               <div className="space-y-1">
-                <label className="text-[9px] font-black uppercase text-slate-400 ml-2 tracking-widest">Vaccins & Notes médicales</label>
-                <textarea value={formData.vaccines} onChange={e => setFormData({...formData, vaccines: e.target.value})} className={`w-full p-4 rounded-xl border-none outline-none font-medium text-xs h-24 ${darkMode ? 'bg-slate-800 text-white' : 'bg-slate-50 shadow-inner'}`} />
+                <label className="text-[9px] font-black uppercase text-slate-400 ml-2">Vaccins & Notes médicales</label>
+                <textarea value={formData.vaccines || ''} onChange={e => setFormData({...formData, vaccines: e.target.value})} className={`w-full p-4 rounded-xl border-none outline-none font-medium text-xs h-24 ${darkMode ? 'bg-slate-800 text-white' : 'bg-slate-50 shadow-inner'}`} />
               </div>
 
               <button type="submit" className="w-full py-4 mt-4 rounded-2xl bg-[#1B4332] text-white font-black uppercase tracking-[0.2em] text-[10px] shadow-xl hover:bg-[#BC6C25] transition-all flex items-center justify-center gap-2">
-                <Save size={16} /> Enregistrer
+                <Save size={16} /> Enregistrer les modifications
               </button>
             </form>
           </div>
