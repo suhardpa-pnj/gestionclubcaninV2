@@ -3,10 +3,11 @@ import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Members from './pages/Members';
 import Dogs from './pages/Dogs';
+import DogDetail from './pages/DogDetail'; // Ajout de l'import
 import Boutique from './pages/Boutique';
 import Secretariat from './pages/Secretariat';
 import Organigramme from './pages/Organigramme';
-import Cotisations from './pages/Cotisations'; // Pointera vers ton ancien Memberships renommé
+import Cotisations from './pages/Cotisations'; 
 import Treasury from './pages/Treasury';
 import Presences from './pages/Presences';
 import Planning from './pages/Planning';
@@ -27,6 +28,7 @@ const SectionPlaceholder = ({ title }: { title: string }) => (
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [selectedDogId, setSelectedDogId] = useState<string | null>(null); // État pour le chien sélectionné
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(localStorage.getItem('acv_role'));
   const { fetchData, isLoading, darkMode, dogs } = useStore();
@@ -70,7 +72,11 @@ function App() {
         activeTab={activeTab} 
         isOpen={isSidebarOpen} 
         onClose={() => setIsSidebarOpen(false)} 
-        setActiveTab={(t) => { setActiveTab(t); setIsSidebarOpen(false); }} 
+        setActiveTab={(t) => { 
+          setActiveTab(t); 
+          setSelectedDogId(null); // Reset la sélection quand on change d'onglet
+          setIsSidebarOpen(false); 
+        }} 
       />
 
       <main className="flex-1 p-6 lg:p-12 lg:ml-72 relative z-10">
@@ -78,7 +84,16 @@ function App() {
           {activeTab === 'dashboard' && <Dashboard />}
           {activeTab === 'organigramme' && <Organigramme />}
           {activeTab === 'membres' && <Members />}
-          {activeTab === 'leschiens' && <Dogs />}
+          
+          {/* Correction de l'affichage des chiens */}
+          {activeTab === 'leschiens' && (
+            selectedDogId ? (
+              <DogDetail dogId={selectedDogId} onBack={() => setSelectedDogId(null)} />
+            ) : (
+              <Dogs onSelectDog={(id) => setSelectedDogId(id)} />
+            )
+          )}
+
           {activeTab === 'cotisations' && <Cotisations />}
           {activeTab === 'boutique' && <Boutique />}
           {activeTab === 'finances' && <Treasury />}
