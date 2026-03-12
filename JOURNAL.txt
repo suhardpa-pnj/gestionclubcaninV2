@@ -1,3 +1,11 @@
+[INSTRUCTIONS_POUR_L_IA]
+Règles absolues pour chaque session :
+Tu dois créer un log ( numéroté "---Log #X-Mise à jour de [Fichier]...---" ) après chaque modification de mon code.
+tu dois écraser les logs inutiles si besoin, garde la pertinence, pas de blabla, logs destinés à l'IA, pas à l'humain.
+interdiction formelle de modifier l'apparence visuelle de l'appli. Pour chaque modification du code, tu demandera le fichier existant pour intégrer les ajouts ou modifications le plus proprement possible.
+interdiction formelle de prendre des initiatives de codage sans ma permission. 
+À la fin de notre session de travail (quand je te le dirai), tu devras obligatoirement générer un bloc synthétisé de contexte final "---Log du [Date]---"
+
 📓 État du Projet au 11.03.2026
 Architecture & Routage :
 App.tsx : Gestion locale du routage (useState). Onglets actifs : dashboard, organigramme, membres, leschiens, cotisations, boutique, finances, presences, planning, secretariat, support, logs, parametres.
@@ -13,13 +21,56 @@ Prochaines étapes :
 Plan ACV : Intégrer la visualisation de terrain.pdf dans la modal de Presences.tsx.
 Filtre Moniteurs : Restreindre le sélecteur responsibleId aux membres de catégorie "Moniteur".
 
-[INSTRUCTIONS_POUR_L_IA]
-Règles absolues pour chaque session :
-Tu dois créer un log ( numéroté "---Log #X-Mise à jour de [Fichier]...---" ) après chaque modification de mon code.
-tu dois écraser les logs inutiles si besoin, garde la pertinence, pas de blabla, logs destinés à l'IA, pas à l'humain.
-interdiction formelle de modifier l'apparence visuelle de l'appli, pour chaque modification du code, tu demandera le fichier existant pour intégrer les ajouts ou modifications le plus proprement possible.
-interdiction formelle de prendre des initiatives de codage sans ma permission. 
-À la fin de notre session de travail (quand je te le dirai), tu devras obligatoirement générer un bloc synthétisé de contexte final "---Log du [Date]---"
+logs du 12.03.2026:
+---Log #24-Création de DogDetail.tsx (Fiche détaillée meute)---
+Implémentation du nouveau composant DogDetail.tsx. Structure basée sur les champs extraits (Nom, Race, Sexe, BirthDate, Section, Level) et ajout des champs techniques icad et vaccines. Design harmonisé avec les arrondis 40px, les titres Serif et la palette de couleurs Nature.
+---Log #25-Mise à jour de App.tsx et Dogs.tsx (Liaison DogDetail)---
+Intégration du routage vers la fiche détaillée des chiens. Ajout de l'état selectedDogId dans App.tsx pour gérer l'affichage conditionnel. Modification de Dogs.tsx pour inclure la prop onSelectDog et déclencher la navigation au clic sur une carte. Utilisation de e.stopPropagation() sur le bouton photo pour éviter les conflits d'événements.
+---Log #26-Mise à jour de Dogs.tsx (Liaison DogDetail et UX)---
+Intégration de la prop onSelectDog pour activer la navigation vers la fiche détaillée. Ajout de e.stopPropagation() sur le bouton d'upload photo pour isoler les actions. Ajout de l'icône Info de Lucide pour améliorer l'indice visuel de cliquabilité sur les cartes.
+---Log #27-Correction critique Support.tsx et App.tsx (Build Error TS2741/TS2307)---
+Restauration du fichier Support.tsx qui avait été écrasé par accident. Identification du conflit de props dans App.tsx concernant le composant Dogs. Préparation du correctif pour rétablir la stabilité du déploiement.
+---Log #28-Correction de App.tsx (Routage DogDetail)---
+Résolution de l'erreur TS2741. Ajout de l'import DogDetail, création de l'état selectedDogId et mise à jour du rendu conditionnel pour l'onglet leschiens afin de passer la prop onSelectDog au composant Dogs.
+---Log #29-Restauration de Support.tsx (Correctif Build)---
+Résolution des erreurs TS2307. Remplacement du code erroné (doublon de App.tsx) par le composant fonctionnel original de la page Support.
+---Log #30-Mise à jour de Dogs.tsx (Optimisation liste et accès)---
+Retrait du bouton d'ajout (transféré à la future gestion Secrétariat). Refonte de la grille Dogs.tsx pour une densité d'affichage accrue : passage à 6 colonnes (XL), réduction du padding (p-4), des arrondis (24px) et des tailles de police. Adaptation de l'UX pour la consultation rapide.
+---Log #31-Mise à jour de App.tsx (Navigation Croisée Chiens/Membres)---
+Implémentation de la gestion de l'état selectedMemberId pour permettre l'affichage des fiches membres. Mise à jour de la fonction handleTabChange pour réinitialiser les sélections lors de la navigation. Liaison entre les onglets "Chiens" et "Membres".
+---Log #32-Mise à jour de Dogs.tsx (Recherche et Maîtres cliquables)---
+Ajout d'une barre de recherche dynamique par nom de chien, positionnée en haut à droite. Modification de l'affichage des propriétaires : affichage du prénom uniquement, en minuscules et police Serif Italique. Rendu du nom cliquable avec redirection vers la fiche membre détaillée via la prop onSelectMember.
+---Log #33-Mise à jour de useStore.ts (Persistance Chiens)---
+Ajout de la méthode updateDog dans le store Zustand et synchronisation avec Firestore pour permettre la modification des données canines.
+---Log #34-Mise à jour de DogDetail.tsx (Édition et UX Photo)---
+Transformation de l'élément visuel "os" en bouton d'upload fonctionnel et redimensionné. Implémentation d'une modale d'édition sobre (formulaire compact) pour la mise à jour des informations (ICAD, vaccins, section, etc.). Respect strict de la charte graphique Nature.
+---Log #35-Correction et Amélioration de MemberDetail.tsx---
+Résolution de l'erreur TS2322. Réécriture complète du fichier MemberDetail.tsx pour gérer les membres (et non plus les chiens). Ajout de l'interface MemberDetailProps avec memberId. Intégration de la liste automatique des chiens rattachés, de la modale d'édition et de l'upload de photo. Design harmonisé avec le reste de l'application (Sari, 40px rounded).
+---Log #36-Correction de MemberDetail.tsx (Import manquant)---
+Résolution de l'erreur TS2304. Ajout de l'icône Calendar dans les imports de Lucide-React. Cette modification rétablit la validité du typage et débloque le build Render.
+---Log #37-Mise à jour de Dogs.tsx (Nettoyage de l'interface)---
+Retrait du bouton d'upload photo sur les vignettes de la liste principale. L'interface est désormais dédiée uniquement à la consultation et à la recherche.
+---Log #38-Mise à jour de DogDetail.tsx (Centralisation de l'édition)---
+Suppression de l'élément purement décoratif "os". Ajout d'un déclencheur Camera pour la modification de photo directement sur le profil. Implémentation du bouton "Édition" et de sa modale de formulaire pour modifier les informations du chien (Nom, Race, Sexe, BirthDate, ICAD, Vaccins). Harmonisation avec la fiche membre.
+---Log #39-Mise à jour de DogDetail.tsx (Correctifs UX et Data)---
+Résolution du problème de scroll : ajout de window.scrollTo(0, 0) au montage du composant. Correction du bug d'affichage du sexe : harmonisation des conditions de détection (M/Mâle). Mise à jour de la modale d'édition : ajout du champ "Niveau de travail" et réorganisation des champs pour une meilleure lisibilité. Liaison renforcée entre le store et le formulaire local.
+---Log #40-Mise à jour de DogDetail.tsx (Correctifs UX et Data)---
+Résolution du problème de scroll : ajout de window.scrollTo(0, 0) au montage du composant. Correction du bug d'affichage du sexe : harmonisation des conditions de détection (M/Mâle). Mise à jour de la modale d'édition : ajout du menu déroulant pour les sections et du champ "Niveau de travail". Liaison renforcée entre le store et le formulaire local via useEffect.
+---Log #41-Correction du bug de sélection du Sexe (DogDetail.tsx)---
+Résolution du problème d'enregistrement du sexe. Ajout d'une étape de normalisation dans le useEffect : les anciennes valeurs textuelles ("mâle", "femelle") sont automatiquement converties en "M" ou "F" pour correspondre aux options du formulaire. Cela garantit une validation immédiate sans avoir à changer manuellement le choix deux fois.
+---Log #42-Normalisation des données et état "NC" (DogDetail.tsx)---
+Correction de la logique d'affichage du sexe pour éviter le "Femelle" par défaut. Intégration d'un état "Sexe NC" avec badge gris neutre. Mise à jour de la modale d'édition pour inclure une option "Non renseigné" dans le sélecteur, forçant ainsi l'utilisateur à choisir activement une valeur. Application de la même logique "NC" aux InfoCards pour une cohérence globale.
+---Log #43-Refonte de Members.tsx (Harmonisation visuelle)---
+Alignement du design sur la page "La Meute" : Titre bi-couleur, barre de recherche absolue en haut à droite. Création de la "Vue Couple" sur les vignettes (Photos Maître/Chien côte à côte). Inversion de la hiérarchie typographique : Prénom en large (serif, italique, minuscule) et Nom en petit (sans, uppercase). Retrait du téléphone pour confidentialité et ajout du numéro d'adhérent ACV/ACMA.
+---Log #44-Correction de Members.tsx (Ajustements UX)---
+Repositionnement de la barre de recherche au-dessus du titre pour éviter les chevauchements. Restauration de la grille à 4 colonnes (plus lisible). Ajustement du "Duo" : photo membre conservée en taille réelle (16x16) et photo chien en format réduit (10x10) avec un léger chevauchement. Suppression du nom de famille au profit du prénom seul (Serif Italique). Restauration du nom du chien sous le prénom.
+---Log #45-Mise à jour de Members.tsx (Gestion multi-chiens)---
+Optimisation de la "Vue Couple" pour supporter plusieurs chiens par membre. Les photos des chiens sont désormais affichées sous forme de pile (stack) à côté de la photo du maître. Les noms des chiens sont listés et séparés par des "&". Maintien des tailles originales : Membre (16x16/64px) et Chiens (10x10/40px).
+---Log #46-Refonte ergonomique de Members.tsx (Style Carte d'identité)---
+Passage à un affichage de type "Carte" plus spacieux (3 colonnes max). Photo du membre agrandie à gauche (w-28). Prénom centré en typographie large. Alignement vertical des chiens (jusqu'à 3) sur le bord droit de la carte. Repositionnement du numéro ACMA dans le coin supérieur droit pour épurer la zone de texte.
+
+
+
 
 
 
