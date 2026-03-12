@@ -1,9 +1,8 @@
 import React from 'react';
 import { useStore } from '../store/useStore';
-import { Dog, Plus, Camera, Link as LinkIcon } from 'lucide-react';
+import { Dog, Plus, Camera, Info } from 'lucide-react';
 
-const Dogs = () => {
-  // Correction : on utilise uploadDogPhoto au lieu de updateDogPhoto
+const Dogs = ({ onSelectDog }: { onSelectDog: (id: string) => void }) => {
   const { dogs, members, darkMode, uploadDogPhoto } = useStore();
 
   const handleFileUpload = async (dogId: string, e: React.ChangeEvent<HTMLInputElement>) => {
@@ -36,9 +35,13 @@ const Dogs = () => {
           const owner = members.find(m => m.id === dog.ownerId);
           
           return (
-            <div key={dog.id} className={`group relative p-8 rounded-[40px] border transition-all duration-500 hover:-translate-y-2 ${
-              darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-2xl shadow-emerald-900/5'
-            }`}>
+            <div 
+              key={dog.id} 
+              onClick={() => onSelectDog(dog.id)}
+              className={`group relative p-8 rounded-[40px] border transition-all duration-500 hover:-translate-y-2 cursor-pointer ${
+                darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-2xl shadow-emerald-900/5'
+              }`}
+            >
               
               {/* PHOTO DE PROFIL AVEC UPLOAD */}
               <div className="relative w-full aspect-square mb-8 rounded-[32px] overflow-hidden bg-[#FDFBF7] border border-emerald-50 shadow-inner">
@@ -51,7 +54,10 @@ const Dogs = () => {
                 )}
                 
                 {/* BOUTON PHOTO (APPAREIL) */}
-                <label className="absolute bottom-4 right-4 p-4 bg-white text-[#1B4332] rounded-2xl shadow-xl cursor-pointer opacity-0 group-hover:opacity-100 transition-all hover:bg-[#BC6C25] hover:text-white transform translate-y-2 group-hover:translate-y-0">
+                <label 
+                  onClick={(e) => e.stopPropagation()}
+                  className="absolute bottom-4 right-4 p-4 bg-white text-[#1B4332] rounded-2xl shadow-xl cursor-pointer opacity-0 group-hover:opacity-100 transition-all hover:bg-[#BC6C25] hover:text-white transform translate-y-2 group-hover:translate-y-0"
+                >
                   <Camera size={20} />
                   <input 
                     type="file" 
@@ -64,13 +70,16 @@ const Dogs = () => {
 
               {/* INFOS CHIEN TYPO HARMONISÉE */}
               <div className="space-y-4">
-                <div>
-                  <h3 className={`text-2xl font-serif italic tracking-tight leading-tight ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
-                    {dog.name}
-                  </h3>
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">
-                    Propriétaire : <span className="text-[#BC6C25]">{owner ? owner.name : 'NC'}</span>
-                  </p>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className={`text-2xl font-serif italic tracking-tight leading-tight ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
+                      {dog.name}
+                    </h3>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">
+                      Propriétaire : <span className="text-[#BC6C25]">{owner ? owner.name : 'NC'}</span>
+                    </p>
+                  </div>
+                  <Info size={16} className="text-[#BC6C25] opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
 
                 <div className="flex flex-wrap gap-2 pt-2">
