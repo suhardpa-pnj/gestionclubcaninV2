@@ -2,13 +2,14 @@ import { create } from 'zustand';
 import { db, storage } from '../firebase/config';
 import { 
   collection, addDoc, getDocs, query, orderBy, 
-  writeBatch, doc, updateDoc, getDoc, setDoc, deleteDoc // Ajout de deleteDoc
+  writeBatch, doc, updateDoc, getDoc, setDoc, deleteDoc 
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 interface ClubState {
   members: any[]; dogs: any[]; transactions: any[]; products: any[]; attendances: any[];
   organigramme: any;
+  clubMap: string; // Ajouté
   isLoading: boolean; darkMode: boolean;
   toggleDarkMode: () => void;
   fetchData: () => Promise<void>;
@@ -16,11 +17,12 @@ interface ClubState {
   updateMember: (id: string, data: any) => Promise<void>;
   addTransaction: (t: any) => Promise<void>;
   addAttendance: (a: any) => Promise<void>;
-  deleteAttendance: (id: string) => Promise<void>; // Nouvelle méthode
+  deleteAttendance: (id: string) => Promise<void>;
   addFeedback: (f: any) => Promise<void>;
   uploadFeedbackFile: (file: File) => Promise<string>;
   uploadMemberPhoto: (id: string, file: File) => Promise<void>;
   uploadDogPhoto: (dogId: string, file: File) => Promise<void>;
+  uploadClubMap: (file: File) => Promise<void>; // Nouvelle méthode
   updateDog: (id: string, data: any) => Promise<void>;
   updateOrganigramme: (data: any) => Promise<void>;
   uploadProductPhoto: (productId: string, file: File) => Promise<void>;
@@ -31,19 +33,21 @@ interface ClubState {
 export const useStore = create<ClubState>((set, get) => ({
   members: [], dogs: [], transactions: [], products: [], attendances: [],
   organigramme: {},
+  clubMap: '',
   isLoading: true, darkMode: false,
 
   toggleDarkMode: () => set((state) => ({ darkMode: !state.darkMode })),
 
   fetchData: async () => {
     try {
-      const [mS, dS, tS, pS, aS, oS] = await Promise.all([
+      const [mS, dS, tS, pS, aS, oS, mP] = await Promise.all([
         getDocs(collection(db, "members")),
         getDocs(collection(db, "dogs")),
         getDocs(query(collection(db, "transactions"), orderBy("date", "desc"))),
         getDocs(collection(db, "products")),
         getDocs(query(collection(db, "attendances"), orderBy("date", "desc"))),
-        getDoc(doc(db, "settings", "organigramme"))
+        getDoc(doc(db, "settings", "organigramme")),
+        getDoc(doc(db, "settings", "clubMap")) // Récupération du plan
       ]);
 
       set({ 
@@ -53,17 +57,24 @@ export const useStore = create<ClubState>((set, get) => ({
         products: pS.docs.map(d => ({ id: d.id, ...d.data() })),
         attendances: aS.docs.map(d => ({ id: d.id, ...d.data() })),
         organigramme: oS.exists() ? oS.data() : {},
+        clubMap: mP.exists() ? mP.data().url : '',
         isLoading: false 
       });
     } catch (e) { set({ isLoading: false }); }
+  },
+
+  uploadClubMap: async (file) => {
+    const storageRef = ref(storage, `settings/clubMap`);
+    const snapshot = await uploadBytes(storageRef, file);
+    const url = await getDownloadURL(snapshot.ref);
+    await setDoc(doc(db, "settings", "clubMap"), { url });
+    set({ clubMap: url });
   },
 
   deleteAttendance: async (id) => {
     await deleteDoc(doc(db, "attendances", id));
     get().fetchData();
   },
-
-  // ... (Garder les autres méthodes identiques)
   updateOrganigramme: async (data) => { await setDoc(doc(db, "settings", "organigramme"), data); set({ organigramme: data }); },
   addMember: async (m) => { await addDoc(collection(db, "members"), m); get().fetchData(); },
   updateMember: async (id, data) => { await updateDoc(doc(db, "members", id), data); get().fetchData(); },
