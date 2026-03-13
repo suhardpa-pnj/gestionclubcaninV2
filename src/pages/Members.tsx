@@ -8,7 +8,7 @@ const Members = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  // URL du logo par défaut (à remplacer par ton lien Drive si nécessaire)
+  // Logo par défaut du club
   const clubLogo = "https://votre-url-logo-acv.png"; 
 
   if (selectedId) return <MemberDetail memberId={selectedId} onBack={() => setSelectedId(null)} />;
@@ -28,7 +28,7 @@ const Members = () => {
           <Search size={14} className="ml-4 text-[#BC6C25]" />
           <input 
             type="text"
-            placeholder="Chercher un membre..."
+            placeholder="Chercher..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="bg-transparent border-none outline-none p-3 text-[10px] font-bold uppercase tracking-widest w-32 md:w-64"
@@ -48,7 +48,7 @@ const Members = () => {
         </div>
       </div>
 
-      {/* GRILLE DES CARTES OPTIMISÉE */}
+      {/* GRILLE DES CARTES - PROPORTIONS TRIPLÉES */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {filteredMembers.map((m) => {
           const memberDogs = dogs.filter(d => d.ownerId === m.id);
@@ -61,15 +61,15 @@ const Members = () => {
                 darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-xl shadow-emerald-900/5'
               }`}
             >
-              {/* INDICATION ADHÉRENT REMONTÉE AU MAXIMUM */}
-              <div className="absolute top-2 right-4 md:top-3 md:right-6">
+              {/* ID ADHÉRENT - Remontée maximale (4px du bord haut) */}
+              <div className="absolute top-1 right-4 md:right-6">
                 <span className="text-[6px] md:text-[7px] font-black text-slate-300 uppercase tracking-[0.2em] group-hover:text-[#BC6C25] transition-colors">
                   adhérent ACV / ACMA n°{m.id.toUpperCase()}
                 </span>
               </div>
 
-              {/* PHOTO MEMBRE DÉCALÉE À GAUCHE */}
-              <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-[32px] overflow-hidden bg-slate-50 border-4 border-white shrink-0 shadow-lg group-hover:rotate-2 transition-transform -ml-2">
+              {/* PHOTO MEMBRE - Décalage triplé vers la gauche (-24px) */}
+              <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-[32px] overflow-hidden bg-slate-50 border-4 border-white shrink-0 shadow-lg group-hover:rotate-2 transition-transform -ml-6">
                 <img 
                   src={m.photo || clubLogo} 
                   alt={m.firstName} 
@@ -77,8 +77,8 @@ const Members = () => {
                 />
               </div>
 
-              {/* INFOS CENTRALES RAPPROCHÉES ET DESCENDUES */}
-              <div className="flex-1 min-w-0 mt-4 md:mt-6 -ml-1 md:-ml-2">
+              {/* INFOS CENTRALES - Décalage triplé gauche (-24px) et bas (64px) */}
+              <div className="flex-1 min-w-0 mt-16 -ml-6">
                 <h3 className={`text-2xl md:text-3xl font-serif italic tracking-tight lowercase leading-none ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
                   {m.firstName}
                 </h3>
@@ -87,8 +87,8 @@ const Members = () => {
                 </p>
               </div>
 
-              {/* PHOTOS DES CHIENS À DROITE */}
-              <div className="flex flex-col gap-1.5 shrink-0 pr-1 md:pr-2">
+              {/* PHOTOS DES CHIENS - Resserrement maximal (gap 2px) */}
+              <div className="flex flex-col gap-0.5 shrink-0 pr-1 md:pr-2">
                 {memberDogs.slice(0, 3).map((dog) => (
                   <div 
                     key={dog.id} 
