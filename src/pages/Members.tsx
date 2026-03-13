@@ -17,7 +17,7 @@ const Members = () => {
   return (
     <div className="space-y-8 animate-in fade-in duration-700 relative">
       
-      {/* BARRE DE RECHERCHE - Alignée avec le bouton sidebar */}
+      {/* BARRE DE RECHERCHE */}
       <div className="absolute -top-12 lg:-top-6 right-0 z-20">
         <div className={`relative flex items-center rounded-2xl border transition-all ${
           darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-sm'
@@ -45,7 +45,7 @@ const Members = () => {
         </div>
       </div>
 
-      {/* GRILLE DES CARTES (Format plus large, 2 ou 3 colonnes pour l'ergonomie) */}
+      {/* GRILLE DES CARTES */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {filteredMembers.map((m) => {
           const memberDogs = dogs.filter(d => d.ownerId === m.id);
@@ -58,14 +58,14 @@ const Members = () => {
                 darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-xl shadow-emerald-900/5'
               }`}
             >
-              {/* NUMÉRO ADHÉRENT - En haut à droite */}
+              {/* NUMÉRO ADHÉRENT - Correction du doublon "A" */}
               <div className="absolute top-6 right-8">
                 <span className="text-[7px] font-black text-slate-300 uppercase tracking-[0.2em] group-hover:text-[#BC6C25] transition-colors">
-                  adhérent ACV / ACMA n°A{m.id.slice(0,4).toUpperCase()}
+                  adhérent ACV / ACMA n°{m.id.toUpperCase()}
                 </span>
               </div>
 
-              {/* PHOTO MEMBRE (Grande et à gauche) */}
+              {/* PHOTO MEMBRE */}
               <div className="relative w-28 h-28 rounded-[32px] overflow-hidden bg-slate-50 border-4 border-white shrink-0 shadow-lg group-hover:rotate-2 transition-transform">
                 {m.photo ? (
                   <img src={m.photo} alt={m.firstName} className="w-full h-full object-cover" />
@@ -86,7 +86,7 @@ const Members = () => {
                 </p>
               </div>
 
-              {/* PHOTOS DES CHIENS (Alignées verticalement à droite) */}
+              {/* PHOTOS DES CHIENS */}
               <div className="flex flex-col gap-2 shrink-0 pr-2">
                 {memberDogs.slice(0, 3).map((dog) => (
                   <div 
