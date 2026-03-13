@@ -2,13 +2,13 @@ import { create } from 'zustand';
 import { db, storage } from '../firebase/config';
 import { 
   collection, addDoc, getDocs, query, orderBy, 
-  writeBatch, doc, updateDoc, getDoc, setDoc 
+  writeBatch, doc, updateDoc, getDoc, setDoc, deleteDoc // Ajout de deleteDoc
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 interface ClubState {
   members: any[]; dogs: any[]; transactions: any[]; products: any[]; attendances: any[];
-  organigramme: any; // Ajouté
+  organigramme: any;
   isLoading: boolean; darkMode: boolean;
   toggleDarkMode: () => void;
   fetchData: () => Promise<void>;
@@ -16,12 +16,13 @@ interface ClubState {
   updateMember: (id: string, data: any) => Promise<void>;
   addTransaction: (t: any) => Promise<void>;
   addAttendance: (a: any) => Promise<void>;
+  deleteAttendance: (id: string) => Promise<void>; // Nouvelle méthode
   addFeedback: (f: any) => Promise<void>;
   uploadFeedbackFile: (file: File) => Promise<string>;
   uploadMemberPhoto: (id: string, file: File) => Promise<void>;
   uploadDogPhoto: (dogId: string, file: File) => Promise<void>;
   updateDog: (id: string, data: any) => Promise<void>;
-  updateOrganigramme: (data: any) => Promise<void>; // Nouvelle méthode
+  updateOrganigramme: (data: any) => Promise<void>;
   uploadProductPhoto: (productId: string, file: File) => Promise<void>;
   seedBoutique: () => Promise<void>;
   sellProduct: (pId: string, qty: number, price: number) => Promise<void>;
@@ -29,7 +30,7 @@ interface ClubState {
 
 export const useStore = create<ClubState>((set, get) => ({
   members: [], dogs: [], transactions: [], products: [], attendances: [],
-  organigramme: {}, // Initialisé vide
+  organigramme: {},
   isLoading: true, darkMode: false,
 
   toggleDarkMode: () => set((state) => ({ darkMode: !state.darkMode })),
@@ -42,7 +43,7 @@ export const useStore = create<ClubState>((set, get) => ({
         getDocs(query(collection(db, "transactions"), orderBy("date", "desc"))),
         getDocs(collection(db, "products")),
         getDocs(query(collection(db, "attendances"), orderBy("date", "desc"))),
-        getDoc(doc(db, "settings", "organigramme")) // Récupération de l'organigramme
+        getDoc(doc(db, "settings", "organigramme"))
       ]);
 
       set({ 
@@ -51,17 +52,19 @@ export const useStore = create<ClubState>((set, get) => ({
         transactions: tS.docs.map(d => ({ id: d.id, ...d.data() })),
         products: pS.docs.map(d => ({ id: d.id, ...d.data() })),
         attendances: aS.docs.map(d => ({ id: d.id, ...d.data() })),
-        organigramme: oS.exists() ? oS.data() : {}, // Si le doc existe, on le charge
+        organigramme: oS.exists() ? oS.data() : {},
         isLoading: false 
       });
     } catch (e) { set({ isLoading: false }); }
   },
 
-  updateOrganigramme: async (data) => {
-    await setDoc(doc(db, "settings", "organigramme"), data);
-    set({ organigramme: data });
+  deleteAttendance: async (id) => {
+    await deleteDoc(doc(db, "attendances", id));
+    get().fetchData();
   },
 
+  // ... (Garder les autres méthodes identiques)
+  updateOrganigramme: async (data) => { await setDoc(doc(db, "settings", "organigramme"), data); set({ organigramme: data }); },
   addMember: async (m) => { await addDoc(collection(db, "members"), m); get().fetchData(); },
   updateMember: async (id, data) => { await updateDoc(doc(db, "members", id), data); get().fetchData(); },
   addTransaction: async (t) => { await addDoc(collection(db, "transactions"), t); get().fetchData(); },
