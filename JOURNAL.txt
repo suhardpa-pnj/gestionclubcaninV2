@@ -1,10 +1,10 @@
 [INSTRUCTIONS_POUR_L_IA]
 Règles absolues pour chaque session :
-Tu dois créer un log ( numéroté "---Log #X-Mise à jour de [Fichier]...---" ) après chaque modification de mon code.
+Tu dois créer un log ( numéroté "---Log #X-Mise à jour de [Fichier]...---" ) après chaque modification de mon code, en respectant le numéro du dernier log fourni ci-dessous.
 tu dois écraser les logs inutiles si besoin, garde la pertinence, pas de blabla, logs destinés à l'IA, pas à l'humain.
 interdiction formelle de modifier l'apparence visuelle de l'appli. Pour chaque modification du code, tu demandera le fichier existant pour intégrer les ajouts ou modifications le plus proprement possible.
 interdiction formelle de prendre des initiatives de codage sans ma permission. 
-À la fin de notre session de travail (quand je te le dirai), tu devras obligatoirement générer un bloc synthétisé de contexte final "---Log du [Date]---"
+
 
 📓 État du Projet au 11.03.2026
 Architecture & Routage :
@@ -80,6 +80,111 @@ Liaison complète avec Firebase. Ajout de la méthode updateOrganigramme dans le
 Mise à jour du store : ajout d'une méthode updateOrganigramme utilisant setDoc pour sauvegarder la configuration dans settings/organigramme. Modification de fetchData pour charger cette configuration au démarrage. Dans la page Organigramme.tsx : suppression de la section Hoopers, renommage du pôle moniteurs, et connexion du bouton "Enregistrer" au store pour une sauvegarde permanente.
 ---Log #52-Clôture de session : Harmonisation et Persistance---
 Finalisation de la refonte ergonomique des pages Membres et Organigramme. Mise en place de la persistance des données du bureau via Firebase (settings/organigramme). Correction des bugs d'UX (scroll auto) et de data (normalisation du sexe). L'application est désormais plus robuste et plus facile à administrer sans toucher au code.
+---Log #53-Mise à jour de Organigramme.tsx (Flexibilité Bureau et Moniteurs)---
+Refonte de la structure de l'organigramme pour supporter l'ajout dynamique.
+Bureau : Ajout d'une section "Membres simples" avec bouton "+" pour ajouter autant de membres que souhaité (badge "Bureau" spécifique).
+Moniteurs : Suppression du statut "Principal". Passage à une liste dynamique avec bouton "+". Ajout d'un sélecteur de niveau pour chaque moniteur ("diplômé" ou "en formation") qui s'affiche sur la carte.
+Modale : Intégration des icônes Plus et Trash2 pour la gestion des listes. Persistance des données via le store existant.
+---Log #53-Gestion des présences et correction visuelle---
+1. Store : Ajout de la méthode deleteAttendance pour supprimer les enregistrements de Firebase.
+2. Présences : Ajout d'un bouton de suppression (Trash2) sur les fiches de séance (visible au survol) avec confirmation préalable.
+3. Modale : Correction de la structure de l'affichage de la carte. Préparation du conteneur d'image pour remplacer le bloc gris par ton plan JPG/PNG.
+---Log #54-Intégration du plan et Color-Coding des terrains (Presences.tsx)---
+Interface : Intégration de l'image terrain.jpg dans la modale de pointage avec un effet de zoom à l'ouverture.
+UX : Application d'un code couleur dynamique sur les boutons de sélection de terrain. Chaque bouton adopte désormais la couleur correspondante sur le plan (Jaune pour Agility, Rouge pour Fond, etc.) lorsqu'il est sélectionné, facilitant le repérage visuel immédiat pour le moniteur.
+Data : Mise à jour de la liste des terrains pour inclure les propriétés de couleur hexadécimales basées sur le plan fourni.
+---Log #55-Optimisation de l'Appel et Persistance du Plan---
+Store : Ajout de la gestion du clubMap sur Firebase Storage. Création de la méthode uploadClubMap et mise à jour de fetchData.
+Présences : Intégration d'un bouton de chargement de plan dans la modale. Les boutons de terrains respectent désormais les nuances demandées (Rouge-orangé pour A/B, Fuschia pour Chiots, Bleu ciel pour Fond).
+Appel : Correction du filtre des chiens (recherche plus robuste dans les champs section/Activités). Ajout du système d'affichage en deux temps : d'abord la section active, puis tous les chiens via un bouton bascule.
+Essais : Ajout de l'encadré de texte libre pour les nouveaux non-inscrits.
+---Log #56-Correction visuelle et Liaison Organigramme (Presences.tsx)---
+Design : Rétablissement de la couleur de fond du modal (#1B4332 avec flou) et du bouton d'enregistrement (vert original du club).
+Liaison : Le sélecteur de moniteur est désormais lié dynamiquement à la liste moniteursList de l'organigramme enregistré en base.
+Plan : Correction de la logique d'affichage du clubMap stocké dans Firebase.
+Terrains : Application rigoureuse des nouvelles couleurs demandées (A/B en rouge-orangé, Chiots en rose-fuschia, Fond en bleu ciel).
+---Log #57-Support multi-moniteurs dans les Présences---
+Présences : Modification de la structure de données pour accepter une liste de moniteurs (responsibleIds).
+Interface : Ajout d'un système de champs dynamiques dans la modale avec boutons "+" et "-" pour sélectionner un ou plusieurs encadrants par séance.
+Affichage : Mise à jour des cartes de présence pour lister tous les prénoms des moniteurs concernés.
+Stabilité : Conservation stricte des codes couleurs projet (#1B4332, #BC6C25) et de l'aspect visuel global.
+---Log #58-Mise à jour de Dashboard.tsx (Harmonisation & Podium)---
+Nettoyage : Suppression des statistiques "Ventes" et "CA Boutique" ainsi que du bloc technique "Initialisation Boutique" pour alléger l'interface.
+Harmonisation : Application des codes couleurs du club (#1B4332, #BC6C25). Les étiquettes sont désormais en ocre font-black. Le mode sombre utilise bg-slate-900.
+Fonctionnalité : Intégration du Podium de l'Assiduité. Le code calcule automatiquement le Top 3 des chiens les plus présents à partir de la collection attendances et les affiche de manière hiérarchisée (1er, 2ème, 3ème) avec leurs photos et médailles.
+---Log #59-Mise à jour de DogDetail.tsx (Historique des présences)---
+Interface : Intégration d'une Timeline chronologique sur la droite de la fiche détaillée. Elle affiche désormais chaque séance à laquelle le chien a participé.
+Détails Timeline : Affichage dynamique de la date formatée, de la section, du terrain (avec sa pastille de couleur correspondante) et des moniteurs ayant encadré la séance.
+Harmonisation : Mise à jour des labels de la page en ocre (#BC6C25) avec la graisse font-black et l'italique pour une cohérence parfaite avec le reste de l'application. Correction de la couleur de fond de la modale pour correspondre au vert club (#1B4332).
+---Log #60-Correction de Members.tsx (Suppression du doublon ID ACMA)---
+Correction du bug d'affichage sur les vignettes : suppression du préfixe "A" codé en dur et retrait du .slice(0,4) pour afficher l'identifiant complet (ex: A1375). Alignement des labels sur la charte ocre (#BC6C25) font-black.
+---Log #61-Mise à jour de Members.tsx (Optimisation Responsive et Visuelle)---
+Interface : Repositionnement des éléments pour éviter les chevauchements sur petit écran. L'indication ACMA est remontée en haut de l'étiquette.
+Mise en page : Décalage de la photo membre vers la gauche et rapprochement des textes (prénom et chiens) pour un aspect plus compact et lisible.
+Visuel : Utilisation du logo du club par défaut pour les photos de profil manquantes (Membres et Chiens).
+Responsive : Ajustement des paddings et des tailles de texte pour garantir une harmonie visuelle entre téléphone et ordinateur.
+---Log #62-Analyse des proportions (Members.tsx)---
+Détail technique des décalages : application de marges négatives (-8px) sur les photos et textes pour densifier le centre. Remontée de l'ID adhérent de 16px. Transition vers une mise en page "tassée" plus stable en responsive.
+---Log #63-Mise à jour de Members.tsx (Amplification Responsive)---
+Disposition : Application d'un facteur 3 sur les décalages. La photo du membre et le bloc texte sont décalés de 24px (-ml-6) vers la gauche.
+Verticalité : Descente du bloc texte de 64px (mt-16) pour libérer l'espace sous l'identifiant ACMA, lui-même remonté à 4px du bord (top-1).
+Visuel : Intégration systématique du logo de remplacement pour les profils sans photo.
+Densité : Réduction de l'espace entre les vignettes chiens à 2px (gap-0.5).
+---Log #64-Refonte complète de Cotisations.tsx---
+Interface : Remodelage total sous forme de liste resserrée (paddings réduits à py-3).
+Colonnes : Suppression de "Statut" et "Action". Ajout des colonnes "Paiement" (date), "Montant" (€), "ACMA" (checkbox visuelle) et "Validité".
+Algorithme : Implémentation d'un compte à rebours de 365 jours basé sur la date du dernier paiement. Tri automatique des membres par date d'échéance (les plus urgents en haut).
+Design : Alignement sur la charte club (#1B4332, #BC6C25). Remplacement des alertes bleues par des indicateurs de validité colorés (Vert/Orange/Rouge) avec barre de progression miniature.
+---Log #65-Mise à jour de Cotisations.tsx (Saisie des paiements)---
+Fonctionnalité : Ajout d'une modale d'encaissement pour mettre à jour les informations financières des membres.
+Formulaire : Saisie de la date de paiement, du montant en Euros, et bascule du statut de licence ACMA.
+UX : Ajout d'un bouton d'édition (Edit3) sur chaque ligne du tableau resserré.
+Harmonisation : Utilisation des icônes contextuelles (Calendar, Euro, ShieldCheck) et respect strict de la palette #1B4332 / #BC6C25 dans la modale. Liaison directe avec la méthode updateMember du store pour la persistance Firebase.
+---Log #66-Refonte ergonomique de Boutique.tsx---
+1. Interface : Implémentation d'un système à trois volets (Produits / Commandes / Stock) pour une gestion fluide. 2. Design : Application de la charte club avec arrondis de 40px, typographie Serif Italique et palette Nature (#1B4332, #BC6C25). 
+3. Fonctionnalités :
+* Volet 1 : Cartes de présentation produits avec bouton de composition et logo club par défaut. * Volet 2 : Historique des ventes boutique filtré depuis les transactions. * Volet 3 : État des stocks avec alertes visuelles (rose si stock < 3) et section réapprovisionnement fournisseur. 4. Saisie : Création d'une modale de commande client permettant de lier une vente à un membre et un produit spécifique. 
+---Log #67-Réintégration du Calculateur dans Cotisations.tsx---
+Fonctionnalité : Retour du "Simulateur de tarif" permettant de calculer les adhésions (Solo/Couple/Jeune) avec supplément pour chiens multiples et licence ACMA.
+UX : Le calculateur est intégré dans un bloc escamotable (Toggle) pour ne pas gêner la lecture du tableau principal.
+Design : Alignement parfait sur la charte club (arrondis 40px, couleurs sapin et ocre).
+Liaison : L'interface permet de faire ses calculs en haut avant de cliquer sur "Édition" dans la liste pour enregistrer le montant réel.
+---Log #68-Correction critique de Boutique.tsx (Build Failure Fix)---
+Correction : Résolution des erreurs TS1005, TS1180 et TS2809 causées par une structure de fichier corrompue lors de la précédente génération.
+Propreté : Réécriture complète du composant Boutique pour garantir la fermeture de toutes les balises et une destruction propre des props du Store.
+Stabilité : Test de la structure syntaxique pour assurer le passage réussi du build Render.
+---Log #69-Extraction des tarifs réels (Cotisations.tsx)---
+Identification et verrouillage des tarifs contractuels du club : Base (5 types d'adhésion), Forfait chiens (50€ + 25€/sup) et Droit d'entrée (50€). Ces valeurs remplacent les données fictives du Log #67.
+---Log #70-Mise à jour des tarifs réels et du simulateur (Cotisations.tsx)---
+Correction : Application des tarifs contractuels (Adulte 100€, Mineur 50€, Binôme 150€).
+Calculateur : Refonte de la logique des chiens (50€ pour le 1er, 25€ pour les suivants) et ajout de l'option "Droit d'entrée" (50€).
+ACMA : Suppression de la case à cocher ACMA dans le simulateur au profit d'une note informative sur son inclusion automatique dans l'adhésion.
+Design : Alignement continu sur la charte visuelle (40px rounded, #1B4332, #BC6C25)
+---Log #71-Nettoyage des types d'adhésion (Cotisations.tsx)---
+Calculateur : Suppression des options "Famille" et "Bienfaiteur" conformément aux instructions.
+Logique : Mise à jour de l'objet prices pour ne conserver que Adulte, Mineur et Binôme.
+Interface : Retrait des entrées correspondantes dans le menu déroulant du simulateur de tarif.
+---Log #72-Liaison Membres/Chiens dans Cotisations.tsx---
+Interface : Ajout du nom des chiens sous le prénom du membre dans la première colonne du tableau pour une identification plus rapide.
+Harmonisation : Utilisation du style ocre (#BC6C25), serif et italique pour les noms de chiens, en cohérence avec la page Membres.
+Store : Intégration de la collection dogs dans le composant pour assurer le filtrage en temps réel.
+---Log #73-Harmonisation visuelle de Treasury.tsx---
+1.  Refonte graphique : Remplacement des couleurs par défaut (bleu/émeraude/rouge) par la palette club (#1B4332, #BC6C25).
+2.  Typographie : Passage des titres et libellés de transactions en "Serif Italique" pour une cohérence parfaite avec les pages Membres et Cotisations.
+3.  Mise en page : Application des arrondis de 40px sur tous les conteneurs et resserrement des tableaux avec labels ocre en majuscules.
+4.  UX : Intégration du système de recherche stylisé et mise à jour des badges de flux (Crédit en Vert Sapin, Débit en Rose poudré).
+---Log #74-Finalisation de Treasury.tsx (Modale de saisie)---
+Fonctionnalité : Implémentation d'une modale de "Nouvelle Saisie" pour enregistrer les flux financiers (Recettes / Dépenses).
+Formulaire : Saisie intuitive avec bascule de type, montant, date et sélection de catégorie.
+Design : Harmonisation complète avec le style "Cotisations" (arrondis de 40px, palette ocre/sapin, typographie Serif).
+UX : Ajout de micro-animations animate-in pour une transition fluide à l'ouverture de la modale.
+---Log #75-Évolution de Presences.tsx (Détails et Incidents)---
+1.  Chronométrie : Ajout de l'état sessionTime et d'un sélecteur d'heure avec icône Clock dans la fiche de création.
+2.  Gestion des Incidents : Implémentation de la bascule "Rien à signaler" (RAS) par défaut. En cas de décochage, une zone de texte dédiée aux incidents s'affiche.
+3.  Affichage des Fiches : Mise à jour des cartes récapitulatives pour afficher l'heure de la séance et la liste complète des noms de chiens présents.
+4.  UX : Intégration d'un badge d'alerte visuel rouge en cas d'incident noté sur une séance passée.
+
+
 
 
 
