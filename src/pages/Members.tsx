@@ -8,7 +8,6 @@ const Members = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  // Logo par défaut du club
   const clubLogo = "https://votre-url-logo-acv.png";
 
   if (selectedId) return <MemberDetail memberId={selectedId} onBack={() => setSelectedId(null)} />;
@@ -61,15 +60,15 @@ const Members = () => {
                 darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-xl shadow-emerald-900/5'
               }`}
             >
-              {/* ID ADHÉRENT - Position conservée (4px du haut) */}
+              {/* ID ADHÉRENT */}
               <div className="absolute top-1 right-4 md:right-6">
                 <span className="text-[6px] md:text-[7px] font-black text-slate-300 uppercase tracking-[0.2em] group-hover:text-[#BC6C25] transition-colors">
                   adhérent ACV / ACMA n°{m.id.toUpperCase()}
                 </span>
               </div>
 
-              {/* PHOTO MEMBRE - Décalage réduit (-20px vers la gauche) */}
-              <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-[32px] overflow-hidden bg-slate-50 border-4 border-white shrink-0 shadow-lg group-hover:rotate-2 transition-transform -ml-5">
+              {/* PHOTO MEMBRE - Décalage ajusté (-10px vers la gauche) */}
+              <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-[32px] overflow-hidden bg-slate-50 border-4 border-white shrink-0 shadow-lg group-hover:rotate-2 transition-transform ml-[-10px]">
                 <img 
                   src={m.photo || clubLogo} 
                   alt={m.firstName} 
@@ -77,8 +76,8 @@ const Members = () => {
                 />
               </div>
 
-              {/* INFOS CENTRALES - Décalage réduit (-16px vers la gauche) */}
-              <div className="flex-1 min-w-0 mt-16 -ml-4">
+              {/* INFOS CENTRALES - Décalage ajusté (+9px vers la droite) */}
+              <div className="flex-1 min-w-0 mt-16 ml-[9px]">
                 <h3 className={`text-2xl md:text-3xl font-serif italic tracking-tight lowercase leading-none ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
                   {m.firstName}
                 </h3>
@@ -87,7 +86,7 @@ const Members = () => {
                 </p>
               </div>
 
-              {/* PHOTOS DES CHIENS - Resserrement conservé */}
+              {/* PHOTOS DES CHIENS */}
               <div className="flex flex-col gap-0.5 shrink-0 pr-1 md:pr-2">
                 {memberDogs.slice(0, 3).map((dog) => (
                   <div 
