@@ -6,13 +6,12 @@ import {
 } from 'lucide-react';
 
 const Cotisations = () => {
-  const { members, darkMode, updateMember } = useStore();
+  const { members, dogs, darkMode, updateMember } = useStore(); // Ajout de dogs ici
   const [searchTerm, setSearchTerm] = useState('');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [showCalc, setShowCalc] = useState(false);
   const [selectedMember, setSelectedMember] = useState<any>(null);
   
-  // États pour le calculateur avec les tarifs officiels
   const [calcType, setCalcType] = useState('Adulte');
   const [calcDogs, setCalcDogs] = useState(1);
   const [droitEntree, setDroitEntree] = useState(false);
@@ -20,17 +19,14 @@ const Cotisations = () => {
   const [formData, setFormData] = useState({
     lastPaymentDate: '',
     lastPaymentAmount: '',
-    hasACMA: true // Par défaut à true puisque inclus
+    hasACMA: true 
   });
 
-  // LOGIQUE DU CALCULATEUR (Tarifs ACV 2026)
   const calculateTotal = () => {
     const prices: Record<string, number> = { 
       'Adulte': 100, 
       'Mineur': 50, 
-      'Binôme': 150, 
-      'Famille': 180, 
-      'Bienfaiteur': 50 
+      'Binôme': 150
     };
     
     const base = prices[calcType] || 100;
@@ -75,6 +71,7 @@ const Cotisations = () => {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700 pb-20">
+      {/* ... Header et Calculateur (inchangés) ... */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
           <h2 className={`text-5xl font-serif italic ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
@@ -111,8 +108,6 @@ const Cotisations = () => {
                 <option value="Adulte">Adulte (100€)</option>
                 <option value="Mineur">Mineur (50€)</option>
                 <option value="Binôme">Binôme (150€)</option>
-                <option value="Famille">Famille (180€)</option>
-                <option value="Bienfaiteur">Bienfaiteur (50€)</option>
               </select>
             </div>
 
@@ -148,12 +143,13 @@ const Cotisations = () => {
         </div>
       )}
 
+      {/* TABLEAU AVEC BINÔME MEMBRE/CHIENS */}
       <div className={`rounded-[40px] border overflow-hidden ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-xl'}`}>
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
               <tr className={darkMode ? 'bg-slate-800/50' : 'bg-[#1B4332]/5'}>
-                <th className="px-6 py-4 text-left text-[#BC6C25] text-[9px] font-black uppercase tracking-widest italic">Membre</th>
+                <th className="px-6 py-4 text-left text-[#BC6C25] text-[9px] font-black uppercase tracking-widest italic">Membre & Chiens</th>
                 <th className="px-6 py-4 text-center text-[#BC6C25] text-[9px] font-black uppercase tracking-widest italic">Paiement</th>
                 <th className="px-6 py-4 text-center text-[#BC6C25] text-[9px] font-black uppercase tracking-widest italic">Montant</th>
                 <th className="px-6 py-4 text-center text-[#BC6C25] text-[9px] font-black uppercase tracking-widest italic">ACMA</th>
@@ -166,11 +162,19 @@ const Cotisations = () => {
                 const daysLeft = getValidity(m.lastPaymentDate);
                 const isExpired = daysLeft <= 0;
                 const isWarning = daysLeft > 0 && daysLeft <= 30;
+                const memberDogs = dogs.filter(d => d.ownerId === m.id);
 
                 return (
                   <tr key={m.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-3">
-                      <p className={`text-lg font-serif italic lowercase ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>{m.firstName} {m.name}</p>
+                      <div className="flex flex-col">
+                        <p className={`text-lg font-serif italic lowercase ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
+                          {m.firstName} {m.name}
+                        </p>
+                        <p className="text-[#BC6C25] text-[10px] font-serif italic leading-none mt-1">
+                          {memberDogs.map(d => d.name).join(' & ') || 'Aucun chien'}
+                        </p>
+                      </div>
                     </td>
                     <td className="px-6 py-3 text-center text-[10px] font-bold text-slate-400">
                       {m.lastPaymentDate ? new Date(m.lastPaymentDate).toLocaleDateString('fr-FR') : '--/--/----'}
@@ -201,6 +205,7 @@ const Cotisations = () => {
         </div>
       </div>
 
+      {/* ... Modale d'édition (inchangée) ... */}
       {isEditModalOpen && selectedMember && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-[#1B4332]/60 backdrop-blur-md">
           <div className={`w-full max-w-md rounded-[40px] shadow-2xl overflow-hidden bg-white`}>
