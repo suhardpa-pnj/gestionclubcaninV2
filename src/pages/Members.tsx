@@ -8,6 +8,9 @@ const Members = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
+  // URL du logo par défaut (à remplacer par ton lien Drive si nécessaire)
+  const clubLogo = "https://votre-url-logo-acv.png"; 
+
   if (selectedId) return <MemberDetail memberId={selectedId} onBack={() => setSelectedId(null)} />;
 
   const filteredMembers = members.filter(m => 
@@ -28,7 +31,7 @@ const Members = () => {
             placeholder="Chercher un membre..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="bg-transparent border-none outline-none p-3 text-[10px] font-bold uppercase tracking-widest w-40 md:w-64"
+            className="bg-transparent border-none outline-none p-3 text-[10px] font-bold uppercase tracking-widest w-32 md:w-64"
           />
         </div>
       </div>
@@ -45,7 +48,7 @@ const Members = () => {
         </div>
       </div>
 
-      {/* GRILLE DES CARTES */}
+      {/* GRILLE DES CARTES OPTIMISÉE */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {filteredMembers.map((m) => {
           const memberDogs = dogs.filter(d => d.ownerId === m.id);
@@ -54,52 +57,48 @@ const Members = () => {
             <div 
               key={m.id} 
               onClick={() => setSelectedId(m.id)}
-              className={`group relative p-6 rounded-[40px] border transition-all duration-500 hover:shadow-2xl hover:shadow-[#BC6C25]/5 cursor-pointer flex items-center gap-6 ${
+              className={`group relative p-4 md:p-6 rounded-[40px] border transition-all duration-500 hover:shadow-2xl hover:shadow-[#BC6C25]/5 cursor-pointer flex items-center gap-3 md:gap-5 overflow-hidden ${
                 darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-xl shadow-emerald-900/5'
               }`}
             >
-              {/* NUMÉRO ADHÉRENT - Correction du doublon "A" */}
-              <div className="absolute top-6 right-8">
-                <span className="text-[7px] font-black text-slate-300 uppercase tracking-[0.2em] group-hover:text-[#BC6C25] transition-colors">
+              {/* INDICATION ADHÉRENT REMONTÉE AU MAXIMUM */}
+              <div className="absolute top-2 right-4 md:top-3 md:right-6">
+                <span className="text-[6px] md:text-[7px] font-black text-slate-300 uppercase tracking-[0.2em] group-hover:text-[#BC6C25] transition-colors">
                   adhérent ACV / ACMA n°{m.id.toUpperCase()}
                 </span>
               </div>
 
-              {/* PHOTO MEMBRE */}
-              <div className="relative w-28 h-28 rounded-[32px] overflow-hidden bg-slate-50 border-4 border-white shrink-0 shadow-lg group-hover:rotate-2 transition-transform">
-                {m.photo ? (
-                  <img src={m.photo} alt={m.firstName} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-slate-200">
-                    <User size={40} strokeWidth={1} />
-                  </div>
-                )}
+              {/* PHOTO MEMBRE DÉCALÉE À GAUCHE */}
+              <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-[32px] overflow-hidden bg-slate-50 border-4 border-white shrink-0 shadow-lg group-hover:rotate-2 transition-transform -ml-2">
+                <img 
+                  src={m.photo || clubLogo} 
+                  alt={m.firstName} 
+                  className="w-full h-full object-cover" 
+                />
               </div>
 
-              {/* INFOS CENTRALES */}
-              <div className="flex-1 min-w-0">
-                <h3 className={`text-3xl font-serif italic tracking-tight lowercase leading-none ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
+              {/* INFOS CENTRALES RAPPROCHÉES ET DESCENDUES */}
+              <div className="flex-1 min-w-0 mt-4 md:mt-6 -ml-1 md:-ml-2">
+                <h3 className={`text-2xl md:text-3xl font-serif italic tracking-tight lowercase leading-none ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
                   {m.firstName}
                 </h3>
-                <p className="text-[#BC6C25] text-lg font-serif italic mt-1 truncate">
+                <p className="text-[#BC6C25] text-sm md:text-lg font-serif italic mt-1 truncate">
                   {memberDogs.map(d => d.name).join(' & ') || 'Aucun chien'}
                 </p>
               </div>
 
-              {/* PHOTOS DES CHIENS */}
-              <div className="flex flex-col gap-2 shrink-0 pr-2">
+              {/* PHOTOS DES CHIENS À DROITE */}
+              <div className="flex flex-col gap-1.5 shrink-0 pr-1 md:pr-2">
                 {memberDogs.slice(0, 3).map((dog) => (
                   <div 
                     key={dog.id} 
-                    className="w-12 h-12 rounded-2xl overflow-hidden bg-[#FDFBF7] border-2 border-white shadow-sm transition-transform hover:scale-110"
+                    className="w-10 h-10 md:w-12 md:h-12 rounded-2xl overflow-hidden bg-[#FDFBF7] border-2 border-white shadow-sm transition-transform hover:scale-110"
                   >
-                    {dog.photo ? (
-                      <img src={dog.photo} alt={dog.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-[#DDA15E]/20">
-                        <DogIcon size={20} strokeWidth={1} />
-                      </div>
-                    )}
+                    <img 
+                      src={dog.photo || clubLogo} 
+                      alt={dog.name} 
+                      className="w-full h-full object-cover" 
+                    />
                   </div>
                 ))}
               </div>
