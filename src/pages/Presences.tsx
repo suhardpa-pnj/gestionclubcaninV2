@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useStore } from '../store/useStore';
 import { 
   Plus, User, Check, X, MapPin, 
-  Image as ImageIcon, Trash2, Globe, Upload
+  Image as ImageIcon, Trash2, Globe, Upload, Minus
 } from 'lucide-react';
 
 const Presences = () => {
@@ -14,7 +14,7 @@ const Presences = () => {
   const [sessionDate, setSessionDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedSection, setSelectedSection] = useState('École du Chiot');
   const [presentDogIds, setPresentDogIds] = useState<string[]>([]);
-  const [responsibleId, setResponsibleId] = useState('');
+  const [responsibleIds, setResponsibleIds] = useState<string[]>(['']); // Changé en tableau pour multi-moniteurs
   const [guestDog, setGuestDog] = useState('');
   const [sessionNotes, setSessionNotes] = useState('');
   const [selectedTerrain, setSelectedTerrain] = useState('Principal - Zone A');
@@ -25,7 +25,6 @@ const Presences = () => {
 
   const sectionsList = ['École du Chiot', 'Éducation', 'Obéissance', 'Agility', 'Ring'];
   
-  // COULEURS STRICTES DES TERRAINS SELON LE PLAN
   const terrainsACV = [
     { id: 'Principal - Zone A', label: 'Principal A', color: '#FF4500' },
     { id: 'Principal - Zone B', label: 'Principal B', color: '#FF4500' },
@@ -35,12 +34,10 @@ const Presences = () => {
     { id: 'Prairie', label: 'Prairie', color: '#22C55E' }
   ];
 
-  // LIEN AVEC L'ORGANIGRAMME : On récupère uniquement les moniteurs enregistrés dans l'organigramme
-  const instructors = (organigramme?.moniteursList || [])
+  // Liste des moniteurs issus de l'organigramme
+  const availableInstructors = (organigramme?.moniteursList || [])
     .map((m: any) => members.find(member => member.id === m.id))
     .filter(Boolean);
-
-  const getMember = (id: string) => members.find(m => m.id === id);
 
   const formatDateDisplay = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -53,6 +50,19 @@ const Presences = () => {
   });
 
   const otherDogs = dogs.filter(d => !sectionDogs.find(sd => sd.id === d.id));
+
+  // Gestion dynamique des moniteurs
+  const addInstructorField = () => setResponsibleIds([...responsibleIds, '']);
+  const removeInstructorField = (index: number) => {
+    const newIds = [...responsibleIds];
+    newIds.splice(index, 1);
+    setResponsibleIds(newIds);
+  };
+  const updateInstructorId = (index: number, id: string) => {
+    const newIds = [...responsibleIds];
+    newIds[index] = id;
+    setResponsibleIds(newIds);
+  };
 
   const toggleDog = (id: string) => {
     setPresentDogIds(prev => prev.includes(id) ? prev.filter(did => did !== id) : [...prev, id]);
@@ -71,12 +81,14 @@ const Presences = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!responsibleId) return alert("⚠️ Sélectionnez un moniteur !");
+    const validIds = responsibleIds.filter(id => id !== '');
+    if (validIds.length === 0) return alert("⚠️ Sélectionnez au moins un moniteur !");
+    
     await addAttendance({
       date: sessionDate,
       createdAt: new Date().toISOString(),
       section: selectedSection,
-      responsibleId,
+      responsibleIds: validIds, // On enregistre le tableau d'IDs
       presentDogIds,
       guestDog,
       isRAS,
@@ -86,6 +98,7 @@ const Presences = () => {
     });
     setIsModalOpen(false);
     setPresentDogIds([]);
+    setResponsibleIds(['']);
     setGuestDog('');
     setSessionNotes('');
   };
@@ -106,7 +119,11 @@ const Presences = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {attendances.map((att) => {
-          const coach = members.find(m => m.id === att.responsibleId);
+          // Récupération des noms de tous les moniteurs de la séance
+          const sessionCoaches = (att.responsibleIds || [att.responsibleId])
+            .map((id: string) => members.find(m => m.id === id))
+            .filter(Boolean);
+
           return (
             <div key={att.id} className={`p-8 rounded-[40px] border transition-all relative group ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-xl shadow-emerald-900/5'}`}>
               <button onClick={() => handleDelete(att.id)} className="absolute top-6 right-6 p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all opacity-0 group-hover:opacity-100"><Trash2 size={16} /></button>
@@ -116,7 +133,14 @@ const Presences = () => {
               </div>
               <h3 className={`text-xl font-serif italic mb-4 ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>{(att.presentDogIds?.length || 0)} Chiens inscrits</h3>
               <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2 text-slate-400 text-[10px] font-bold uppercase tracking-tight"><User size={14} className="text-[#BC6C25]" /> {coach ? coach.firstName : 'À définir'}</div>
+                <div className="flex items-start gap-2 text-slate-400 text-[10px] font-bold uppercase tracking-tight">
+                  <User size={14} className="text-[#BC6C25] shrink-0 mt-0.5" /> 
+                  <span className="flex flex-wrap gap-x-1">
+                    {sessionCoaches.length > 0 ? sessionCoaches.map((c, i) => (
+                      <span key={c.id}>{c.firstName}{i < sessionCoaches.length - 1 ? ',' : ''}</span>
+                    )) : 'À définir'}
+                  </span>
+                </div>
                 <div className="flex items-center gap-2 text-slate-400 text-[10px] font-bold uppercase tracking-tight"><MapPin size={14} className="text-[#BC6C25]" /> {att.terrain}</div>
               </div>
             </div>
@@ -134,17 +158,39 @@ const Presences = () => {
             </div>
 
             <div className="flex-1 overflow-y-auto p-8 space-y-10 custom-scrollbar">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2">
                   <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-2">Date</label>
                   <input type="date" value={sessionDate} onChange={(e) => setSessionDate(e.target.value)} className={`w-full p-4 rounded-xl border-none font-bold outline-none text-xs ${darkMode ? 'bg-slate-800 text-white' : 'bg-white shadow-inner'}`} />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-2">Moniteur</label>
-                  <select value={responsibleId} onChange={(e) => setResponsibleId(e.target.value)} className={`w-full p-4 rounded-xl border-none font-bold outline-none h-[48px] text-xs ${darkMode ? 'bg-slate-800 text-white' : 'bg-white shadow-inner'}`}>
-                    <option value="">Sélectionner...</option>
-                    {instructors.map(m => <option key={m.id} value={m.id}>{m.firstName} {m.name}</option>)}
-                  </select>
+
+                {/* GESTION MULTI-MONITEURS */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between px-2">
+                    <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Moniteurs</label>
+                    <button type="button" onClick={addInstructorField} className="p-1 bg-emerald-50 text-[#1B4332] rounded-lg hover:bg-[#BC6C25] hover:text-white transition-all">
+                      <Plus size={14} />
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    {responsibleIds.map((id, index) => (
+                      <div key={index} className="flex gap-2">
+                        <select 
+                          value={id} 
+                          onChange={(e) => updateInstructorId(index, e.target.value)} 
+                          className={`flex-1 p-3 rounded-xl border-none font-bold outline-none text-xs ${darkMode ? 'bg-slate-800 text-white' : 'bg-white shadow-inner'}`}
+                        >
+                          <option value="">Sélectionner...</option>
+                          {availableInstructors.map(m => <option key={m.id} value={m.id}>{m.firstName} {m.name}</option>)}
+                        </select>
+                        {responsibleIds.length > 1 && (
+                          <button type="button" onClick={() => removeInstructorField(index)} className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl">
+                            <Minus size={16} />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 
