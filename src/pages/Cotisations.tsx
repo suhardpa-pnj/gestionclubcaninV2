@@ -1,79 +1,126 @@
 import React, { useState } from 'react';
 import { useStore } from '../store/useStore';
-import { CreditCard, CheckCircle, Clock, AlertCircle, Info } from 'lucide-react';
+import { CreditCard, Check, AlertCircle, Calendar, Euro } from 'lucide-react';
 
 const Cotisations = () => {
   const { members, darkMode } = useStore();
-  const [filter, setFilter] = useState<'Tous' | 'À jour' | 'En retard'>('Tous');
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredMembers = members.filter(m => {
-    const isPaid = m.lastPayment && m.lastPayment.includes('2025');
-    if (filter === 'À jour') return isPaid;
-    if (filter === 'En retard') return !isPaid;
-    return true;
-  });
+  // Fonction pour calculer les jours restants
+  const getValidity = (dateStr: string) => {
+    if (!dateStr) return -999;
+    const today = new Date();
+    const paymentDate = new Date(dateStr);
+    const expiryDate = new Date(paymentDate);
+    expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+    
+    const diffTime = expiryDate.getTime() - today.getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  };
+
+  // Filtrage et tri par durée de validité
+  const processedMembers = members
+    .filter(m => (m.firstName + ' ' + (m.name || '')).toLowerCase().includes(searchTerm.toLowerCase()))
+    .sort((a, b) => getValidity(a.lastPaymentDate) - getValidity(b.lastPaymentDate));
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700">
-      <div className="flex justify-between items-start">
+    <div className="space-y-8 animate-in fade-in duration-700 pb-20">
+      {/* HEADER HARMONISÉ */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
-          <h2 className={`text-4xl font-serif italic ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>Suivi des <span className="text-[#BC6C25]">Cotisations</span></h2>
-          <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest mt-2">Adhésions & Licences ACMA 2026</p>
+          <h2 className={`text-5xl font-serif italic ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
+            Suivi des <span className="text-[#BC6C25]">Cotisations</span>
+          </h2>
+          <p className="text-[#BC6C25] text-[10px] font-black uppercase tracking-[0.3em] mt-3 italic">
+            Adhésions & Licences ACMA 2026
+          </p>
         </div>
-        <div className="bg-blue-50/50 p-4 rounded-2xl border border-blue-100 flex items-center space-x-3">
-          <Info className="text-blue-500" size={20} />
-          <p className="text-[9px] font-black uppercase text-blue-600 leading-tight">Chaque adhésion inclut <br /> 15€ pour l'ACMA</p>
+
+        {/* RECHERCHE RESSRRÉE */}
+        <div className={`flex items-center px-4 py-2 rounded-2xl border ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-sm'}`}>
+          <input 
+            type="text" 
+            placeholder="Chercher un membre..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="bg-transparent border-none outline-none text-[10px] font-black uppercase tracking-widest w-48"
+          />
         </div>
       </div>
 
-      <div className="flex items-center space-x-4">
-        {(['Tous', 'À jour', 'En retard'] as const).map((f) => (
-          <button key={f} onClick={() => setFilter(f)}
-            className={`px-6 py-3 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all ${
-              filter === f ? 'bg-[#BC6C25] text-white shadow-lg' : 'bg-white text-slate-400 border border-slate-100'
-            }`}
-          >
-            {f}
-          </button>
-        ))}
-      </div>
-
+      {/* TABLEAU REMODELÉ ET RESSERRÉ */}
       <div className={`rounded-[40px] border overflow-hidden ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-xl shadow-emerald-900/5'}`}>
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className={`${darkMode ? 'bg-slate-800/50' : 'bg-[#FDFBF7]'} border-b border-slate-100/10`}>
-              <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Adhérent</th>
-              <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Statut</th>
-              <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Action</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100/5">
-            {filteredMembers.map((member) => {
-              const isPaid = member.lastPayment && member.lastPayment.includes('2025');
-              return (
-                <tr key={member.id} className="hover:bg-[#BC6C25]/5 transition-colors">
-                  <td className="px-8 py-6">
-                    <p className={`font-black uppercase italic tracking-tight ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>{member.firstName} {member.name}</p>
-                    <p className="text-[10px] font-bold text-[#BC6C25]">{member.membershipType}</p>
-                  </td>
-                  <td className="px-8 py-6">
-                    <div className={`flex items-center justify-center font-black uppercase text-[9px] tracking-widest ${isPaid ? 'text-emerald-500' : 'text-rose-500'}`}>
-                      {isPaid ? <CheckCircle size={14} className="mr-2" /> : <AlertCircle size={14} className="mr-2" />}
-                      {isPaid ? 'Payé' : 'En attente'}
-                    </div>
-                  </td>
-                  <td className="px-8 py-6 text-right">
-                    {!isPaid && (
-                      <button className="bg-[#1B4332] text-white px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-[#BC6C25] transition-all shadow-md">
-                        Encaisser
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className={darkMode ? 'bg-slate-800/50' : 'bg-[#1B4332]/5'}>
+                <th className="px-6 py-4 text-left text-[#BC6C25] text-[9px] font-black uppercase tracking-widest italic">Membre</th>
+                <th className="px-6 py-4 text-center text-[#BC6C25] text-[9px] font-black uppercase tracking-widest italic">Paiement</th>
+                <th className="px-6 py-4 text-center text-[#BC6C25] text-[9px] font-black uppercase tracking-widest italic">Montant</th>
+                <th className="px-6 py-4 text-center text-[#BC6C25] text-[9px] font-black uppercase tracking-widest italic">ACMA</th>
+                <th className="px-6 py-4 text-right text-[#BC6C25] text-[9px] font-black uppercase tracking-widest italic">Validité</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
+              {processedMembers.map((m) => {
+                const daysLeft = getValidity(m.lastPaymentDate);
+                const isExpired = daysLeft <= 0;
+                const isWarning = daysLeft > 0 && daysLeft <= 30;
+
+                return (
+                  <tr key={m.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                    <td className="px-6 py-3">
+                      <p className={`text-lg font-serif italic lowercase ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
+                        {m.firstName} {m.name}
+                      </p>
+                      <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">ID: {m.id}</p>
+                    </td>
+                    
+                    <td className={`px-6 py-3 text-center font-bold text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                      {m.lastPaymentDate ? new Date(m.lastPaymentDate).toLocaleDateString('fr-FR') : '--/--/----'}
+                    </td>
+
+                    <td className="px-6 py-3 text-center">
+                      <span className={`px-3 py-1 rounded-lg text-[10px] font-black ${darkMode ? 'bg-slate-800 text-white' : 'bg-emerald-50 text-[#1B4332]'}`}>
+                        {m.lastPaymentAmount || '0'} €
+                      </span>
+                    </td>
+
+                    <td className="px-6 py-3 text-center">
+                      <div className="flex justify-center">
+                        <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all ${
+                          m.hasACMA ? 'bg-[#BC6C25] border-[#BC6C25] text-white' : 'border-slate-200'
+                        }`}>
+                          {m.hasACMA && <Check size={14} strokeWidth={3} />}
+                        </div>
+                      </div>
+                    </td>
+
+                    <td className="px-6 py-3 text-right">
+                      {m.lastPaymentDate ? (
+                        <div className="inline-flex flex-col items-end">
+                          <span className={`text-[10px] font-black uppercase tracking-widest ${
+                            isExpired ? 'text-rose-500' : isWarning ? 'text-amber-500' : 'text-emerald-500'
+                          }`}>
+                            {isExpired ? 'Expiré' : `${daysLeft} jours`}
+                          </span>
+                          <div className={`h-1 w-16 rounded-full mt-1 ${darkMode ? 'bg-slate-800' : 'bg-slate-100'}`}>
+                            <div 
+                              className={`h-full rounded-full ${isExpired ? 'bg-rose-500' : isWarning ? 'bg-amber-500' : 'bg-emerald-500'}`}
+                              style={{ width: `${Math.max(0, Math.min(100, (daysLeft / 365) * 100))}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-slate-300 text-[9px] font-black uppercase italic">Non renseigné</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
