@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { useStore } from '../store/useStore';
 import { 
-  Plus, User, Check, X, MapPin, 
-  Image as ImageIcon, Trash2, Globe, Upload, Minus
+  Plus, User, Check, X, MapPin, Clock,
+  Image as ImageIcon, Trash2, Globe, Upload, Minus, AlertTriangle
 } from 'lucide-react';
 
 const Presences = () => {
@@ -12,19 +12,19 @@ const Presences = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [sessionDate, setSessionDate] = useState(new Date().toISOString().split('T')[0]);
+  const [sessionTime, setSessionTime] = useState('14:30'); // Nouvel état pour l'heure
   const [selectedSection, setSelectedSection] = useState('École du Chiot');
   const [presentDogIds, setPresentDogIds] = useState<string[]>([]);
-  const [responsibleIds, setResponsibleIds] = useState<string[]>(['']); // Changé en tableau pour multi-moniteurs
+  const [responsibleIds, setResponsibleIds] = useState<string[]>(['']);
   const [guestDog, setGuestDog] = useState('');
   const [sessionNotes, setSessionNotes] = useState('');
   const [selectedTerrain, setSelectedTerrain] = useState('Principal - Zone A');
   const [isExterior, setIsExterior] = useState(false);
   const [exteriorLocation, setExteriorLocation] = useState('');
-  const [isRAS, setIsRAS] = useState(true);
+  const [isRAS, setIsRAS] = useState(true); // Géré par la case à cocher
   const [showAllDogs, setShowAllDogs] = useState(false);
 
   const sectionsList = ['École du Chiot', 'Éducation', 'Obéissance', 'Agility', 'Ring'];
-  
   const terrainsACV = [
     { id: 'Principal - Zone A', label: 'Principal A', color: '#FF4500' },
     { id: 'Principal - Zone B', label: 'Principal B', color: '#FF4500' },
@@ -34,7 +34,6 @@ const Presences = () => {
     { id: 'Prairie', label: 'Prairie', color: '#22C55E' }
   ];
 
-  // Liste des moniteurs issus de l'organigramme
   const availableInstructors = (organigramme?.moniteursList || [])
     .map((m: any) => members.find(member => member.id === m.id))
     .filter(Boolean);
@@ -51,7 +50,6 @@ const Presences = () => {
 
   const otherDogs = dogs.filter(d => !sectionDogs.find(sd => sd.id === d.id));
 
-  // Gestion dynamique des moniteurs
   const addInstructorField = () => setResponsibleIds([...responsibleIds, '']);
   const removeInstructorField = (index: number) => {
     const newIds = [...responsibleIds];
@@ -83,28 +81,32 @@ const Presences = () => {
     e.preventDefault();
     const validIds = responsibleIds.filter(id => id !== '');
     if (validIds.length === 0) return alert("⚠️ Sélectionnez au moins un moniteur !");
-    
+
     await addAttendance({
       date: sessionDate,
+      time: sessionTime, // Enregistrement de l'heure
       createdAt: new Date().toISOString(),
       section: selectedSection,
-      responsibleIds: validIds, // On enregistre le tableau d'IDs
+      responsibleIds: validIds,
       presentDogIds,
       guestDog,
       isRAS,
-      notes: sessionNotes,
+      notes: isRAS ? '' : sessionNotes, // On vide les notes si RAS est coché
       terrain: isExterior ? `Extérieur : ${exteriorLocation}` : selectedTerrain,
       type: isExterior ? 'EXTERIOR' : 'CLUB'
     });
+
     setIsModalOpen(false);
     setPresentDogIds([]);
     setResponsibleIds(['']);
     setGuestDog('');
     setSessionNotes('');
+    setIsRAS(true);
   };
 
   return (
     <div className="space-y-12 animate-in fade-in duration-700 pb-20">
+      {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div>
           <h2 className={`text-5xl font-serif italic ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
@@ -117,9 +119,9 @@ const Presences = () => {
         </button>
       </div>
 
+      {/* GRILLE DES FICHES ENREGISTRÉES */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {attendances.map((att) => {
-          // Récupération des noms de tous les moniteurs de la séance
           const sessionCoaches = (att.responsibleIds || [att.responsibleId])
             .map((id: string) => members.find(m => m.id === id))
             .filter(Boolean);
@@ -127,11 +129,36 @@ const Presences = () => {
           return (
             <div key={att.id} className={`p-8 rounded-[40px] border transition-all relative group ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-xl shadow-emerald-900/5'}`}>
               <button onClick={() => handleDelete(att.id)} className="absolute top-6 right-6 p-2 text-slate-300 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-all opacity-0 group-hover:opacity-100"><Trash2 size={16} /></button>
+              
               <div className="flex justify-between items-start mb-6 pr-8">
                 <span className="px-3 py-1 bg-[#BC6C25]/10 text-[#BC6C25] text-[8px] font-black uppercase tracking-widest rounded-full border border-[#BC6C25]/20">{att.section}</span>
-                <span className="text-[10px] font-bold text-slate-400 capitalize">{formatDateDisplay(att.date)}</span>
+                <div className="text-right">
+                  <p className="text-[10px] font-bold text-slate-400 capitalize">{formatDateDisplay(att.date)}</p>
+                  <p className="text-[9px] font-black text-[#BC6C25] uppercase italic">{att.time || '14:30'}</p>
+                </div>
               </div>
-              <h3 className={`text-xl font-serif italic mb-4 ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>{(att.presentDogIds?.length || 0)} Chiens inscrits</h3>
+
+              <h3 className={`text-xl font-serif italic mb-4 ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
+                {(att.presentDogIds?.length || 0)} Chiens présents
+              </h3>
+
+              {/* LISTE DES CHIENS DANS LA FICHE */}
+              <div className="flex flex-wrap gap-1.5 mb-6">
+                {att.presentDogIds?.map(id => {
+                  const dog = dogs.find(d => d.id === id);
+                  return dog ? (
+                    <span key={id} className={`px-2 py-0.5 rounded-md text-[7px] font-black uppercase tracking-tighter ${darkMode ? 'bg-slate-800 text-slate-400' : 'bg-slate-50 text-slate-500 border border-slate-100'}`}>
+                      {dog.name}
+                    </span>
+                  ) : null;
+                })}
+                {att.guestDog && (
+                  <span className="px-2 py-0.5 rounded-md text-[7px] font-black uppercase tracking-tighter bg-amber-50 text-amber-600 border border-amber-100">
+                    Essai: {att.guestDog}
+                  </span>
+                )}
+              </div>
+
               <div className="flex flex-col gap-2">
                 <div className="flex items-start gap-2 text-slate-400 text-[10px] font-bold uppercase tracking-tight">
                   <User size={14} className="text-[#BC6C25] shrink-0 mt-0.5" /> 
@@ -141,13 +168,22 @@ const Presences = () => {
                     )) : 'À définir'}
                   </span>
                 </div>
-                <div className="flex items-center gap-2 text-slate-400 text-[10px] font-bold uppercase tracking-tight"><MapPin size={14} className="text-[#BC6C25]" /> {att.terrain}</div>
+                <div className="flex items-center gap-2 text-slate-400 text-[10px] font-bold uppercase tracking-tight">
+                  <MapPin size={14} className="text-[#BC6C25]" /> {att.terrain}
+                </div>
+                {!att.isRAS && (
+                  <div className="mt-2 p-3 rounded-2xl bg-rose-50 border border-rose-100 flex items-start gap-2">
+                    <AlertTriangle size={12} className="text-rose-500 shrink-0 mt-0.5" />
+                    <p className="text-[8px] font-bold text-rose-500 uppercase leading-tight italic">{att.notes}</p>
+                  </div>
+                )}
               </div>
             </div>
           );
         })}
       </div>
 
+      {/* MODALE DE POINTAGE */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-[#1B4332]/60 backdrop-blur-md">
           <form onSubmit={handleSubmit} className={`w-full max-w-2xl max-h-[90vh] flex flex-col rounded-[3rem] shadow-2xl overflow-hidden border ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-[#FDFBF7] border-white'}`}>
@@ -158,35 +194,34 @@ const Presences = () => {
             </div>
 
             <div className="flex-1 overflow-y-auto p-8 space-y-10 custom-scrollbar">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-2">Date</label>
                   <input type="date" value={sessionDate} onChange={(e) => setSessionDate(e.target.value)} className={`w-full p-4 rounded-xl border-none font-bold outline-none text-xs ${darkMode ? 'bg-slate-800 text-white' : 'bg-white shadow-inner'}`} />
                 </div>
 
-                {/* GESTION MULTI-MONITEURS */}
+                <div className="space-y-2">
+                  <label className="text-[9px] font-black uppercase tracking-widest text-slate-400 ml-2">Heure</label>
+                  <div className="relative">
+                    <Clock size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#BC6C25]" />
+                    <input type="time" value={sessionTime} onChange={(e) => setSessionTime(e.target.value)} className={`w-full pl-12 pr-4 py-4 rounded-xl border-none font-bold outline-none text-xs ${darkMode ? 'bg-slate-800 text-white' : 'bg-white shadow-inner'}`} />
+                  </div>
+                </div>
+
                 <div className="space-y-3">
                   <div className="flex items-center justify-between px-2">
                     <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Moniteurs</label>
-                    <button type="button" onClick={addInstructorField} className="p-1 bg-emerald-50 text-[#1B4332] rounded-lg hover:bg-[#BC6C25] hover:text-white transition-all">
-                      <Plus size={14} />
-                    </button>
+                    <button type="button" onClick={addInstructorField} className="p-1 bg-emerald-50 text-[#1B4332] rounded-lg hover:bg-[#BC6C25] transition-all"><Plus size={14} /></button>
                   </div>
                   <div className="space-y-2">
                     {responsibleIds.map((id, index) => (
                       <div key={index} className="flex gap-2">
-                        <select 
-                          value={id} 
-                          onChange={(e) => updateInstructorId(index, e.target.value)} 
-                          className={`flex-1 p-3 rounded-xl border-none font-bold outline-none text-xs ${darkMode ? 'bg-slate-800 text-white' : 'bg-white shadow-inner'}`}
-                        >
+                        <select value={id} onChange={(e) => updateInstructorId(index, e.target.value)} className={`flex-1 p-3 rounded-xl border-none font-bold outline-none text-xs ${darkMode ? 'bg-slate-800 text-white' : 'bg-white shadow-inner'}`}>
                           <option value="">Sélectionner...</option>
                           {availableInstructors.map(m => <option key={m.id} value={m.id}>{m.firstName} {m.name}</option>)}
                         </select>
                         {responsibleIds.length > 1 && (
-                          <button type="button" onClick={() => removeInstructorField(index)} className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl">
-                            <Minus size={16} />
-                          </button>
+                          <button type="button" onClick={() => removeInstructorField(index)} className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl"><Minus size={16} /></button>
                         )}
                       </div>
                     ))}
@@ -194,7 +229,7 @@ const Presences = () => {
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-4 pt-4 border-t border-slate-100">
                 <div className="flex justify-between items-center px-2">
                   <div className="flex items-center gap-4">
                     <button type="button" onClick={() => setShowMap(!showMap)} className="text-[#BC6C25] hover:underline text-[9px] font-black uppercase flex items-center gap-2">
@@ -210,33 +245,16 @@ const Presences = () => {
                   </button>
                 </div>
 
-                {showMap && (
-                  <div className="rounded-[2rem] overflow-hidden border-4 border-white shadow-lg">
-                    {clubMap ? (
-                      <img src={clubMap} alt="Plan" className="w-full h-auto object-cover" />
-                    ) : (
-                      <div className="p-10 bg-slate-50 flex flex-col items-center justify-center text-slate-300 gap-2">
-                        <ImageIcon size={32} />
-                        <p className="text-[8px] font-black uppercase">Aucun plan enregistré</p>
-                      </div>
-                    )}
+                {showMap && clubMap && (
+                  <div className="rounded-[2rem] overflow-hidden border-4 border-white shadow-lg animate-in zoom-in-95 duration-300">
+                    <img src={clubMap} alt="Plan" className="w-full h-auto" />
                   </div>
                 )}
 
                 {!isExterior ? (
                   <div className="grid grid-cols-2 gap-3 p-3 bg-slate-100/50 rounded-[2.5rem]">
                     {terrainsACV.map(t => (
-                      <button 
-                        key={t.id} 
-                        type="button" 
-                        onClick={() => setSelectedTerrain(t.id)} 
-                        className={`h-12 rounded-2xl border-2 flex items-center justify-center transition-all ${
-                          selectedTerrain === t.id 
-                          ? 'border-white shadow-md text-white' 
-                          : 'bg-white border-transparent text-slate-400 opacity-60'
-                        }`}
-                        style={{ backgroundColor: selectedTerrain === t.id ? t.color : '' }}
-                      >
+                      <button key={t.id} type="button" onClick={() => setSelectedTerrain(t.id)} className={`h-12 rounded-2xl border-2 flex items-center justify-center transition-all ${selectedTerrain === t.id ? 'border-white shadow-md text-white' : 'bg-white border-transparent text-slate-400 opacity-60'}`} style={{ backgroundColor: selectedTerrain === t.id ? t.color : '' }}>
                         <span className="text-[9px] font-black uppercase tracking-widest">{t.label}</span>
                       </button>
                     ))}
@@ -276,6 +294,23 @@ const Presences = () => {
                           {presentDogIds.includes(dog.id) && <Check size={12} />}
                         </button>
                       ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* GESTION DES INCIDENTS (RAS) */}
+                <div className="space-y-4 pt-4 border-t border-slate-100">
+                  <button type="button" onClick={() => setIsRAS(!isRAS)} className="flex items-center gap-3 group transition-all">
+                    <div className={`w-8 h-8 rounded-lg border-2 flex items-center justify-center ${isRAS ? 'bg-[#1B4332] border-[#1B4332] text-white shadow-md' : 'border-slate-200'}`}>
+                      {isRAS && <Check size={16} strokeWidth={3} />}
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Rien à signaler</span>
+                  </button>
+
+                  {!isRAS && (
+                    <div className="animate-in slide-in-from-top duration-300">
+                      <label className="text-[9px] font-black uppercase tracking-widest text-rose-500 ml-2 italic">Note d'incident (Morsure, blessure, gâteau...)</label>
+                      <textarea value={sessionNotes} onChange={(e) => setSessionNotes(e.target.value)} placeholder="Décrivez l'incident..." className={`w-full p-4 rounded-2xl border-none outline-none font-medium text-xs min-h-[80px] ${darkMode ? 'bg-slate-800 text-white' : 'bg-white shadow-inner'}`} />
                     </div>
                   )}
                 </div>
