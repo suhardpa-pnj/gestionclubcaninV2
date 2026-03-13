@@ -2,33 +2,42 @@ import React, { useState } from 'react';
 import { useStore } from '../store/useStore';
 import { 
   Check, X, Edit3, Save, Calendar, 
-  Euro, ShieldCheck, Calculator, ChevronDown, ChevronUp 
+  Euro, ShieldCheck, Calculator, ChevronDown, ChevronUp, UserPlus
 } from 'lucide-react';
 
 const Cotisations = () => {
   const { members, darkMode, updateMember } = useStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [showCalc, setShowCalc] = useState(false); // État pour afficher/masquer le calculateur
+  const [showCalc, setShowCalc] = useState(false);
   const [selectedMember, setSelectedMember] = useState<any>(null);
   
-  // États pour le calculateur
-  const [calcType, setCalcType] = useState('Solo');
+  // États pour le calculateur avec les tarifs officiels
+  const [calcType, setCalcType] = useState('Adulte');
   const [calcDogs, setCalcDogs] = useState(1);
-  const [calcACMA, setCalcACMA] = useState(false);
+  const [droitEntree, setDroitEntree] = useState(false);
 
   const [formData, setFormData] = useState({
     lastPaymentDate: '',
     lastPaymentAmount: '',
-    hasACMA: false
+    hasACMA: true // Par défaut à true puisque inclus
   });
 
-  // Logique de calcul (à ajuster selon tes tarifs réels)
+  // LOGIQUE DU CALCULATEUR (Tarifs ACV 2026)
   const calculateTotal = () => {
-    let base = calcType === 'Solo' ? 120 : calcType === 'Couple' ? 180 : 80;
-    let extraDogs = Math.max(0, calcDogs - 1) * 30;
-    let acma = calcACMA ? 35 : 0;
-    return base + extraDogs + acma;
+    const prices: Record<string, number> = { 
+      'Adulte': 100, 
+      'Mineur': 50, 
+      'Binôme': 150, 
+      'Famille': 180, 
+      'Bienfaiteur': 50 
+    };
+    
+    const base = prices[calcType] || 100;
+    const dogCost = calcDogs > 0 ? 50 + (Math.max(0, calcDogs - 1) * 25) : 0;
+    const entryFee = droitEntree ? 50 : 0;
+    
+    return base + dogCost + entryFee;
   };
 
   const getValidity = (dateStr: string) => {
@@ -50,7 +59,7 @@ const Cotisations = () => {
     setFormData({
       lastPaymentDate: member.lastPaymentDate || new Date().toISOString().split('T')[0],
       lastPaymentAmount: member.lastPaymentAmount || '',
-      hasACMA: member.hasACMA || false
+      hasACMA: member.hasACMA ?? true
     });
     setIsEditModalOpen(true);
   };
@@ -66,7 +75,6 @@ const Cotisations = () => {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700 pb-20">
-      {/* HEADER */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
           <h2 className={`text-5xl font-serif italic ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
@@ -86,72 +94,61 @@ const Cotisations = () => {
           >
             <Calculator size={16} /> {showCalc ? 'Fermer Calculateur' : 'Simulateur de tarif'}
           </button>
-          
           <div className={`flex items-center px-4 py-2 rounded-2xl border ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-sm'}`}>
-            <input 
-              type="text" 
-              placeholder="Chercher..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-transparent border-none outline-none text-[10px] font-black uppercase tracking-widest w-32"
-            />
+            <input type="text" placeholder="Chercher..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="bg-transparent border-none outline-none text-[10px] font-black uppercase tracking-widest w-32" />
           </div>
         </div>
       </div>
 
-      {/* --- BLOC CALCULATEUR RE-INTÉGRÉ --- */}
       {showCalc && (
         <div className={`p-8 rounded-[40px] border animate-in slide-in-from-top duration-500 ${
-          darkMode ? 'bg-slate-900 border-slate-800' : 'bg-[#FDFBF7] border-white shadow-xl shadow-emerald-900/5'
+          darkMode ? 'bg-slate-900 border-slate-800' : 'bg-[#FDFBF7] border-white shadow-xl'
         }`}>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 items-center">
             <div className="space-y-2">
-              <label className="text-[9px] font-black uppercase text-[#BC6C25] tracking-widest italic">Type d'adhésion</label>
-              <select 
-                value={calcType} 
-                onChange={(e) => setCalcType(e.target.value)}
-                className={`w-full p-3 rounded-xl border-none outline-none font-bold text-xs ${darkMode ? 'bg-slate-800 text-white' : 'bg-white shadow-inner'}`}
-              >
-                <option value="Solo">Solo (Adulte)</option>
-                <option value="Couple">Couple</option>
-                <option value="Jeune">Jeune / Réduit</option>
+              <label className="text-[9px] font-black uppercase text-[#BC6C25] tracking-widest italic">Adhésion</label>
+              <select value={calcType} onChange={(e) => setCalcType(e.target.value)} className={`w-full p-3 rounded-xl border-none font-bold text-xs ${darkMode ? 'bg-slate-800 text-white' : 'bg-white shadow-inner'}`}>
+                <option value="Adulte">Adulte (100€)</option>
+                <option value="Mineur">Mineur (50€)</option>
+                <option value="Binôme">Binôme (150€)</option>
+                <option value="Famille">Famille (180€)</option>
+                <option value="Bienfaiteur">Bienfaiteur (50€)</option>
               </select>
             </div>
 
             <div className="space-y-2">
               <label className="text-[9px] font-black uppercase text-[#BC6C25] tracking-widest italic">Nombre de chiens</label>
-              <input 
-                type="number" 
-                value={calcDogs} 
-                onChange={(e) => setCalcDogs(parseInt(e.target.value))}
-                className={`w-full p-3 rounded-xl border-none outline-none font-bold text-xs ${darkMode ? 'bg-slate-800 text-white' : 'bg-white shadow-inner'}`}
-              />
+              <input type="number" min="0" value={calcDogs} onChange={(e) => setCalcDogs(parseInt(e.target.value) || 0)} className={`w-full p-3 rounded-xl border-none font-bold text-xs ${darkMode ? 'bg-slate-800 text-white' : 'bg-white shadow-inner'}`} />
             </div>
 
-            <div className="flex items-center gap-3 pt-4">
+            <div className="space-y-4">
               <button 
-                onClick={() => setCalcACMA(!calcACMA)}
-                className={`w-10 h-10 rounded-xl border-2 flex items-center justify-center transition-all ${
-                  calcACMA ? 'bg-[#BC6C25] border-[#BC6C25] text-white shadow-md' : 'border-slate-200'
-                }`}
+                onClick={() => setDroitEntree(!droitEntree)}
+                className={`flex items-center gap-3 group transition-all`}
               >
-                {calcACMA && <Check size={20} strokeWidth={3} />}
+                <div className={`w-10 h-10 rounded-xl border-2 flex items-center justify-center ${droitEntree ? 'bg-[#BC6C25] border-[#BC6C25] text-white shadow-md' : 'border-slate-200'}`}>
+                  {droitEntree && <Check size={20} strokeWidth={3} />}
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Droit d'entrée (50€)</span>
               </button>
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Licence ACMA</span>
+              
+              <div className="flex items-start gap-2 max-w-[180px]">
+                <ShieldCheck size={14} className="text-[#BC6C25] shrink-0 mt-0.5" />
+                <p className="text-[8px] font-bold text-slate-400 uppercase leading-tight italic">
+                  La cotisation ACMA est inclue (15€/membre ou 18€/binôme)
+                </p>
+              </div>
             </div>
 
             <div className="text-right">
-              <p className="text-[#BC6C25] text-[10px] font-black uppercase tracking-widest italic">Total estimé</p>
-              <p className={`text-4xl font-serif italic ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
-                {calculateTotal()} €
-              </p>
+              <p className="text-[#BC6C25] text-[10px] font-black uppercase tracking-widest italic">Total à encaisser</p>
+              <p className={`text-4xl font-serif italic ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>{calculateTotal()} €</p>
             </div>
           </div>
         </div>
       )}
 
-      {/* TABLEAU DE SUIVI (Resserré) */}
-      <div className={`rounded-[40px] border overflow-hidden ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-xl shadow-emerald-900/5'}`}>
+      <div className={`rounded-[40px] border overflow-hidden ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50 shadow-xl'}`}>
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
@@ -171,18 +168,14 @@ const Cotisations = () => {
                 const isWarning = daysLeft > 0 && daysLeft <= 30;
 
                 return (
-                  <tr key={m.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                  <tr key={m.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-3">
-                      <p className={`text-lg font-serif italic lowercase ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>
-                        {m.firstName} {m.name}
-                      </p>
+                      <p className={`text-lg font-serif italic lowercase ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>{m.firstName} {m.name}</p>
                     </td>
                     <td className="px-6 py-3 text-center text-[10px] font-bold text-slate-400">
                       {m.lastPaymentDate ? new Date(m.lastPaymentDate).toLocaleDateString('fr-FR') : '--/--/----'}
                     </td>
-                    <td className="px-6 py-3 text-center text-[10px] font-black text-[#1B4332] dark:text-emerald-400">
-                      {m.lastPaymentAmount || '0'} €
-                    </td>
+                    <td className="px-6 py-3 text-center text-[10px] font-black text-[#1B4332] dark:text-emerald-400">{m.lastPaymentAmount || '0'} €</td>
                     <td className="px-6 py-3 text-center">
                       <div className="flex justify-center">
                         <div className={`w-4 h-4 rounded border flex items-center justify-center ${m.hasACMA ? 'bg-[#BC6C25] border-[#BC6C25] text-white' : 'border-slate-200'}`}>
@@ -198,9 +191,7 @@ const Cotisations = () => {
                       ) : <span className="text-slate-300">-</span>}
                     </td>
                     <td className="px-6 py-3 text-right">
-                      <button onClick={() => openEditModal(m)} className="p-2 text-slate-300 hover:text-[#BC6C25] hover:bg-slate-50 rounded-xl transition-all">
-                        <Edit3 size={16} />
-                      </button>
+                      <button onClick={() => openEditModal(m)} className="p-2 text-slate-300 hover:text-[#BC6C25] rounded-xl transition-all"><Edit3 size={16} /></button>
                     </td>
                   </tr>
                 );
@@ -210,51 +201,30 @@ const Cotisations = () => {
         </div>
       </div>
 
-      {/* MODALE D'ÉDITION (inchangée) */}
       {isEditModalOpen && selectedMember && (
-        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-[#1B4332]/60 backdrop-blur-md animate-in fade-in duration-300">
-          <div className={`w-full max-w-md rounded-[40px] shadow-2xl overflow-hidden border ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-emerald-50'}`}>
-            <div className="p-8 flex items-center justify-between border-b border-slate-50">
-              <h3 className={`text-2xl font-serif italic ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>Mise à jour Cotisation</h3>
-              <button onClick={() => setIsEditModalOpen(false)} className="p-2 hover:bg-rose-50 hover:text-rose-500 rounded-full transition-colors"><X size={20}/></button>
+        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-[#1B4332]/60 backdrop-blur-md">
+          <div className={`w-full max-w-md rounded-[40px] shadow-2xl overflow-hidden bg-white`}>
+            <div className="p-8 flex items-center justify-between border-b">
+              <h3 className="text-2xl font-serif italic text-[#1B4332]">Mise à jour Cotisation</h3>
+              <button onClick={() => setIsEditModalOpen(false)}><X /></button>
             </div>
-            
             <form onSubmit={handleSave} className="p-8 space-y-6">
-              <div className="text-center mb-4">
-                <p className="text-[#BC6C25] text-[10px] font-black uppercase tracking-widest italic">Membre concerné</p>
-                <p className={`text-xl font-serif italic ${darkMode ? 'text-white' : 'text-[#1B4332]'}`}>{selectedMember.firstName} {selectedMember.name}</p>
+              <div className="text-center">
+                <p className="text-[#BC6C25] text-[10px] font-black uppercase tracking-widest italic">Membre</p>
+                <p className="text-xl font-serif italic text-[#1B4332]">{selectedMember.firstName} {selectedMember.name}</p>
               </div>
-
               <div className="space-y-4">
                 <div className="space-y-1">
-                  <label className="text-[9px] font-black uppercase text-slate-400 ml-2 tracking-widest italic">Date du paiement</label>
-                  <div className="relative">
-                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-[#BC6C25]" size={16} />
-                    <input type="date" value={formData.lastPaymentDate} onChange={e => setFormData({...formData, lastPaymentDate: e.target.value})} className={`w-full pl-12 pr-4 py-4 rounded-2xl border-none outline-none font-bold text-xs ${darkMode ? 'bg-slate-800 text-white' : 'bg-slate-50 shadow-inner'}`} />
-                  </div>
+                  <label className="text-[9px] font-black uppercase text-slate-400 ml-2 italic">Date</label>
+                  <input type="date" value={formData.lastPaymentDate} onChange={e => setFormData({...formData, lastPaymentDate: e.target.value})} className="w-full p-4 rounded-2xl bg-slate-50 border-none outline-none font-bold text-xs" />
                 </div>
-
                 <div className="space-y-1">
-                  <label className="text-[9px] font-black uppercase text-slate-400 ml-2 tracking-widest italic">Montant encaissé (€)</label>
-                  <div className="relative">
-                    <Euro className="absolute left-4 top-1/2 -translate-y-1/2 text-[#BC6C25]" size={16} />
-                    <input type="number" placeholder="0.00" value={formData.lastPaymentAmount} onChange={e => setFormData({...formData, lastPaymentAmount: e.target.value})} className={`w-full pl-12 pr-4 py-4 rounded-2xl border-none outline-none font-bold text-xs ${darkMode ? 'bg-slate-800 text-white' : 'bg-slate-50 shadow-inner'}`} />
-                  </div>
+                  <label className="text-[9px] font-black uppercase text-slate-400 ml-2 italic">Montant (€)</label>
+                  <input type="number" value={formData.lastPaymentAmount} onChange={e => setFormData({...formData, lastPaymentAmount: e.target.value})} className="w-full p-4 rounded-2xl bg-slate-50 border-none outline-none font-bold text-xs" />
                 </div>
-
-                <button type="button" onClick={() => setFormData({...formData, hasACMA: !formData.hasACMA})} className={`w-full p-4 rounded-2xl border-2 flex items-center justify-between transition-all ${formData.hasACMA ? 'border-[#BC6C25] bg-[#BC6C25]/5' : 'border-slate-100 bg-transparent'}`}>
-                  <div className="flex items-center gap-3">
-                    <ShieldCheck size={18} className={formData.hasACMA ? 'text-[#BC6C25]' : 'text-slate-300'} />
-                    <span className={`text-[10px] font-black uppercase tracking-widest ${formData.hasACMA ? 'text-[#BC6C25]' : 'text-slate-400'}`}>Licence ACMA</span>
-                  </div>
-                  <div className={`w-6 h-6 rounded-lg flex items-center justify-center ${formData.hasACMA ? 'bg-[#BC6C25] text-white' : 'bg-slate-100'}`}>
-                    {formData.hasACMA && <Check size={14} strokeWidth={3} />}
-                  </div>
-                </button>
               </div>
-
-              <button type="submit" className="w-full py-5 rounded-[2rem] bg-[#1B4332] text-white font-black uppercase tracking-[0.2em] text-[10px] shadow-xl hover:bg-[#BC6C25] transition-all flex items-center justify-center gap-2">
-                <Save size={16} /> Enregistrer l'encaissement
+              <button type="submit" className="w-full py-5 rounded-[2rem] bg-[#1B4332] text-white font-black uppercase tracking-widest text-[10px] shadow-xl hover:bg-[#BC6C25] transition-all flex items-center justify-center gap-2">
+                <Save size={16} /> Enregistrer
               </button>
             </form>
           </div>
